@@ -103,7 +103,7 @@ public partial class MainWindow : Window
             {
                 Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString(isMine ? "#655DEB" : "#1B202A")),
                 CornerRadius = isMine ? new CornerRadius(16,16,4,16) : new CornerRadius(16,16,16,4),
-                Padding = new Thickness(15,10)
+                Padding = new Thickness(15, 10, 15, 10)
             };
             bubble.Child = new TextBlock { Text = message.Text, FontSize = 14, TextWrapping = TextWrapping.Wrap };
 
