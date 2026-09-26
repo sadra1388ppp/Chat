@@ -9,12 +9,9 @@ public partial class MainWindow : Window
         InitializeComponent();
     }
 
-    private void NewProject_Click(object sender, RoutedEventArgs e)
+    private void AddCharacter_Click(object sender, RoutedEventArgs e)
     {
-        MessageBox.Show(
-            "Project editor is the next step. The foundation is ready!",
-            "FakeChat Studio",
-            MessageBoxButton.OK,
-            MessageBoxImage.Information);
+        MessageBox.Show("Character creation will be connected to the project model in the next step.",
+            "FakeChat Studio", MessageBoxButton.OK, MessageBoxImage.Information);
     }
 }
