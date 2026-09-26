@@ -23,7 +23,7 @@ public class ProjectStorageService
     public ChatProject Load()
     {
         if (!File.Exists(ProjectPath))
-            return CreateDefault();
+            return CreateEmptyProject();
 
         try
         {
@@ -36,23 +36,13 @@ public class ProjectStorageService
         }
     }
 
-    public ChatProject CreateDefault()
+    private static ChatProject CreateEmptyProject()
     {
         return new ChatProject
         {
-            Characters =
-            [
-                new ChatCharacter { Name = "Alex", Role = "Main character", Initial = "A", Color = "#5D5FEF" },
-                new ChatCharacter { Name = "Sara", Role = "Friend", Initial = "S", Color = "#E56B9A" },
-                new ChatCharacter { Name = "Mike", Role = "Friend", Initial = "M", Color = "#E7A84B" }
-            ],
-            Messages =
-            [
-                new ChatMessage { Sender = "Alex", Text = "Hey! Are you still working on the story?", Time = "18:30" },
-                new ChatMessage { Sender = "Sara", Text = "Yeah 😄 I just finished the first scene.", Time = "18:31" },
-                new ChatMessage { Sender = "Alex", Text = "Nice. Send it to me when you're ready.", Time = "18:32" },
-                new ChatMessage { Sender = "Sara", Text = "Give me two minutes.", Time = "18:33" }
-            ]
+            Name = "Untitled Project",
+            Characters = [],
+            Messages = []
         };
     }
 }
