@@ -29,7 +29,7 @@
                     <Border Width="34" Height="34" CornerRadius="10" Background="#6C63FF">
                         <TextBlock Text="✦" FontSize="19" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     </Border>
-                    <StackPanel Margin="12,0,0,0"><TextBlock Text="FakeChat Studio" FontSize="16" FontWeight="SemiBold"/>
+                    <StackPanel Margin="12,0,0,0"><TextBlock Text="Midnight Story" FontSize="16" x:Name="ProjectNameText" FontWeight="SemiBold"/>
                         <TextBlock Text="CREATOR" FontSize="9" Foreground="#727C8E"/></StackPanel>
                 </StackPanel>
                 <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
@@ -38,9 +38,9 @@
                     <Button Content="Preview" Style="{StaticResource GhostButton}"/>
                 </StackPanel>
                 <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
-                    <TextBlock Text="Saved" Foreground="#7F8A9B" VerticalAlignment="Center" Margin="0,0,16,0"/>
-                    <Button Content="Export" Style="{StaticResource GhostButton}" Margin="0,0,6,0"/>
-                    <Button Content="Save Project" Style="{StaticResource PrimaryButton}"/>
+                    <TextBlock x:Name="SavedText" Text="Saved" Foreground="#7F8A9B" VerticalAlignment="Center" Margin="0,0,16,0"/>
+                    <Button Content="Export" Click="Export_Click" Style="{StaticResource GhostButton}" Margin="0,0,6,0"/>
+                    <Button Content="Save Project" Click="SaveProject_Click" Style="{StaticResource PrimaryButton}"/>
                 </StackPanel>
             </Grid>
         </Border>
@@ -54,7 +54,7 @@
                         <Button Content="+  Add Character" Height="40" Style="{StaticResource PrimaryButton}" Click="AddCharacter_Click"/>
                         <TextBlock Text="CHARACTERS" FontSize="10" Foreground="#687284" FontWeight="SemiBold" Margin="3,26,0,10"/>
                     </StackPanel>
-                    <ScrollViewer VerticalScrollBarVisibility="Auto"><StackPanel Margin="18,0,18,20">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto"><StackPanel x:Name="CharactersPanel" Margin="18,0,18,20">
                         <Border Background="#191D26" CornerRadius="10" Padding="10" Margin="0,0,0,7" BorderBrush="#343A48" BorderThickness="1">
                             <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="38"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
                                 <Border Width="36" Height="36" CornerRadius="18" Background="#5D5FEF"><TextBlock Text="A" FontSize="15" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border>
@@ -85,7 +85,7 @@
                         <Button Content="⋮" Style="{StaticResource GhostButton}" HorizontalAlignment="Right" FontSize="22"/></Grid>
                 </Border>
                 <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
-                    <StackPanel Margin="42,28">
+                    <StackPanel x:Name="MessagesPanel" Margin="42,28">
                         <TextBlock Text="TODAY" HorizontalAlignment="Center" FontSize="10" Foreground="#657083" Margin="0,0,0,20"/>
                         <StackPanel HorizontalAlignment="Left" Margin="0,0,120,10"><Border Background="#1B202A" CornerRadius="16,16,16,4" Padding="15,10">
                             <TextBlock Text="Hey! Are you still working on the story?" FontSize="14"/></Border><TextBlock Text="18:30  •  Alex" FontSize="10" Foreground="#657083" Margin="5,5,0,0"/></StackPanel>
@@ -100,9 +100,9 @@
                 <Border Grid.Row="2" Background="#10131A" BorderBrush="{StaticResource Border}" BorderThickness="0,1,0,0" Padding="18">
                     <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
                         <Border Background="#191D26" CornerRadius="12" BorderBrush="#2B313D" BorderThickness="1" Padding="14,0">
-                            <TextBox Text="Write a message..." Background="Transparent" Foreground="#7F899A" BorderThickness="0" VerticalContentAlignment="Center" FontSize="13"/>
+                            <TextBox x:Name="MessageInput" Text="" Background="Transparent" Foreground="#7F899A" BorderThickness="0" VerticalContentAlignment="Center" FontSize="13"/>
                         </Border>
-                        <Button Grid.Column="1" Content="Send" Style="{StaticResource PrimaryButton}" Width="76" Margin="10,0,0,0"/>
+                        <Button Grid.Column="1" Content="Send" Click="NewMessage_Click" Style="{StaticResource PrimaryButton}" Width="76" Margin="10,0,0,0"/>
                     </Grid>
                 </Border>
             </Grid>
@@ -111,15 +111,15 @@
                     <TextBlock Text="INSPECTOR" FontSize="10" Foreground="#687284" FontWeight="SemiBold"/>
                     <TextBlock Text="Message" FontSize="20" FontWeight="SemiBold" Margin="0,7,0,22"/>
                     <TextBlock Text="CONTENT" FontSize="10" Foreground="#687284" FontWeight="SemiBold"/>
-                    <TextBox Text="Give me two minutes." Height="80" TextWrapping="Wrap" AcceptsReturn="True" Background="#171B24" Foreground="#E8ECF3" BorderBrush="#2B313D" Padding="10" Margin="0,9,0,18"/>
+                    <TextBox x:Name="MessageTextBox" Text="" Height="80" TextWrapping="Wrap" AcceptsReturn="True" Background="#171B24" Foreground="#E8ECF3" BorderBrush="#2B313D" Padding="10" Margin="0,9,0,18"/>
                     <TextBlock Text="SENDER" FontSize="10" Foreground="#687284" FontWeight="SemiBold"/>
-                    <ComboBox Height="38" Background="#171B24" Foreground="#E8ECF3" BorderBrush="#2B313D" Margin="0,9,0,18"><ComboBoxItem Content="Sara" IsSelected="True"/><ComboBoxItem Content="Alex"/><ComboBoxItem Content="Mike"/></ComboBox>
+                    <ComboBox x:Name="SenderCombo" Height="38" Background="#171B24" Foreground="#E8ECF3" BorderBrush="#2B313D" Margin="0,9,0,18"><ComboBoxItem Content="Sara"/><ComboBoxItem Content="Alex"/><ComboBoxItem Content="Mike"/></ComboBox>
                     <TextBlock Text="TIMESTAMP" FontSize="10" Foreground="#687284" FontWeight="SemiBold"/>
-                    <TextBox Text="18:33" Height="38" Background="#171B24" Foreground="#E8ECF3" BorderBrush="#2B313D" Padding="10" Margin="0,9,0,18"/>
+                    <TextBox x:Name="TimeTextBox" Text="" Height="38" Background="#171B24" Foreground="#E8ECF3" BorderBrush="#2B313D" Padding="10" Margin="0,9,0,18"/>
                     <TextBlock Text="STATUS" FontSize="10" Foreground="#687284" FontWeight="SemiBold"/>
-                    <StackPanel Margin="0,10,0,18"><CheckBox Content="Delivered" IsChecked="True" Margin="0,0,0,9"/><CheckBox Content="Read / Seen" IsChecked="True"/></StackPanel>
-                    <Border Background="#151922" CornerRadius="10" Padding="12"><StackPanel><TextBlock Text="Message effects" FontWeight="SemiBold"/>
-                        <TextBlock Text="Replies, reactions and typing indicators will be added in the timeline editor." TextWrapping="Wrap" FontSize="11" Foreground="{StaticResource Muted}" Margin="0,6,0,0"/></StackPanel></Border>
+                    <StackPanel Margin="0,10,0,18"><CheckBox Content="Delivered" IsChecked="True" Margin="0,0,0,9"/><CheckBox x:Name="ReadCheckBox" Content="Read / Seen" IsChecked="True"/></StackPanel>
+                    <StackPanel><Button Content="Apply Changes" Height="38" Style="{StaticResource PrimaryButton}" Click="ApplyMessage_Click" Margin="0,0,0,10"/><Button Content="Delete Message" Height="36" Style="{StaticResource GhostButton}" Click="DeleteMessage_Click" Margin="0,0,0,14"/><Border Background="#151922" CornerRadius="10" Padding="12"><StackPanel><TextBlock Text="Message effects" FontWeight="SemiBold"/>
+                        <TextBlock Text="Replies, reactions and typing indicators will be added in the timeline editor." TextWrapping="Wrap" FontSize="11" Foreground="{StaticResource Muted}" Margin="0,6,0,0"/></StackPanel></Border></StackPanel>
                 </StackPanel></ScrollViewer>
             </Border>
         </Grid>
