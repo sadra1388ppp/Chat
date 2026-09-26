@@ -75,9 +75,9 @@ public partial class MainWindow : Window
     private void RefreshSenderCombo()
     {
         SenderCombo.Items.Clear();
+
         foreach (var character in _project.Characters)
-            RefreshSenderCombo();
-        SenderCombo.SelectedItem = character.Name;
+            SenderCombo.Items.Add(character.Name);
 
         if (SenderCombo.Items.Count > 0)
             SenderCombo.SelectedIndex = 0;
@@ -93,7 +93,9 @@ public partial class MainWindow : Window
             var wrapper = new StackPanel
             {
                 HorizontalAlignment = isMine ? HorizontalAlignment.Right : HorizontalAlignment.Left,
-                Margin = new Thickness(isMine ? 120 : 0, 0, isMine ? 0 : 120, 10),
+                Margin = isMine
+                    ? new Thickness(120, 0, 0, 10)
+                    : new Thickness(0, 0, 120, 10),
                 Cursor = System.Windows.Input.Cursors.Hand
             };
 
@@ -110,7 +112,7 @@ public partial class MainWindow : Window
                 Text = $"{message.Time}  •  {message.Sender}" + (isMine && message.IsRead ? "  ✓✓" : ""),
                 FontSize = 10, Foreground = new SolidColorBrush(Color.FromRgb(101,112,131)),
                 HorizontalAlignment = isMine ? HorizontalAlignment.Right : HorizontalAlignment.Left,
-                Margin = new Thickness(isMine ? 0 : 5, 5, isMine ? 5 : 0, 0)
+                Margin = isMine ? new Thickness(0, 5, 5, 0) : new Thickness(5, 5, 0, 0)
             };
 
             wrapper.Children.Add(bubble);
@@ -193,7 +195,8 @@ public partial class MainWindow : Window
 
         _project.Characters.Add(character);
         RenderCharacters();
-        SenderCombo.Items.Add(character.Name);
+        RefreshSenderCombo();
+        SenderCombo.SelectedItem = character.Name;
     }
 
     private void Export_Click(object sender, RoutedEventArgs e)
