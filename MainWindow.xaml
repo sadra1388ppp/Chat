@@ -113,7 +113,7 @@
                     <TextBlock Text="CONTENT" FontSize="10" Foreground="#687284" FontWeight="SemiBold"/>
                     <TextBox x:Name="MessageTextBox" Text="" Height="80" TextWrapping="Wrap" AcceptsReturn="True" Background="#171B24" Foreground="#E8ECF3" BorderBrush="#2B313D" Padding="10" Margin="0,9,0,18"/>
                     <TextBlock Text="SENDER" FontSize="10" Foreground="#687284" FontWeight="SemiBold"/>
-                    <ComboBox x:Name="SenderCombo" Height="38" Background="#171B24" Foreground="#E8ECF3" BorderBrush="#2B313D" Margin="0,9,0,18"><ComboBoxItem Content="Sara"/><ComboBoxItem Content="Alex"/><ComboBoxItem Content="Mike"/></ComboBox>
+                    <ComboBox x:Name="SenderCombo" Height="38" Background="#171B24" Foreground="#E8ECF3" BorderBrush="#2B313D" Margin="0,9,0,18"/>
                     <TextBlock Text="TIMESTAMP" FontSize="10" Foreground="#687284" FontWeight="SemiBold"/>
                     <TextBox x:Name="TimeTextBox" Text="" Height="38" Background="#171B24" Foreground="#E8ECF3" BorderBrush="#2B313D" Padding="10" Margin="0,9,0,18"/>
                     <TextBlock Text="STATUS" FontSize="10" Foreground="#687284" FontWeight="SemiBold"/>
