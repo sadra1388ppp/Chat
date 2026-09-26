@@ -17,6 +17,7 @@ public partial class MainWindow : Window
         InitializeComponent();
         _project = _storage.Load();
         ProjectNameText.Text = _project.Name;
+        RefreshSenderCombo();
         RenderCharacters();
         RenderMessages();
     }
@@ -69,6 +70,17 @@ public partial class MainWindow : Window
     private void SelectCharacter(ChatCharacter character)
     {
         SenderCombo.SelectedItem = character.Name;
+    }
+
+    private void RefreshSenderCombo()
+    {
+        SenderCombo.Items.Clear();
+        foreach (var character in _project.Characters)
+            RefreshSenderCombo();
+        SenderCombo.SelectedItem = character.Name;
+
+        if (SenderCombo.Items.Count > 0)
+            SenderCombo.SelectedIndex = 0;
     }
 
     private void RenderMessages()
