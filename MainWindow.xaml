@@ -50,52 +50,22 @@
                 <DockPanel>
                     <StackPanel DockPanel.Dock="Top" Margin="18,20,18,0">
                         <TextBlock Text="PROJECT" FontSize="10" Foreground="#687284" FontWeight="SemiBold"/>
-                        <TextBlock Text="Midnight Story" FontSize="18" FontWeight="SemiBold" Margin="0,7,0,18"/>
+                        <TextBlock Text="Characters" FontSize="18" FontWeight="SemiBold" Margin="0,7,0,18"/>
                         <Button Content="+  Add Character" Height="40" Style="{StaticResource PrimaryButton}" Click="AddCharacter_Click"/>
                         <TextBlock Text="CHARACTERS" FontSize="10" Foreground="#687284" FontWeight="SemiBold" Margin="3,26,0,10"/>
                     </StackPanel>
-                    <ScrollViewer VerticalScrollBarVisibility="Auto"><StackPanel x:Name="CharactersPanel" Margin="18,0,18,20">
-                        <Border Background="#191D26" CornerRadius="10" Padding="10" Margin="0,0,0,7" BorderBrush="#343A48" BorderThickness="1">
-                            <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="38"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                                <Border Width="36" Height="36" CornerRadius="18" Background="#5D5FEF"><TextBlock Text="A" FontSize="15" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border>
-                                <StackPanel Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center"><TextBlock Text="Alex" FontWeight="SemiBold"/><TextBlock Text="Main character" FontSize="11" Foreground="{StaticResource Muted}"/></StackPanel>
-                                <TextBlock Grid.Column="2" Text="●" Foreground="#55D68A" FontSize="9" VerticalAlignment="Center"/>
-                            </Grid>
-                        </Border>
-                        <Border Background="#151820" CornerRadius="10" Padding="10" Margin="0,0,0,7">
-                            <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="38"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-                                <Border Width="36" Height="36" CornerRadius="18" Background="#E56B9A"><TextBlock Text="S" FontSize="15" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border>
-                                <StackPanel Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center"><TextBlock Text="Sara" FontWeight="SemiBold"/><TextBlock Text="Friend" FontSize="11" Foreground="{StaticResource Muted}"/></StackPanel>
-                            </Grid>
-                        </Border>
-                        <Border Background="#151820" CornerRadius="10" Padding="10">
-                            <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="38"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-                                <Border Width="36" Height="36" CornerRadius="18" Background="#E7A84B"><TextBlock Text="M" FontSize="15" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border>
-                                <StackPanel Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center"><TextBlock Text="Mike" FontWeight="SemiBold"/><TextBlock Text="Friend" FontSize="11" Foreground="{StaticResource Muted}"/></StackPanel>
-                            </Grid>
-                        </Border>
-                    </StackPanel></ScrollViewer>
+                    <ScrollViewer VerticalScrollBarVisibility="Auto"><StackPanel x:Name="CharactersPanel" Margin="18,0,18,20"></StackPanel></ScrollViewer>
                 </DockPanel>
             </Border>
             <Grid Grid.Column="1" Background="#0B0D12">
                 <Grid.RowDefinitions><RowDefinition Height="70"/><RowDefinition Height="*"/><RowDefinition Height="82"/></Grid.RowDefinitions>
                 <Border Grid.Row="0" Background="#10131A" BorderBrush="{StaticResource Border}" BorderThickness="0,0,0,1" Padding="20,0">
-                    <Grid><StackPanel VerticalAlignment="Center"><TextBlock Text="Alex &amp; Sara" FontSize="16" FontWeight="SemiBold"/>
-                        <TextBlock Text="Private conversation  •  2 participants" FontSize="11" Foreground="{StaticResource Muted}" Margin="0,4,0,0"/></StackPanel>
+                    <Grid><StackPanel VerticalAlignment="Center"><TextBlock x:Name="ConversationTitleText" Text="New conversation" FontSize="16" FontWeight="SemiBold"/>
+                        <TextBlock x:Name="ConversationSubtitleText" Text="Add characters to begin" FontSize="11" Foreground="{StaticResource Muted}" Margin="0,4,0,0"/></StackPanel>
                         <Button Content="⋮" Style="{StaticResource GhostButton}" HorizontalAlignment="Right" FontSize="22"/></Grid>
                 </Border>
                 <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
-                    <StackPanel x:Name="MessagesPanel" Margin="42,28">
-                        <TextBlock Text="TODAY" HorizontalAlignment="Center" FontSize="10" Foreground="#657083" Margin="0,0,0,20"/>
-                        <StackPanel HorizontalAlignment="Left" Margin="0,0,120,10"><Border Background="#1B202A" CornerRadius="16,16,16,4" Padding="15,10">
-                            <TextBlock Text="Hey! Are you still working on the story?" FontSize="14"/></Border><TextBlock Text="18:30  •  Alex" FontSize="10" Foreground="#657083" Margin="5,5,0,0"/></StackPanel>
-                        <StackPanel HorizontalAlignment="Right" Margin="120,0,0,10"><Border Background="#655DEB" CornerRadius="16,16,4,16" Padding="15,10">
-                            <TextBlock Text="Yeah 😄 I just finished the first scene." FontSize="14"/></Border><TextBlock Text="18:31  •  Sara  ✓✓" FontSize="10" Foreground="#657083" HorizontalAlignment="Right" Margin="0,5,5,0"/></StackPanel>
-                        <StackPanel HorizontalAlignment="Left" Margin="0,0,170,10"><Border Background="#1B202A" CornerRadius="16,16,16,4" Padding="15,10">
-                            <TextBlock Text="Nice. Send it to me when you're ready." FontSize="14"/></Border><TextBlock Text="18:32  •  Alex" FontSize="10" Foreground="#657083" Margin="5,5,0,0"/></StackPanel>
-                        <StackPanel HorizontalAlignment="Right" Margin="120,0,0,10"><Border Background="#655DEB" CornerRadius="16,16,4,16" Padding="15,10">
-                            <TextBlock Text="Give me two minutes." FontSize="14"/></Border><TextBlock Text="18:33  •  Sara  ✓✓" FontSize="10" Foreground="#657083" HorizontalAlignment="Right" Margin="0,5,5,0"/></StackPanel>
-                    </StackPanel>
+                    <StackPanel x:Name="MessagesPanel" Margin="42,28"></StackPanel>
                 </ScrollViewer>
                 <Border Grid.Row="2" Background="#10131A" BorderBrush="{StaticResource Border}" BorderThickness="0,1,0,0" Padding="18">
                     <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
