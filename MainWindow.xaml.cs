@@ -20,6 +20,7 @@ public partial class MainWindow : Window
         RefreshSenderCombo();
         RenderCharacters();
         RenderMessages();
+        UpdateConversationHeader();
     }
 
     private void RenderCharacters()
@@ -87,6 +88,48 @@ public partial class MainWindow : Window
     {
         MessagesPanel.Children.Clear();
 
+        if (_project.Messages.Count == 0)
+        {
+            var emptyState = new StackPanel
+            {
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center,
+                MaxWidth = 360
+            };
+
+            emptyState.Children.Add(new TextBlock
+            {
+                Text = "✦",
+                FontSize = 34,
+                Foreground = new SolidColorBrush(Color.FromRgb(108, 99, 255)),
+                HorizontalAlignment = HorizontalAlignment.Center,
+                Margin = new Thickness(0, 0, 0, 12)
+            });
+
+            emptyState.Children.Add(new TextBlock
+            {
+                Text = "No messages yet",
+                FontSize = 20,
+                FontWeight = FontWeights.SemiBold,
+                HorizontalAlignment = HorizontalAlignment.Center
+            });
+
+            emptyState.Children.Add(new TextBlock
+            {
+                Text = _project.Characters.Count == 0
+                    ? "Add a character, then create your first message."
+                    : "Create your first message to start the conversation.",
+                TextWrapping = TextWrapping.Wrap,
+                TextAlignment = TextAlignment.Center,
+                FontSize = 12,
+                Foreground = new SolidColorBrush(Color.FromRgb(137, 147, 164)),
+                Margin = new Thickness(0, 8, 0, 0)
+            });
+
+            MessagesPanel.Children.Add(emptyState);
+            return;
+        }
+
         foreach (var message in _project.Messages)
         {
             var isMine = message.Sender == "Sara";
@@ -133,7 +176,17 @@ public partial class MainWindow : Window
 
     private void NewMessage_Click(object sender, RoutedEventArgs e)
     {
-        var senderName = SenderCombo.SelectedItem?.ToString() ?? "Sara";
+        if (_project.Characters.Count == 0)
+        {
+            MessageBox.Show(
+                "Add a character before creating your first message.",
+                "Create a character",
+                MessageBoxButton.OK,
+                MessageBoxImage.Information);
+            return;
+        }
+
+        var senderName = SenderCombo.SelectedItem?.ToString();
         var text = MessageInput.Text.Trim();
 
         if (string.IsNullOrWhiteSpace(text))
@@ -149,6 +202,7 @@ public partial class MainWindow : Window
 
         MessageInput.Clear();
         RenderMessages();
+        UpdateConversationHeader();
         SelectMessage(_project.Messages[^1]);
     }
 
@@ -162,6 +216,7 @@ public partial class MainWindow : Window
         _selectedMessage.Sender = SenderCombo.SelectedItem?.ToString() ?? _selectedMessage.Sender;
         _selectedMessage.IsRead = ReadCheckBox.IsChecked == true;
         RenderMessages();
+        UpdateConversationHeader();
         SelectMessage(_selectedMessage);
     }
 
@@ -174,6 +229,7 @@ public partial class MainWindow : Window
         _selectedMessage = null;
         MessageTextBox.Clear();
         RenderMessages();
+        UpdateConversationHeader();
     }
 
     private void SaveProject_Click(object sender, RoutedEventArgs e)
@@ -197,6 +253,36 @@ public partial class MainWindow : Window
         RenderCharacters();
         RefreshSenderCombo();
         SenderCombo.SelectedItem = character.Name;
+    }
+
+    private void UpdateConversationHeader()
+    {
+        if (_project.Messages.Count == 0)
+        {
+            ConversationTitleText.Text = "New conversation";
+            ConversationSubtitleText.Text =
+                _project.Characters.Count == 0
+                    ? "Add characters to begin"
+                    : "No messages yet";
+            return;
+        }
+
+        var names = _project.Characters
+            .Select(c => c.Name)
+            .Where(n => !string.IsNullOrWhiteSpace(n))
+            .Take(2)
+            .ToList();
+
+        ConversationTitleText.Text = names.Count switch
+        {
+            0 => "Conversation",
+            1 => names[0],
+            _ => $"{names[0]} & {names[1]}"
+        };
+
+        ConversationSubtitleText.Text =
+            $"{_project.Messages.Count} message{(_project.Messages.Count == 1 ? "" : "s")}  •  " +
+            $"{names.Count} participant{(names.Count == 1 ? "" : "s")}";
     }
 
     private void Export_Click(object sender, RoutedEventArgs e)
