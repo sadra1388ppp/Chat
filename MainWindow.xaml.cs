@@ -94,8 +94,8 @@ public partial class MainWindow : Window
             {
                 HorizontalAlignment = isMine ? HorizontalAlignment.Right : HorizontalAlignment.Left,
                 Margin = isMine
-                    ? new Thickness(120, 0, 0, 10)
-                    : new Thickness(0, 0, 120, 10),
+                    ? new Thickness { Left = 120, Bottom = 10 }
+                    : new Thickness { Right = 120, Bottom = 10 },
                 Cursor = System.Windows.Input.Cursors.Hand
             };
 
