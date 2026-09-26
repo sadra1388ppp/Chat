@@ -28,11 +28,11 @@ public class ProjectStorageService
         try
         {
             var json = File.ReadAllText(ProjectPath);
-            return JsonSerializer.Deserialize<ChatProject>(json) ?? CreateDefault();
+            return JsonSerializer.Deserialize<ChatProject>(json) ?? CreateEmptyProject();
         }
         catch
         {
-            return CreateDefault();
+            return CreateEmptyProject();
         }
     }
 
