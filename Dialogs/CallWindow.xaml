@@ -6,8 +6,8 @@
         Height="620"
         ResizeMode="NoResize"
         WindowStartupLocation="CenterOwner"
-        Background="#101418"
-        Foreground="White"
+        Background="{DynamicResource CallBackground}"
+        Foreground="{DynamicResource TextPrimary}"
         FontFamily="Segoe UI">
     <Grid Margin="26">
         <Grid.RowDefinitions>
@@ -16,11 +16,11 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <StackPanel HorizontalAlignment="Center">
-            <Border Width="92" Height="92" CornerRadius="46" Background="#0A84FF">
+            <Border Width="92" Height="92" CornerRadius="46" Background="{DynamicResource Accent}">
                 <TextBlock x:Name="AvatarText" Text="?" FontSize="34" FontWeight="SemiBold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
             </Border>
             <TextBlock x:Name="NameText" Text="Practice Call" FontSize="22" FontWeight="SemiBold" HorizontalAlignment="Center" Margin="0,15,0,0"/>
-            <TextBlock x:Name="StatusText" Text="Ready" FontSize="12" Foreground="#A9B3BF" HorizontalAlignment="Center" Margin="0,5,0,0"/>
+            <TextBlock x:Name="StatusText" Text="Ready" FontSize="12" Foreground="{DynamicResource CallSecondary}" HorizontalAlignment="Center" Margin="0,5,0,0"/>
             <TextBlock x:Name="TimerText" Text="00:00" FontSize="20" FontWeight="SemiBold" HorizontalAlignment="Center" Margin="0,10,0,0"/>
         </StackPanel>
         <StackPanel Grid.Row="1" VerticalAlignment="Center">
@@ -31,17 +31,17 @@
                 <ComboBoxItem Content="Customer support"/>
                 <ComboBoxItem Content="Unexpected call"/>
             </ComboBox>
-            <Border Background="#171C22" CornerRadius="14" Padding="14">
+            <Border Background="{DynamicResource CallPanel}" CornerRadius="14" Padding="14">
                 <StackPanel>
                     <TextBlock Text="Voice practice" FontWeight="SemiBold"/>
-                    <TextBlock Text="This Windows build uses a local call simulator. Start and end a practice call, then receive a short recap." TextWrapping="Wrap" FontSize="12" Foreground="#A9B3BF" Margin="0,6,0,0"/>
+                    <TextBlock Text="This Windows build uses a local call simulator. Start and end a practice call, then receive a short recap." TextWrapping="Wrap" FontSize="12" Foreground="{DynamicResource CallSecondary}" Margin="0,6,0,0"/>
                 </StackPanel>
             </Border>
-            <TextBlock x:Name="RecapText" TextWrapping="Wrap" FontSize="12" Foreground="#D2D7DE" Margin="0,18,0,0" Visibility="Collapsed"/>
+            <TextBlock x:Name="RecapText" TextWrapping="Wrap" FontSize="12" Foreground="{DynamicResource TextPrimary}" Margin="0,18,0,0" Visibility="Collapsed"/>
         </StackPanel>
         <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center">
             <Button x:Name="StartButton" Content="Start Call" Click="Start_Click" Style="{StaticResource PrimaryButton}" Width="120" Margin="0,0,8,0"/>
-            <Button x:Name="EndButton" Content="End Call" Click="End_Click" Width="120" Background="#D92D20" Foreground="White" BorderThickness="0" Padding="12,10" IsEnabled="False"/>
+            <Button x:Name="EndButton" Content="End Call" Click="End_Click" Width="120" Background="#D92D20" Foreground="{DynamicResource TextPrimary}" BorderThickness="0" Padding="12,10" IsEnabled="False"/>
         </StackPanel>
     </Grid>
 </Window>
