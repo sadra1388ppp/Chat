@@ -22,6 +22,7 @@ public partial class MainWindow : Window
         _project = _storage.Load();
         RenderAll();
         SelectInitialConversation();
+        UpdateComposerState();
     }
 
     private void RenderAll()
@@ -33,109 +34,141 @@ public partial class MainWindow : Window
 
     private void SelectInitialConversation()
     {
-        if (_project.ActiveConversationId is not null)
-        {
-            var ordered = _project.Conversations.OrderByDescending(c => c.CreatedAt).ToList();
-            var index = ordered.FindIndex(c => c.Id == _project.ActiveConversationId);
-            if (index >= 0)
-                ConversationList.SelectedIndex = index;
-        }
+        if (string.IsNullOrWhiteSpace(_project.ActiveConversationId))
+            return;
 
-        if (_selectedConversation is null && _project.Conversations.Count == 1)
-            ConversationList.SelectedIndex = 0;
+        var ordered = _project.Conversations
+            .OrderByDescending(c => c.CreatedAt)
+            .ToList();
+
+        var index = ordered.FindIndex(c => c.Id == _project.ActiveConversationId);
+
+        if (index >= 0)
+            ConversationList.SelectedIndex = index;
     }
 
     private void RenderConversationList()
     {
         ConversationList.Items.Clear();
 
-        foreach (var conversation in _project.Conversations.OrderByDescending(c => c.CreatedAt))
+        var query = SearchBox?.Text?.Trim() ?? "";
+
+        var conversations = _project.Conversations
+            .OrderByDescending(c => c.CreatedAt)
+            .Where(c => MatchesSearch(c, query));
+
+        foreach (var conversation in conversations)
         {
-            var lastMessage = conversation.Messages.LastOrDefault();
-            var preview = lastMessage is null
-                ? "No messages yet"
-                : lastMessage.Kind == ChatMessageKind.Sticker
-                    ? "Sticker"
-                    : lastMessage.Text.Replace(Environment.NewLine, " ").Trim();
-
-            if (preview.Length > 40)
-                preview = preview[..40] + "…";
-
             var item = new ListBoxItem
             {
                 Tag = conversation.Id,
                 Padding = new Thickness(4),
-                Margin = new Thickness(0, 0, 0, 5),
+                Margin = new Thickness(0, 0, 0, 3),
                 Background = Brushes.Transparent
             };
 
             var wrapper = new Border
             {
                 Background = _selectedConversation?.Id == conversation.Id
-                    ? new SolidColorBrush(Color.FromRgb(236, 245, 255))
+                    ? new SolidColorBrush(Color.FromRgb(235, 245, 255))
                     : Brushes.Transparent,
                 CornerRadius = new CornerRadius(12),
                 Padding = new Thickness(10)
             };
 
             var grid = new Grid();
-            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(42) });
+            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(48) });
             grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
 
             var avatar = CreateConversationAvatar(conversation);
-            var text = new StackPanel { Margin = new Thickness(10, 0, 0, 0) };
-            text.Children.Add(new TextBlock
+
+            var content = new StackPanel
+            {
+                Margin = new Thickness(11, 0, 8, 0),
+                VerticalAlignment = VerticalAlignment.Center
+            };
+
+            content.Children.Add(new TextBlock
             {
                 Text = conversation.Title,
-                FontWeight = FontWeights.SemiBold,
                 FontSize = 13,
+                FontWeight = FontWeights.SemiBold,
                 TextTrimming = TextTrimming.CharacterEllipsis
             });
-            text.Children.Add(new TextBlock
+
+            var participantNames = GetParticipants(conversation)
+                .Select(c => c.Name)
+                .Take(2)
+                .ToList();
+
+            content.Children.Add(new TextBlock
             {
-                Text = preview,
+                Text = participantNames.Count == 0
+                    ? "No participants"
+                    : string.Join(", ", participantNames),
                 FontSize = 11,
                 Foreground = new SolidColorBrush(Color.FromRgb(102, 112, 133)),
                 Margin = new Thickness(0, 3, 0, 0),
                 TextTrimming = TextTrimming.CharacterEllipsis
             });
 
+            var lastMessage = conversation.Messages.LastOrDefault();
+
             Grid.SetColumn(avatar, 0);
-            Grid.SetColumn(text, 1);
+            Grid.SetColumn(content, 1);
             grid.Children.Add(avatar);
-            grid.Children.Add(text);
+            grid.Children.Add(content);
+
+            if (lastMessage is not null)
+            {
+                var time = new TextBlock
+                {
+                    Text = lastMessage.Timestamp.ToString("HH:mm"),
+                    FontSize = 9,
+                    Foreground = new SolidColorBrush(Color.FromRgb(152, 162, 179)),
+                    VerticalAlignment = VerticalAlignment.Top,
+                    Margin = new Thickness(0, 2, 0, 0)
+                };
+
+                Grid.SetColumn(time, 2);
+                grid.Children.Add(time);
+            }
+
             wrapper.Child = grid;
             item.Content = wrapper;
-
             ConversationList.Items.Add(item);
         }
+
+        SidebarStatusText.Text = _project.Conversations.Count == 0
+            ? "No chats yet"
+            : $"{_project.Conversations.Count} practice chat{(_project.Conversations.Count == 1 ? "" : "s")}";
     }
 
     private void RenderContactsList()
     {
         ContactsList.Items.Clear();
 
-        foreach (var contact in _project.Contacts)
+        var query = SearchBox?.Text?.Trim() ?? "";
+
+        var contacts = _project.Contacts
+            .Where(c => MatchesSearch(c, query));
+
+        ContactsEmptyHint.Visibility =
+            _project.Contacts.Count == 0
+                ? Visibility.Visible
+                : Visibility.Collapsed;
+
+        foreach (var contact in contacts)
         {
-            var border = new Border
-            {
-                Background = Brushes.Transparent,
-                CornerRadius = new CornerRadius(12),
-                Padding = new Thickness(10),
-                Margin = new Thickness(0, 0, 0, 5)
-            };
-
-            var grid = new Grid();
-            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(42) });
-            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-
             var avatar = new Border
             {
-                Width = 38,
-                Height = 38,
-                CornerRadius = new CornerRadius(19),
+                Width = 42,
+                Height = 42,
+                CornerRadius = new CornerRadius(21),
                 Background = ParseBrush(contact.AvatarColor)
             };
+
             avatar.Child = new TextBlock
             {
                 Text = contact.Initial,
@@ -145,8 +178,19 @@ public partial class MainWindow : Window
                 VerticalAlignment = VerticalAlignment.Center
             };
 
-            var text = new StackPanel { Margin = new Thickness(10, 0, 0, 0), VerticalAlignment = VerticalAlignment.Center };
-            text.Children.Add(new TextBlock { Text = contact.Name, FontWeight = FontWeights.SemiBold, FontSize = 13 });
+            var text = new StackPanel
+            {
+                Margin = new Thickness(11, 0, 0, 0),
+                VerticalAlignment = VerticalAlignment.Center
+            };
+
+            text.Children.Add(new TextBlock
+            {
+                Text = contact.Name,
+                FontSize = 13,
+                FontWeight = FontWeights.SemiBold
+            });
+
             text.Children.Add(new TextBlock
             {
                 Text = contact.IsAi ? $"{contact.Role} • AI" : contact.Role,
@@ -155,17 +199,27 @@ public partial class MainWindow : Window
                 Margin = new Thickness(0, 3, 0, 0)
             });
 
+            var row = new Grid();
+            row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(42) });
+            row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+
             Grid.SetColumn(avatar, 0);
             Grid.SetColumn(text, 1);
-            grid.Children.Add(avatar);
-            grid.Children.Add(text);
-            border.Child = grid;
+            row.Children.Add(avatar);
+            row.Children.Add(text);
 
             ContactsList.Items.Add(new ListBoxItem
             {
-                Content = border,
+                Content = new Border
+                {
+                    Background = Brushes.Transparent,
+                    CornerRadius = new CornerRadius(12),
+                    Padding = new Thickness(10),
+                    Child = row
+                },
                 Tag = contact.Id,
-                Padding = new Thickness(4)
+                Padding = new Thickness(4),
+                Margin = new Thickness(0, 0, 0, 3)
             });
         }
     }
@@ -176,62 +230,105 @@ public partial class MainWindow : Window
 
         if (_selectedConversation is null)
         {
-            ConversationTitleText.Text = "No conversation selected";
+            ConversationTitleText.Text = "Chat";
             ConversationSubtitleText.Text = _project.Conversations.Count == 0
-                ? "Create a contact and then your first chat."
+                ? "Create a contact, then your first conversation."
                 : "Select a conversation from the left.";
-            EmptyDetailsCard.Visibility = Visibility.Visible;
-            ConversationDetailsPanel.Visibility = Visibility.Collapsed;
-            SendAsCombo.Items.Clear();
-            MessageInput.IsEnabled = false;
+
+            CurrentAvatarText.Text = "?";
+            CurrentAvatar.Background = new SolidColorBrush(Color.FromRgb(221, 245, 232));
+            CurrentAvatarText.Foreground = new SolidColorBrush(Color.FromRgb(21, 148, 71));
+
+            AiButton.Visibility = Visibility.Collapsed;
+            CallButton.IsEnabled = false;
+            MoreButton.IsEnabled = false;
+
+            MessagesPanel.Children.Add(CreateEmptyState(
+                "Create your first conversation",
+                _project.Contacts.Count == 0
+                    ? "Start by creating a contact. Nothing is pre-filled."
+                    : "Choose New Chat, select a contact, and start writing both sides."));
+
+            UpdateComposerState();
             return;
         }
 
-        MessageInput.IsEnabled = true;
-        ConversationTitleText.Text = _selectedConversation.Title;
-
         var participants = GetParticipants(_selectedConversation);
-        var subtitleNames = participants.Select(p => p.Name).ToList();
-        ConversationSubtitleText.Text = _selectedConversation.IsGroup
-            ? $"{subtitleNames.Count} participants • Group practice"
-            : subtitleNames.Count == 1
-                ? subtitleNames[0]
-                : "Practice conversation";
+        var first = participants.FirstOrDefault();
 
-        EmptyDetailsCard.Visibility = Visibility.Collapsed;
-        ConversationDetailsPanel.Visibility = Visibility.Visible;
-        ScenarioText.Text = string.IsNullOrWhiteSpace(_selectedConversation.Scenario)
-            ? "No scenario text. You control the conversation."
-            : _selectedConversation.Scenario;
+        ConversationTitleText.Text = _selectedConversation.Title;
+        ConversationSubtitleText.Text = first?.Name ?? "Practice conversation";
 
-        ParticipantList.Items.Clear();
-        foreach (var participant in participants)
-        {
-            ParticipantList.Items.Add(new TextBlock
-            {
-                Text = participant.IsAi
-                    ? $"{participant.Name}  •  {participant.Role}  •  AI"
-                    : $"{participant.Name}  •  {participant.Role}",
-                FontSize = 12,
-                Margin = new Thickness(0, 0, 0, 8)
-            });
-        }
+        CurrentAvatarText.Text = _selectedConversation.IsGroup
+            ? "＋"
+            : first?.Initial ?? "?";
 
-        PracticeModeText.Text = _selectedConversation.IsAiEnabled
-            ? "AI conversation mode is on. Send a message to trigger a local simulated response."
-            : "Manual practice. Switch Send as to rehearse either side.";
+        CurrentAvatar.Background = first is null
+            ? new SolidColorBrush(Color.FromRgb(10, 132, 255))
+            : ParseBrush(first.AvatarColor);
 
-        AiPracticeButton.Content = _selectedConversation.IsAiEnabled
-            ? "Disable AI Practice"
-            : "Enable AI Practice";
+        CurrentAvatarText.Foreground = Brushes.White;
+
+        AiButton.Visibility = Visibility.Visible;
+        AiButton.Content = _selectedConversation.IsAiEnabled ? "AI On" : "AI";
+        CallButton.IsEnabled = first is not null;
+        MoreButton.IsEnabled = true;
 
         RenderSendAsCombo();
         RenderMessages();
+        UpdateComposerState();
+    }
+
+    private FrameworkElement CreateEmptyState(string title, string description)
+    {
+        var panel = new StackPanel
+        {
+            HorizontalAlignment = HorizontalAlignment.Center,
+            MaxWidth = 460,
+            Margin = new Thickness(0, 110, 0, 110)
+        };
+
+        panel.Children.Add(new Border
+        {
+            Width = 64,
+            Height = 64,
+            CornerRadius = new CornerRadius(32),
+            Background = new SolidColorBrush(Color.FromRgb(221, 245, 232)),
+            HorizontalAlignment = HorizontalAlignment.Center,
+            Child = new TextBlock
+            {
+                Text = "✦",
+                Foreground = new SolidColorBrush(Color.FromRgb(21, 148, 71)),
+                FontSize = 29,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center
+            }
+        });
+
+        panel.Children.Add(new TextBlock
+        {
+            Text = title,
+            FontSize = 20,
+            FontWeight = FontWeights.SemiBold,
+            HorizontalAlignment = HorizontalAlignment.Center,
+            Margin = new Thickness(0, 14, 0, 0)
+        });
+
+        panel.Children.Add(new TextBlock
+        {
+            Text = description,
+            TextWrapping = TextWrapping.Wrap,
+            TextAlignment = TextAlignment.Center,
+            FontSize = 12,
+            Foreground = new SolidColorBrush(Color.FromRgb(102, 112, 133)),
+            Margin = new Thickness(0, 7, 0, 0)
+        });
+
+        return panel;
     }
 
     private void RenderSendAsCombo()
     {
-        var previousId = GetSelectedSenderId();
         SendAsCombo.Items.Clear();
 
         AddSenderOption("self", _project.CurrentUserName);
@@ -239,16 +336,18 @@ public partial class MainWindow : Window
         foreach (var participant in GetParticipants(_selectedConversation!))
             AddSenderOption(participant.Id, participant.Name);
 
-        var index = FindSenderIndex(previousId);
+        var preferred = _selectedConversation!.PerspectiveId;
+        var index = FindSenderIndex(preferred);
+
         SendAsCombo.SelectedIndex = index >= 0 ? index : 0;
-        _selectedConversation!.PerspectiveId = GetSelectedSenderId() ?? "self";
+        _selectedConversation.PerspectiveId = GetSelectedSenderId() ?? "self";
     }
 
     private void AddSenderOption(string id, string name)
     {
         SendAsCombo.Items.Add(new ComboBoxItem
         {
-            Content = id == "self" ? $"{name}  (you)" : name,
+            Content = id == "self" ? $"{name} (you)" : name,
             Tag = id
         });
     }
@@ -260,14 +359,18 @@ public partial class MainWindow : Window
 
         for (var i = 0; i < SendAsCombo.Items.Count; i++)
         {
-            if (SendAsCombo.Items[i] is ComboBoxItem item && item.Tag?.ToString() == id)
+            if (SendAsCombo.Items[i] is ComboBoxItem item &&
+                item.Tag?.ToString() == id)
+            {
                 return i;
+            }
         }
 
         return -1;
     }
 
-    private string? GetSelectedSenderId() => (SendAsCombo.SelectedItem as ComboBoxItem)?.Tag?.ToString();
+    private string? GetSelectedSenderId() =>
+        (SendAsCombo.SelectedItem as ComboBoxItem)?.Tag?.ToString();
 
     private void RenderMessages()
     {
@@ -278,75 +381,62 @@ public partial class MainWindow : Window
 
         if (_selectedConversation.Messages.Count == 0)
         {
-            var empty = new StackPanel
-            {
-                HorizontalAlignment = HorizontalAlignment.Center,
-                MaxWidth = 420,
-                Margin = new Thickness(0, 80, 0, 80)
-            };
-
-            empty.Children.Add(new Border
-            {
-                Width = 54,
-                Height = 54,
-                CornerRadius = new CornerRadius(27),
-                Background = new SolidColorBrush(Color.FromRgb(226, 240, 255)),
-                HorizontalAlignment = HorizontalAlignment.Center,
-                Child = new TextBlock
-                {
-                    Text = "✦",
-                    Foreground = new SolidColorBrush(Color.FromRgb(10, 132, 255)),
-                    FontSize = 26,
-                    HorizontalAlignment = HorizontalAlignment.Center,
-                    VerticalAlignment = VerticalAlignment.Center
-                }
-            });
-
-            empty.Children.Add(new TextBlock
-            {
-                Text = "Start the conversation",
-                FontSize = 19,
-                FontWeight = FontWeights.SemiBold,
-                HorizontalAlignment = HorizontalAlignment.Center,
-                Margin = new Thickness(0, 13, 0, 0)
-            });
-
-            empty.Children.Add(new TextBlock
-            {
-                Text = "Write both sides, switch participants, react to messages, or turn on AI practice.",
-                TextWrapping = TextWrapping.Wrap,
-                TextAlignment = TextAlignment.Center,
-                FontSize = 12,
-                Foreground = new SolidColorBrush(Color.FromRgb(102, 112, 133)),
-                Margin = new Thickness(0, 7, 0, 0)
-            });
-
-            MessagesPanel.Children.Add(empty);
+            MessagesPanel.Children.Add(CreateEmptyState(
+                "Start the conversation",
+                "Type a message below. Use Send as to rehearse both sides."));
             return;
         }
 
-        foreach (var message in _selectedConversation.Messages)
-            MessagesPanel.Children.Add(CreateMessageElement(message));
+        DateTime? previousDay = null;
 
-        Dispatcher.BeginInvoke(() => MessagesScrollViewer.ScrollToEnd(), System.Windows.Threading.DispatcherPriority.Loaded);
+        foreach (var message in _selectedConversation.Messages.OrderBy(m => m.Timestamp))
+        {
+            var day = message.Timestamp.Date;
+
+            if (previousDay is null || previousDay.Value != day)
+            {
+                MessagesPanel.Children.Add(new TextBlock
+                {
+                    Text = day == DateTime.Today
+                        ? "Today"
+                        : message.Timestamp.ToString("MMM d"),
+                    FontSize = 10,
+                    Foreground = new SolidColorBrush(Color.FromRgb(152, 162, 179)),
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    Margin = new Thickness(0, 8, 0, 16)
+                });
+
+                previousDay = day;
+            }
+
+            MessagesPanel.Children.Add(CreateMessageElement(message));
+        }
+
+        Dispatcher.BeginInvoke(
+            () => MessagesScrollViewer.ScrollToEnd(),
+            System.Windows.Threading.DispatcherPriority.Loaded);
     }
 
     private FrameworkElement CreateMessageElement(ChatMessage message)
     {
-        var sender = message.SenderId == "self" ? null : GetContact(message.SenderId);
-        var isPerspective = message.SenderId == _selectedConversation!.PerspectiveId;
+        var sender = message.SenderId == "self"
+            ? null
+            : GetContact(message.SenderId);
+
+        var isOutgoing = message.SenderId == "self";
         var isSticker = message.Kind == ChatMessageKind.Sticker;
 
         var wrapper = new StackPanel
         {
-            HorizontalAlignment = isPerspective ? HorizontalAlignment.Right : HorizontalAlignment.Left,
-            Margin = isPerspective
-                ? new Thickness(100, 0, 0, 11)
-                : new Thickness(0, 0, 100, 11),
-            Cursor = Cursors.Hand
+            HorizontalAlignment = isOutgoing
+                ? HorizontalAlignment.Right
+                : HorizontalAlignment.Left,
+            Margin = isOutgoing
+                ? new Thickness(120, 0, 0, 10)
+                : new Thickness(0, 0, 120, 10)
         };
 
-        if (_selectedConversation.IsGroup && !isPerspective && sender is not null)
+        if (_selectedConversation!.IsGroup && !isOutgoing && sender is not null)
         {
             wrapper.Children.Add(new TextBlock
             {
@@ -358,59 +448,62 @@ public partial class MainWindow : Window
             });
         }
 
-        var bubbleColor = isPerspective
-            ? _selectedConversation.OutgoingBubbleColor
-            : _selectedConversation.IncomingBubbleColor;
-
         var bubble = new Border
         {
-            Background = ParseBrush(bubbleColor),
-            CornerRadius = isPerspective
-                ? new CornerRadius(18, 18, 5, 18)
-                : new CornerRadius(18, 18, 18, 5),
-            Padding = isSticker ? new Thickness(7) : new Thickness(13, 10, 13, 10),
-            MaxWidth = 610
+            Background = isOutgoing
+                ? new SolidColorBrush(Color.FromRgb(10, 132, 255))
+                : new SolidColorBrush(Color.FromRgb(235, 235, 239)),
+            CornerRadius = isOutgoing
+                ? new CornerRadius(17, 17, 5, 17)
+                : new CornerRadius(17, 17, 17, 5),
+            Padding = isSticker
+                ? new Thickness(7)
+                : new Thickness(14, 10, 14, 10),
+            MaxWidth = 580
         };
 
         bubble.Child = new TextBlock
         {
             Text = message.Text,
-            FontSize = isSticker ? 42 : 14,
+            FontSize = isSticker ? 40 : 14,
             TextWrapping = TextWrapping.Wrap,
-            Foreground = isPerspective ? Brushes.White : new SolidColorBrush(Color.FromRgb(17, 24, 39))
+            Foreground = isOutgoing
+                ? Brushes.White
+                : new SolidColorBrush(Color.FromRgb(17, 24, 39))
         };
 
         wrapper.Children.Add(bubble);
 
-        if (_selectedConversation.ShowTimestamps || _selectedConversation.ShowReadReceipts || message.Reaction is not null)
+        var meta = new List<string>();
+
+        if (_selectedConversation.ShowTimestamps)
+            meta.Add(message.Timestamp.ToString("h:mm tt"));
+
+        if (_selectedConversation.ShowReadReceipts && isOutgoing && message.IsRead)
+            meta.Add("Read");
+
+        if (message.Reaction is not null)
+            meta.Add(message.Reaction);
+
+        if (meta.Count > 0)
         {
-            var metaParts = new List<string>();
-
-            if (_selectedConversation.ShowTimestamps)
-                metaParts.Add(message.Timestamp.ToString("HH:mm"));
-
-            if (_selectedConversation.ShowReadReceipts && isPerspective && message.IsRead)
-                metaParts.Add("✓✓");
-
-            if (message.Reaction is not null)
-                metaParts.Add(message.Reaction);
-
-            if (metaParts.Count > 0)
+            wrapper.Children.Add(new TextBlock
             {
-                wrapper.Children.Add(new TextBlock
-                {
-                    Text = string.Join("  ", metaParts),
-                    FontSize = 10,
-                    Foreground = new SolidColorBrush(Color.FromRgb(102, 112, 133)),
-                    HorizontalAlignment = isPerspective ? HorizontalAlignment.Right : HorizontalAlignment.Left,
-                    Margin = isPerspective ? new Thickness(0, 4, 7, 0) : new Thickness(7, 4, 0, 0)
-                });
-            }
+                Text = string.Join("  ", meta),
+                FontSize = 9,
+                Foreground = new SolidColorBrush(Color.FromRgb(152, 162, 179)),
+                HorizontalAlignment = isOutgoing
+                    ? HorizontalAlignment.Right
+                    : HorizontalAlignment.Left,
+                Margin = isOutgoing
+                    ? new Thickness(0, 4, 7, 0)
+                    : new Thickness(7, 4, 0, 0)
+            });
         }
 
         var menu = new ContextMenu();
-        var react = new MenuItem { Header = "React" };
 
+        var reactMenu = new MenuItem { Header = "React" };
         foreach (var emoji in new[] { "❤️", "👍", "😂", "😮", "🔥" })
         {
             var reactionItem = new MenuItem { Header = emoji };
@@ -420,10 +513,10 @@ public partial class MainWindow : Window
                 RenderMessages();
                 MarkDirty();
             };
-            react.Items.Add(reactionItem);
+            reactMenu.Items.Add(reactionItem);
         }
 
-        menu.Items.Add(react);
+        menu.Items.Add(reactMenu);
 
         var copy = new MenuItem { Header = "Copy" };
         copy.Click += (_, _) => Clipboard.SetText(message.Text);
@@ -440,13 +533,6 @@ public partial class MainWindow : Window
 
         wrapper.ContextMenu = menu;
 
-        wrapper.MouseLeftButtonUp += (_, _) =>
-        {
-            message.Reaction = message.Reaction is null ? "❤️" : null;
-            RenderMessages();
-            MarkDirty();
-        };
-
         return wrapper;
     }
 
@@ -454,26 +540,28 @@ public partial class MainWindow : Window
     {
         var first = GetParticipants(conversation).FirstOrDefault();
 
-        var avatar = new Border
+        var border = new Border
         {
-            Width = 38,
-            Height = 38,
-            CornerRadius = new CornerRadius(19),
+            Width = 42,
+            Height = 42,
+            CornerRadius = new CornerRadius(21),
             Background = first is null
-                ? new SolidColorBrush(Color.FromRgb(10, 132, 255))
+                ? new SolidColorBrush(Color.FromRgb(221, 245, 232))
                 : ParseBrush(first.AvatarColor)
         };
 
-        avatar.Child = new TextBlock
+        border.Child = new TextBlock
         {
             Text = conversation.IsGroup ? "＋" : first?.Initial ?? "?",
-            Foreground = Brushes.White,
+            Foreground = first is null
+                ? new SolidColorBrush(Color.FromRgb(21, 148, 71))
+                : Brushes.White,
             FontWeight = FontWeights.SemiBold,
             HorizontalAlignment = HorizontalAlignment.Center,
             VerticalAlignment = VerticalAlignment.Center
         };
 
-        return avatar;
+        return border;
     }
 
     private void ConversationList_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -487,19 +575,27 @@ public partial class MainWindow : Window
 
         RenderCurrentConversation();
         RenderConversationList();
+        MarkDirty();
+    }
+
+    private void SearchBox_TextChanged(object sender, TextChangedEventArgs e)
+    {
+        RenderConversationList();
+        RenderContactsList();
     }
 
     private void SendAsCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-        if (_selectedConversation is null || SendAsCombo.SelectedItem is not ComboBoxItem item)
+        if (_selectedConversation is null ||
+            SendAsCombo.SelectedItem is not ComboBoxItem item)
             return;
 
         _selectedConversation.PerspectiveId = item.Tag?.ToString() ?? "self";
-        GlobalStatusText.Text = $"Practicing as {item.Content}";
         RenderMessages();
     }
 
-    private async void SendMessage_Click(object sender, RoutedEventArgs e) => await SendCurrentMessageAsync();
+    private async void SendMessage_Click(object sender, RoutedEventArgs e) =>
+        await SendCurrentMessageAsync();
 
     private async void MessageInput_PreviewKeyDown(object sender, KeyEventArgs e)
     {
@@ -516,10 +612,14 @@ public partial class MainWindow : Window
             return;
 
         var text = MessageInput.Text.Trim();
+
         if (string.IsNullOrWhiteSpace(text))
             return;
 
-        var senderId = GetSelectedSenderId() ?? "self";
+        var senderId = _selectedConversation.PerspectiveId;
+
+        if (string.IsNullOrWhiteSpace(senderId))
+            senderId = "self";
 
         var message = new ChatMessage
         {
@@ -546,7 +646,7 @@ public partial class MainWindow : Window
 
         if (_selectedConversation.ShowTypingIndicators)
         {
-            GlobalStatusText.Text = $"{aiContact.Name} is typing…";
+            ConversationSubtitleText.Text = $"{aiContact.Name} is typing…";
             await Task.Delay(850);
         }
 
@@ -558,36 +658,18 @@ public partial class MainWindow : Window
             IsRead = true
         });
 
-        GlobalStatusText.Text = "AI reply added";
         RenderCurrentConversation();
         MarkDirty();
     }
 
     private void Emoji_Click(object sender, RoutedEventArgs e)
     {
-        MessageInput.Text += MessageInput.Text.Length == 0 ? "🙂" : " 🙂";
+        MessageInput.Text += MessageInput.Text.Length == 0
+            ? "🙂"
+            : " 🙂";
+
         MessageInput.CaretIndex = MessageInput.Text.Length;
         MessageInput.Focus();
-    }
-
-    private void Sticker_Click(object sender, RoutedEventArgs e)
-    {
-        if (_selectedConversation is null)
-            return;
-
-        var senderId = GetSelectedSenderId() ?? "self";
-
-        _selectedConversation.Messages.Add(new ChatMessage
-        {
-            SenderId = senderId,
-            Text = "❤️",
-            Timestamp = DateTime.Now,
-            Kind = ChatMessageKind.Sticker,
-            IsRead = true
-        });
-
-        RenderCurrentConversation();
-        MarkDirty();
     }
 
     private void NewConversation_Click(object sender, RoutedEventArgs e)
@@ -596,8 +678,8 @@ public partial class MainWindow : Window
         {
             var result = MessageBox.Show(
                 this,
-                "You need at least one contact before creating a conversation. Create one now?",
-                "New Conversation",
+                "Create a contact first. Nothing is pre-filled in Chat. Create one now?",
+                "New Chat",
                 MessageBoxButton.YesNo,
                 MessageBoxImage.Information);
 
@@ -608,7 +690,10 @@ public partial class MainWindow : Window
                 return;
         }
 
-        var dialog = new CreateConversationWindow(_project.Contacts) { Owner = this };
+        var dialog = new CreateConversationWindow(_project.Contacts)
+        {
+            Owner = this
+        };
 
         if (dialog.ShowDialog() != true)
             return;
@@ -627,40 +712,66 @@ public partial class MainWindow : Window
         _selectedConversation = conversation;
 
         RenderAll();
-        var ordered = _project.Conversations.OrderByDescending(c => c.CreatedAt).ToList();
-        ConversationList.SelectedIndex = ordered.FindIndex(c => c.Id == conversation.Id);
+
+        var ordered = _project.Conversations
+            .OrderByDescending(c => c.CreatedAt)
+            .ToList();
+
+        var index = ordered.FindIndex(c => c.Id == conversation.Id);
+
+        if (index >= 0)
+            ConversationList.SelectedIndex = index;
+
         MarkDirty();
     }
 
     private void AddContact_Click(object sender, RoutedEventArgs e)
     {
-        var dialog = new CreateContactWindow { Owner = this };
+        var dialog = new CreateContactWindow
+        {
+            Owner = this
+        };
 
         if (dialog.ShowDialog() != true || dialog.CreatedContact is null)
             return;
 
         _project.Contacts.Add(dialog.CreatedContact);
+
         RenderContactsList();
         ShowChatsTab();
         MarkDirty();
     }
 
-    private void ChatsTab_Click(object sender, RoutedEventArgs e) => ShowChatsTab();
+    private void ChatsTab_Click(object sender, RoutedEventArgs e) =>
+        ShowChatsTab();
 
     private void ContactsTab_Click(object sender, RoutedEventArgs e)
     {
         ChatsPanel.Visibility = Visibility.Collapsed;
         ContactsPanel.Visibility = Visibility.Visible;
-        ChatsTabButton.Foreground = new SolidColorBrush(Color.FromRgb(102, 112, 133));
-        ContactsTabButton.Foreground = new SolidColorBrush(Color.FromRgb(10, 132, 255));
+
+        ChatsTabButton.Foreground =
+            new SolidColorBrush(Color.FromRgb(102, 112, 133));
+
+        ContactsTabButton.Foreground =
+            new SolidColorBrush(Color.FromRgb(10, 132, 255));
     }
 
     private void ShowChatsTab()
     {
         ChatsPanel.Visibility = Visibility.Visible;
         ContactsPanel.Visibility = Visibility.Collapsed;
-        ChatsTabButton.Foreground = new SolidColorBrush(Color.FromRgb(10, 132, 255));
-        ContactsTabButton.Foreground = new SolidColorBrush(Color.FromRgb(102, 112, 133));
+
+        ChatsTabButton.Foreground =
+            new SolidColorBrush(Color.FromRgb(10, 132, 255));
+
+        ContactsTabButton.Foreground =
+            new SolidColorBrush(Color.FromRgb(102, 112, 133));
+    }
+
+    private void SidebarSettings_Click(object sender, RoutedEventArgs e)
+    {
+        Settings_Click(sender, e);
     }
 
     private void AiPractice_Click(object sender, RoutedEventArgs e)
@@ -670,13 +781,12 @@ public partial class MainWindow : Window
 
         _selectedConversation.IsAiEnabled = !_selectedConversation.IsAiEnabled;
 
-        var hasAi = GetParticipants(_selectedConversation).Any(c => c.IsAi);
-
-        if (_selectedConversation.IsAiEnabled && !hasAi)
+        if (_selectedConversation.IsAiEnabled &&
+            !GetParticipants(_selectedConversation).Any(c => c.IsAi))
         {
             MessageBox.Show(
                 this,
-                "AI practice is enabled, but no participant is marked as an AI persona. Create an AI contact first.",
+                "AI mode is enabled, but no participant is marked as an AI persona.",
                 "AI Practice",
                 MessageBoxButton.OK,
                 MessageBoxImage.Information);
@@ -691,7 +801,11 @@ public partial class MainWindow : Window
         if (_selectedConversation is null)
             return;
 
-        var dialog = new SettingsWindow(_selectedConversation) { Owner = this };
+        var dialog = new SettingsWindow(_selectedConversation)
+        {
+            Owner = this
+        };
+
         if (dialog.ShowDialog() == true)
         {
             RenderCurrentConversation();
@@ -705,11 +819,48 @@ public partial class MainWindow : Window
             return;
 
         var contact = GetParticipants(_selectedConversation).FirstOrDefault();
+
         if (contact is null)
             return;
 
-        var dialog = new CallWindow(_selectedConversation, contact) { Owner = this };
+        var dialog = new CallWindow(_selectedConversation, contact)
+        {
+            Owner = this
+        };
+
         dialog.ShowDialog();
+    }
+
+    private void More_Click(object sender, RoutedEventArgs e)
+    {
+        if (_selectedConversation is null)
+            return;
+
+        var menu = new ContextMenu
+        {
+            PlacementTarget = MoreButton,
+            StaysOpen = false
+        };
+
+        var customize = new MenuItem { Header = "Customize chat" };
+        customize.Click += Settings_Click;
+        menu.Items.Add(customize);
+
+        var export = new MenuItem { Header = "Export as PNG" };
+        export.Click += Export_Click;
+        menu.Items.Add(export);
+
+        menu.Items.Add(new Separator());
+
+        var delete = new MenuItem
+        {
+            Header = "Delete conversation",
+            Foreground = Brushes.IndianRed
+        };
+        delete.Click += DeleteConversation_Click;
+        menu.Items.Add(delete);
+
+        menu.IsOpen = true;
     }
 
     private void DeleteConversation_Click(object sender, RoutedEventArgs e)
@@ -735,20 +886,6 @@ public partial class MainWindow : Window
         MarkDirty();
     }
 
-    private void Save_Click(object sender, RoutedEventArgs e)
-    {
-        try
-        {
-            _storage.Save(_project);
-            SavedText.Text = "Saved";
-            GlobalStatusText.Text = "Saved locally";
-        }
-        catch (Exception ex)
-        {
-            MessageBox.Show(this, $"Could not save the project.\n\n{ex.Message}", "Save Error", MessageBoxButton.OK, MessageBoxImage.Error);
-        }
-    }
-
     private void Export_Click(object sender, RoutedEventArgs e)
     {
         if (_selectedConversation is null)
@@ -766,11 +903,15 @@ public partial class MainWindow : Window
         try
         {
             ChatImageExportService.Export(ExportSurface, dialog.FileName);
-            GlobalStatusText.Text = "Conversation exported";
         }
         catch (Exception ex)
         {
-            MessageBox.Show(this, $"Could not export the conversation.\n\n{ex.Message}", "Export Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            MessageBox.Show(
+                this,
+                $"Could not export the conversation.\n\n{ex.Message}",
+                "Export Error",
+                MessageBoxButton.OK,
+                MessageBoxImage.Error);
         }
     }
 
@@ -784,10 +925,36 @@ public partial class MainWindow : Window
     private ChatCharacter? GetContact(string id) =>
         _project.Contacts.FirstOrDefault(c => c.Id == id);
 
+    private static bool MatchesSearch(ChatConversation conversation, string query) =>
+        string.IsNullOrWhiteSpace(query) ||
+        conversation.Title.Contains(query, StringComparison.OrdinalIgnoreCase) ||
+        conversation.Scenario.Contains(query, StringComparison.OrdinalIgnoreCase);
+
+    private static bool MatchesSearch(ChatCharacter contact, string query) =>
+        string.IsNullOrWhiteSpace(query) ||
+        contact.Name.Contains(query, StringComparison.OrdinalIgnoreCase) ||
+        contact.Role.Contains(query, StringComparison.OrdinalIgnoreCase) ||
+        contact.Context.Contains(query, StringComparison.OrdinalIgnoreCase);
+
     private void MarkDirty()
     {
-        SavedText.Text = "Unsaved changes";
-        GlobalStatusText.Text = "Changes pending save";
+        try
+        {
+            _storage.Save(_project);
+        }
+        catch
+        {
+            // Persistence failure is non-fatal; the current session remains usable.
+        }
+    }
+
+    private void UpdateComposerState()
+    {
+        var enabled = _selectedConversation is not null;
+
+        MessageInput.IsEnabled = enabled;
+        SendButton.IsEnabled = enabled;
+        EmojiButton.IsEnabled = enabled;
     }
 
     private static string SanitizeFileName(string value)
@@ -795,7 +962,9 @@ public partial class MainWindow : Window
         foreach (var invalid in Path.GetInvalidFileNameChars())
             value = value.Replace(invalid, '_');
 
-        return string.IsNullOrWhiteSpace(value) ? "conversation" : value;
+        return string.IsNullOrWhiteSpace(value)
+            ? "conversation"
+            : value;
     }
 
     private static SolidColorBrush ParseBrush(string color)
