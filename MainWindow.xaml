@@ -2,189 +2,301 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Chat"
-        Width="1480"
-        Height="920"
-        MinWidth="1180"
-        MinHeight="720"
+        Width="1440"
+        Height="900"
+        MinWidth="1040"
+        MinHeight="680"
         WindowStartupLocation="CenterScreen"
         Background="{StaticResource WindowBackground}"
         Foreground="{StaticResource TextPrimary}"
         FontFamily="Segoe UI">
     <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="68"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="330"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
 
-        <Border Grid.Row="0" Background="{StaticResource PanelBackground}" BorderBrush="{StaticResource Divider}" BorderThickness="0,0,0,1">
-            <Grid Margin="20,0">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="300"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="460"/>
-                </Grid.ColumnDefinitions>
+        <Border Grid.Column="0"
+                Background="#FFFFFF"
+                BorderBrush="{StaticResource Divider}"
+                BorderThickness="0,0,1,0">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="86"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="72"/>
+                </Grid.RowDefinitions>
 
-                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                    <Border Width="38" Height="38" CornerRadius="11" Background="{StaticResource Accent}">
-                        <TextBlock Text="✦" Foreground="White" FontSize="20" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                    </Border>
-                    <StackPanel Margin="11,0,0,0">
-                        <TextBlock Text="Chat" FontSize="17" FontWeight="SemiBold"/>
-                        <TextBlock Text="PRACTICE CONVERSATIONS" FontSize="9" Foreground="{StaticResource TextSecondary}"/>
+                <Grid Margin="22,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel VerticalAlignment="Center">
+                        <TextBlock Text="Chat" FontSize="27" FontWeight="SemiBold"/>
+                        <TextBlock x:Name="SidebarStatusText"
+                                   Text="Practice conversations"
+                                   FontSize="11"
+                                   Foreground="{StaticResource TextSecondary}"
+                                   Margin="0,3,0,0"/>
                     </StackPanel>
-                </StackPanel>
 
-                <TextBlock Grid.Column="1" x:Name="GlobalStatusText" Text="Private, local-first workspace" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="12" Foreground="{StaticResource TextSecondary}"/>
+                    <Button Grid.Column="1"
+                            Content="＋"
+                            Click="NewConversation_Click"
+                            Style="{StaticResource IconButton}"
+                            FontSize="23"
+                            Width="44"
+                            Height="44"/>
+                </Grid>
 
-                <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
-                    <TextBlock x:Name="SavedText" Text="Saved" Foreground="{StaticResource TextSecondary}" VerticalAlignment="Center" Margin="0,0,14,0"/>
-                    <Button Content="＋ Contact" Click="AddContact_Click" Style="{StaticResource SecondaryButton}" Margin="0,0,8,0"/>
-                    <Button Content="＋ New Chat" Click="NewConversation_Click" Style="{StaticResource PrimaryButton}" Margin="0,0,8,0"/>
-                    <Button Content="Save" Click="Save_Click" Style="{StaticResource GhostButton}" Margin="0,0,4,0"/>
-                    <Button Content="⋯" Click="Settings_Click" Style="{StaticResource IconButton}"/>
-                </StackPanel>
+                <Border Grid.Row="1"
+                        Margin="18,0,18,14"
+                        Background="#F1F2F6"
+                        CornerRadius="12"
+                        Padding="12,0">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="28"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="⌕"
+                                   FontSize="21"
+                                   Foreground="{StaticResource TextSecondary}"
+                                   VerticalAlignment="Center"/>
+                        <TextBox Grid.Column="1"
+                                 x:Name="SearchBox"
+                                 TextChanged="SearchBox_TextChanged"
+                                 BorderThickness="0"
+                                 Background="Transparent"
+                                 FontSize="13"
+                                 Foreground="{StaticResource TextPrimary}"
+                                 VerticalContentAlignment="Center"
+                                 Padding="0,2"
+                                 ToolTip="Search chats and contacts"/>
+                    </Grid>
+                </Border>
+
+                <Grid Grid.Row="2">
+                    <Grid x:Name="ChatsPanel">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Text="CHATS"
+                                   FontSize="10"
+                                   FontWeight="SemiBold"
+                                   Foreground="{StaticResource TextSecondary}"
+                                   Margin="22,0,0,10"/>
+
+                        <ListBox Grid.Row="1"
+                                 x:Name="ConversationList"
+                                 SelectionChanged="ConversationList_SelectionChanged"
+                                 BorderThickness="0"
+                                 Background="Transparent"
+                                 Padding="10,0"/>
+                    </Grid>
+
+                    <Grid x:Name="ContactsPanel" Visibility="Collapsed">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <Grid Margin="22,0,18,10">
+                            <TextBlock Text="CONTACTS"
+                                       FontSize="10"
+                                       FontWeight="SemiBold"
+                                       Foreground="{StaticResource TextSecondary}"
+                                       VerticalAlignment="Center"/>
+                            <Button Content="＋ Add"
+                                    Click="AddContact_Click"
+                                    Style="{StaticResource SecondaryButton}"
+                                    Padding="11,6"
+                                    HorizontalAlignment="Right"/>
+                        </Grid>
+
+                        <TextBlock Grid.Row="1"
+                                   x:Name="ContactsEmptyHint"
+                                   Text="Create your first contact to start a practice chat."
+                                   FontSize="11"
+                                   Foreground="{StaticResource TextSecondary}"
+                                   TextWrapping="Wrap"
+                                   Margin="22,0,22,12"
+                                   Visibility="Collapsed"/>
+
+                        <ListBox Grid.Row="2"
+                                 x:Name="ContactsList"
+                                 BorderThickness="0"
+                                 Background="Transparent"
+                                 Padding="10,0"/>
+                    </Grid>
+                </Grid>
+
+                <Border Grid.Row="3"
+                        BorderBrush="{StaticResource Divider}"
+                        BorderThickness="0,1,0,0"
+                        Background="#FFFFFF">
+                    <Grid Margin="16,9">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <Button x:Name="ChatsTabButton"
+                                Content="Chats"
+                                Click="ChatsTab_Click"
+                                Style="{StaticResource GhostButton}"
+                                FontWeight="SemiBold"
+                                Foreground="{StaticResource Accent}"/>
+
+                        <Button Grid.Column="1"
+                                x:Name="ContactsTabButton"
+                                Content="Contacts"
+                                Click="ContactsTab_Click"
+                                Style="{StaticResource GhostButton}"/>
+
+                        <Button Grid.Column="2"
+                                Content="Settings"
+                                Click="SidebarSettings_Click"
+                                Style="{StaticResource GhostButton}"/>
+                    </Grid>
+                </Border>
             </Grid>
         </Border>
 
-        <Grid Grid.Row="1">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="300"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="320"/>
-            </Grid.ColumnDefinitions>
+        <Grid Grid.Column="1" Background="#F4F3F8">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="78"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="86"/>
+            </Grid.RowDefinitions>
 
-            <Border Grid.Column="0" Background="{StaticResource PanelBackground}" BorderBrush="{StaticResource Divider}" BorderThickness="0,0,1,0">
+            <Border Grid.Row="0"
+                    Background="#FFFFFF"
+                    BorderBrush="{StaticResource Divider}"
+                    BorderThickness="0,0,0,1"
+                    Padding="20,0">
                 <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="58"/>
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <Border x:Name="CurrentAvatar"
+                                Width="44"
+                                Height="44"
+                                CornerRadius="22"
+                                Background="#DDF5E8"
+                                Margin="0,0,12,0">
+                            <TextBlock x:Name="CurrentAvatarText"
+                                       Text="?"
+                                       Foreground="#159447"
+                                       FontSize="15"
+                                       FontWeight="SemiBold"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"/>
+                        </Border>
 
-                    <Grid Margin="15,10">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <Button x:Name="ChatsTabButton" Content="Chats" Click="ChatsTab_Click" Style="{StaticResource GhostButton}" FontWeight="SemiBold" Foreground="{StaticResource Accent}"/>
-                            <Button x:Name="ContactsTabButton" Content="Contacts" Click="ContactsTab_Click" Style="{StaticResource GhostButton}"/>
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock x:Name="ConversationTitleText"
+                                       Text="Chat"
+                                       FontSize="17"
+                                       FontWeight="SemiBold"/>
+                            <TextBlock x:Name="ConversationSubtitleText"
+                                       Text="Create a contact and your first conversation."
+                                       FontSize="11"
+                                       Foreground="{StaticResource TextSecondary}"
+                                       Margin="0,3,0,0"/>
                         </StackPanel>
-                        <Button Grid.Column="1" Content="＋" Click="NewConversation_Click" Style="{StaticResource IconButton}"/>
-                    </Grid>
+                    </StackPanel>
 
-                    <Grid Grid.Row="1">
-                        <Grid x:Name="ChatsPanel">
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="*"/>
-                            </Grid.RowDefinitions>
-                            <Border Margin="14,0,14,10" Background="{StaticResource SoftPanel}" CornerRadius="12" Padding="12">
-                                <StackPanel>
-                                    <TextBlock Text="Practice chats" FontSize="12" FontWeight="SemiBold"/>
-                                    <TextBlock Text="Create every conversation yourself. Nothing is pre-filled." FontSize="11" Foreground="{StaticResource TextSecondary}" TextWrapping="Wrap" Margin="0,4,0,0"/>
-                                </StackPanel>
-                            </Border>
-                            <ListBox Grid.Row="1" x:Name="ConversationList" SelectionChanged="ConversationList_SelectionChanged" BorderThickness="0" Background="Transparent" Padding="10,0"/>
-                        </Grid>
-
-                        <Grid x:Name="ContactsPanel" Visibility="Collapsed">
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="*"/>
-                            </Grid.RowDefinitions>
-                            <Button Content="＋ Add contact" Click="AddContact_Click" Style="{StaticResource SecondaryButton}" Margin="14,0,14,10" Height="40"/>
-                            <ListBox Grid.Row="1" x:Name="ContactsList" BorderThickness="0" Background="Transparent" Padding="10,0"/>
-                        </Grid>
-                    </Grid>
+                    <StackPanel Orientation="Horizontal"
+                                HorizontalAlignment="Right"
+                                VerticalAlignment="Center">
+                        <Button x:Name="AiButton"
+                                Content="AI"
+                                Click="AiPractice_Click"
+                                Style="{StaticResource SecondaryButton}"
+                                Height="38"
+                                Padding="13,7"
+                                Margin="0,0,7,0"
+                                Visibility="Collapsed"/>
+                        <Button x:Name="CallButton"
+                                Content="☎"
+                                Click="Call_Click"
+                                Style="{StaticResource IconButton}"
+                                IsEnabled="False"/>
+                        <Button x:Name="MoreButton"
+                                Content="⋯"
+                                Click="More_Click"
+                                Style="{StaticResource IconButton}"
+                                FontSize="21"/>
+                    </StackPanel>
                 </Grid>
             </Border>
 
-            <Grid Grid.Column="1" Background="#F2F4F7">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="72"/>
-                    <RowDefinition Height="*"/>
-                    <RowDefinition Height="82"/>
-                </Grid.RowDefinitions>
-
-                <Border Grid.Row="0" Background="{StaticResource PanelBackground}" BorderBrush="{StaticResource Divider}" BorderThickness="0,0,0,1" Padding="20,0">
-                    <Grid>
-                        <StackPanel VerticalAlignment="Center">
-                            <TextBlock x:Name="ConversationTitleText" Text="No conversation selected" FontSize="17" FontWeight="SemiBold"/>
-                            <TextBlock x:Name="ConversationSubtitleText" Text="Create your first chat to begin." FontSize="11" Foreground="{StaticResource TextSecondary}" Margin="0,4,0,0"/>
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
-                            <Button Content="⚙" Click="Settings_Click" Style="{StaticResource IconButton}" Margin="0,0,4,0"/>
-                            <Button Content="☎" Click="Call_Click" Style="{StaticResource IconButton}"/>
-                        </StackPanel>
-                    </Grid>
+            <ScrollViewer Grid.Row="1"
+                          x:Name="MessagesScrollViewer"
+                          VerticalScrollBarVisibility="Auto"
+                          HorizontalScrollBarVisibility="Disabled">
+                <Border x:Name="ExportSurface"
+                        Background="#F4F3F8"
+                        Padding="32,24,32,30">
+                    <StackPanel x:Name="MessagesPanel"
+                                MaxWidth="780"/>
                 </Border>
+            </ScrollViewer>
 
-                <ScrollViewer Grid.Row="1" x:Name="MessagesScrollViewer" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-                    <Border x:Name="ExportSurface" Background="#F2F4F7" Padding="24,24,24,28">
-                        <StackPanel x:Name="MessagesPanel" MaxWidth="860"/>
+            <Border Grid.Row="2"
+                    Background="#FFFFFF"
+                    BorderBrush="{StaticResource Divider}"
+                    BorderThickness="0,1,0,0"
+                    Padding="16,12">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Button Content="☺"
+                            Click="Emoji_Click"
+                            Style="{StaticResource IconButton}"
+                            FontSize="21"
+                            IsEnabled="False"
+                            x:Name="EmojiButton"/>
+
+                    <Border Grid.Column="1"
+                            Background="#F1F2F6"
+                            CornerRadius="18"
+                            Padding="14,0"
+                            Margin="6,0,8,0">
+                        <TextBox x:Name="MessageInput"
+                                 FontSize="13"
+                                 BorderThickness="0"
+                                 Background="Transparent"
+                                 VerticalContentAlignment="Center"
+                                 TextWrapping="Wrap"
+                                 AcceptsReturn="True"
+                                 MaxHeight="70"
+                                 PreviewKeyDown="MessageInput_PreviewKeyDown"
+                                 IsEnabled="False"/>
                     </Border>
-                </ScrollViewer>
 
-                <Border Grid.Row="2" Background="{StaticResource PanelBackground}" BorderBrush="{StaticResource Divider}" BorderThickness="0,1,0,0" Padding="16,11">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-
-                        <ComboBox x:Name="SendAsCombo" Width="145" Height="42" VerticalContentAlignment="Center" Margin="0,0,8,0" SelectionChanged="SendAsCombo_SelectionChanged"/>
-
-                        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,8,0">
-                            <Button Content="☺" Click="Emoji_Click" Style="{StaticResource IconButton}"/>
-                            <Button Content="★" Click="Sticker_Click" Style="{StaticResource IconButton}"/>
-                        </StackPanel>
-
-                        <Border Grid.Column="2" Background="{StaticResource SoftPanel}" BorderBrush="{StaticResource Divider}" BorderThickness="1" CornerRadius="12" Padding="12,0">
-                            <TextBox x:Name="MessageInput" FontSize="13" BorderThickness="0" Background="Transparent" VerticalContentAlignment="Center" TextWrapping="Wrap" AcceptsReturn="True" MaxHeight="70" PreviewKeyDown="MessageInput_PreviewKeyDown"/>
-                        </Border>
-
-                        <Button Grid.Column="3" Content="Send" Click="SendMessage_Click" Style="{StaticResource PrimaryButton}" Width="82" Margin="10,0,0,0"/>
-                    </Grid>
-                </Border>
-            </Grid>
-
-            <Border Grid.Column="2" Background="{StaticResource PanelBackground}" BorderBrush="{StaticResource Divider}" BorderThickness="1,0,0,0">
-                <ScrollViewer VerticalScrollBarVisibility="Auto">
-                    <StackPanel Margin="20">
-                        <TextBlock Text="PRACTICE" FontSize="10" Foreground="{StaticResource TextSecondary}" FontWeight="SemiBold"/>
-                        <TextBlock Text="Conversation details" FontSize="21" FontWeight="SemiBold" Margin="0,7,0,20"/>
-
-                        <Border x:Name="EmptyDetailsCard" Background="{StaticResource SoftPanel}" CornerRadius="14" Padding="15" Visibility="Visible">
-                            <StackPanel>
-                                <TextBlock Text="Start with a contact" FontWeight="SemiBold"/>
-                                <TextBlock Text="Create a contact, then make a conversation. This project intentionally starts empty." FontSize="12" Foreground="{StaticResource TextSecondary}" TextWrapping="Wrap" Margin="0,5,0,0"/>
-                            </StackPanel>
-                        </Border>
-
-                        <StackPanel x:Name="ConversationDetailsPanel" Visibility="Collapsed">
-                            <TextBlock Text="SCENARIO" FontSize="10" Foreground="{StaticResource TextSecondary}" FontWeight="SemiBold"/>
-                            <TextBlock x:Name="ScenarioText" Text="-" TextWrapping="Wrap" FontSize="13" Margin="0,7,0,18"/>
-
-                            <TextBlock Text="PARTICIPANTS" FontSize="10" Foreground="{StaticResource TextSecondary}" FontWeight="SemiBold"/>
-                            <ItemsControl x:Name="ParticipantList" Margin="0,8,0,18"/>
-
-                            <Border Background="#F7F8FA" CornerRadius="12" Padding="13">
-                                <StackPanel>
-                                    <TextBlock Text="Practice mode" FontWeight="SemiBold"/>
-                                    <TextBlock x:Name="PracticeModeText" Text="Manual" FontSize="12" Foreground="{StaticResource TextSecondary}" Margin="0,4,0,0"/>
-                                </StackPanel>
-                            </Border>
-
-                            <Button x:Name="AiPracticeButton" Content="Enable AI Practice" Click="AiPractice_Click" Style="{StaticResource SecondaryButton}" Height="40" Margin="0,14,0,8"/>
-                            <Button Content="Customize chat" Click="Settings_Click" Style="{StaticResource SecondaryButton}" Height="40" Margin="0,0,0,8"/>
-                            <Button Content="Practice call" Click="Call_Click" Style="{StaticResource SecondaryButton}" Height="40" Margin="0,0,0,8"/>
-                            <Button Content="Export as PNG" Click="Export_Click" Style="{StaticResource SecondaryButton}" Height="40" Margin="0,0,0,8"/>
-                            <Button Content="Delete conversation" Click="DeleteConversation_Click" Style="{StaticResource GhostButton}" HorizontalAlignment="Left" Foreground="#D92D20"/>
-                        </StackPanel>
-                    </StackPanel>
-                </ScrollViewer>
+                    <Button Grid.Column="2"
+                            Content="➤"
+                            Click="SendMessage_Click"
+                            Style="{StaticResource IconButton}"
+                            Width="46"
+                            Height="46"
+                            FontSize="19"
+                            Foreground="White"
+                            Background="{StaticResource Accent}"
+                            x:Name="SendButton"
+                            IsEnabled="False"/>
+                </Grid>
             </Border>
         </Grid>
     </Grid>
