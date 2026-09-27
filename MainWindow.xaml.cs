@@ -20,6 +20,7 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
         _project = _storage.Load();
+        ThemeService.ApplyTheme(_project.ThemeId);
         RenderAll();
         SelectInitialConversation();
         UpdateComposerState();
@@ -70,7 +71,7 @@ public partial class MainWindow : Window
             var wrapper = new Border
             {
                 Background = _selectedConversation?.Id == conversation.Id
-                    ? new SolidColorBrush(Color.FromRgb(235, 245, 255))
+                    ? GetThemeBrush("SelectedBackground")
                     : Brushes.Transparent,
                 CornerRadius = new CornerRadius(12),
                 Padding = new Thickness(10)
@@ -108,7 +109,7 @@ public partial class MainWindow : Window
                     ? "No participants"
                     : string.Join(", ", participantNames),
                 FontSize = 11,
-                Foreground = new SolidColorBrush(Color.FromRgb(102, 112, 133)),
+                Foreground = GetThemeBrush("TextSecondary"),
                 Margin = new Thickness(0, 3, 0, 0),
                 TextTrimming = TextTrimming.CharacterEllipsis
             });
@@ -126,7 +127,7 @@ public partial class MainWindow : Window
                 {
                     Text = lastMessage.Timestamp.ToString("HH:mm"),
                     FontSize = 9,
-                    Foreground = new SolidColorBrush(Color.FromRgb(152, 162, 179)),
+                    Foreground = GetThemeBrush("TextSecondary"),
                     VerticalAlignment = VerticalAlignment.Top,
                     Margin = new Thickness(0, 2, 0, 0)
                 };
@@ -176,7 +177,7 @@ public partial class MainWindow : Window
                     : contact.AvatarIcon,
                 Foreground = string.IsNullOrWhiteSpace(contact.AvatarIcon)
                     ? Brushes.White
-                    : new SolidColorBrush(Color.FromRgb(21, 148, 71)),
+                    : GetThemeBrush("Accent"),
                 FontWeight = FontWeights.SemiBold,
                 HorizontalAlignment = HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Center
@@ -199,7 +200,7 @@ public partial class MainWindow : Window
             {
                 Text = contact.IsAi ? $"{contact.Role} • AI" : contact.Role,
                 FontSize = 11,
-                Foreground = new SolidColorBrush(Color.FromRgb(102, 112, 133)),
+                Foreground = GetThemeBrush("TextSecondary"),
                 Margin = new Thickness(0, 3, 0, 0)
             });
 
@@ -240,8 +241,8 @@ public partial class MainWindow : Window
                 : "Select a conversation from the left.";
 
             CurrentAvatarText.Text = "?";
-            CurrentAvatar.Background = new SolidColorBrush(Color.FromRgb(221, 245, 232));
-            CurrentAvatarText.Foreground = new SolidColorBrush(Color.FromRgb(21, 148, 71));
+            CurrentAvatar.Background = GetThemeBrush("AccentSoft");
+            CurrentAvatarText.Foreground = GetThemeBrush("Accent");
 
             AiButton.Visibility = Visibility.Collapsed;
             CallButton.IsEnabled = false;
@@ -270,12 +271,12 @@ public partial class MainWindow : Window
                 : first.AvatarIcon;
 
         CurrentAvatar.Background = first is null
-            ? new SolidColorBrush(Color.FromRgb(221, 245, 232))
+            ? GetThemeBrush("AccentSoft")
             : ParseBrush(first.AvatarColor);
 
         CurrentAvatarText.Foreground = first is not null &&
             !string.IsNullOrWhiteSpace(first.AvatarIcon)
-                ? new SolidColorBrush(Color.FromRgb(21, 148, 71))
+                ? GetThemeBrush("Accent")
                 : Brushes.White;
 
         AiButton.Visibility = Visibility.Visible;
@@ -429,7 +430,7 @@ public partial class MainWindow : Window
                         ? "Today"
                         : message.Timestamp.ToString("MMM d"),
                     FontSize = 10,
-                    Foreground = new SolidColorBrush(Color.FromRgb(152, 162, 179)),
+                    Foreground = GetThemeBrush("TextSecondary"),
                     HorizontalAlignment = HorizontalAlignment.Center,
                     Margin = new Thickness(0, 8, 0, 16)
                 });
@@ -459,7 +460,9 @@ public partial class MainWindow : Window
             HorizontalAlignment = isOutgoing
                 ? HorizontalAlignment.Right
                 : HorizontalAlignment.Left,
-            Margin = new Thickness(0, 0, 0, 10)
+            Margin = isOutgoing
+                ? new Thickness(0, 0, 18, 10)
+                : new Thickness(18, 0, 0, 10)
         };
 
         if (_selectedConversation!.IsGroup && !isOutgoing && sender is not null)
@@ -476,16 +479,27 @@ public partial class MainWindow : Window
 
         var bubble = new Border
         {
-            Background = isOutgoing
-                ? new SolidColorBrush(Color.FromRgb(10, 132, 255))
-                : new SolidColorBrush(Color.FromRgb(235, 235, 239)),
+            Background = ParseBrush(
+                isOutgoing
+                    ? (_selectedConversation.OutgoingBubbleColor == "#0A84FF"
+                        ? ThemeService.GetOutgoingBubbleColor(_project.ThemeId)
+                        : _selectedConversation.OutgoingBubbleColor)
+                    : (_selectedConversation.IncomingBubbleColor == "#E9EDF2"
+                        ? ThemeService.GetIncomingBubbleColor(_project.ThemeId)
+                        : _selectedConversation.IncomingBubbleColor)),
             CornerRadius = isOutgoing
                 ? new CornerRadius(17, 17, 5, 17)
                 : new CornerRadius(17, 17, 17, 5),
             Padding = isSticker
                 ? new Thickness(7)
                 : new Thickness(14, 10, 14, 10),
-            MaxWidth = 580
+            MaxWidth = 620,
+            Effect = new System.Windows.Media.Effects.DropShadowEffect
+            {
+                BlurRadius = 12,
+                ShadowDepth = 1,
+                Opacity = 0.10
+            }
         };
 
         bubble.Child = new TextBlock
@@ -714,7 +728,9 @@ public partial class MainWindow : Window
             Scenario = dialog.Scenario,
             ParticipantIds = dialog.ParticipantIds,
             IsAiEnabled = dialog.AiEnabled,
-            PerspectiveId = "self"
+            PerspectiveId = "self",
+            OutgoingBubbleColor = ThemeService.GetOutgoingBubbleColor(_project.ThemeId),
+            IncomingBubbleColor = ThemeService.GetIncomingBubbleColor(_project.ThemeId)
         };
 
         _project.Conversations.Insert(0, conversation);
@@ -808,9 +824,6 @@ public partial class MainWindow : Window
 
     private void Settings_Click(object sender, RoutedEventArgs e)
     {
-        if (_selectedConversation is null)
-            return;
-
         var dialog = new SettingsWindow(_selectedConversation)
         {
             Owner = this
@@ -818,7 +831,10 @@ public partial class MainWindow : Window
 
         if (dialog.ShowDialog() == true)
         {
-            RenderCurrentConversation();
+            _project.ThemeId = dialog.SelectedThemeId;
+            ThemeService.ApplyTheme(_project.ThemeId);
+
+            RenderAll();
             MarkDirty();
         }
     }
@@ -967,6 +983,10 @@ public partial class MainWindow : Window
         SendAsButton.IsEnabled = enabled;
         SendAsIndicator.Opacity = enabled ? 1 : 0.45;
     }
+
+    private static SolidColorBrush GetThemeBrush(string key) =>
+        Application.Current.Resources[key] as SolidColorBrush
+        ?? new SolidColorBrush(Colors.Transparent);
 
     private static string SanitizeFileName(string value)
     {
