@@ -1,0 +1,49 @@
+<Window x:Class="Chat.Dialogs.CreateConversationWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="New Conversation"
+        Width="560"
+        Height="680"
+        ResizeMode="NoResize"
+        WindowStartupLocation="CenterOwner"
+        Background="#FFFFFF"
+        FontFamily="Segoe UI">
+    <Grid Margin="26">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel>
+            <TextBlock Text="New conversation" FontSize="24" FontWeight="SemiBold" Foreground="#111827"/>
+            <TextBlock Text="Choose one or more contacts and create the scenario yourself." FontSize="13" Foreground="#667085" Margin="0,6,0,0"/>
+        </StackPanel>
+
+        <StackPanel Grid.Row="1" Margin="0,24,0,0">
+            <TextBlock Text="CONVERSATION TITLE" FontSize="11" FontWeight="SemiBold" Foreground="#667085"/>
+            <TextBox x:Name="TitleBox" Height="40" Margin="0,7,0,16" Padding="11" FontSize="14"/>
+        </StackPanel>
+
+        <StackPanel Grid.Row="2">
+            <TextBlock Text="PARTICIPANTS" FontSize="11" FontWeight="SemiBold" Foreground="#667085"/>
+            <ListBox x:Name="ContactsList" Margin="0,8,0,12" Height="250" SelectionMode="Multiple" FontSize="14"/>
+            <CheckBox x:Name="AiCheckBox" Content="Enable AI conversation mode" FontSize="13" Margin="0,0,0,14"/>
+            <TextBlock Text="SCENARIO" FontSize="11" FontWeight="SemiBold" Foreground="#667085"/>
+            <TextBox x:Name="ScenarioBox" Height="86" Margin="0,7,0,0" Padding="11" TextWrapping="Wrap" AcceptsReturn="True"/>
+        </StackPanel>
+
+        <TextBlock Grid.Row="3" x:Name="HintText" Text="Select at least one participant." FontSize="11" Foreground="#98A2B3" Margin="0,12,0,14"/>
+
+        <Grid Grid.Row="4">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <Button Content="Cancel" Click="Cancel_Click" Style="{StaticResource SecondaryButton}" Width="110"/>
+            <Button Grid.Column="1" Content="Create Conversation" Click="Create_Click" Style="{StaticResource PrimaryButton}" Width="165"/>
+        </Grid>
+    </Grid>
+</Window>
