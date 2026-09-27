@@ -6,7 +6,7 @@
         Height="680"
         ResizeMode="NoResize"
         WindowStartupLocation="CenterOwner"
-        Background="#FFFFFF"
+        Background="{DynamicResource PanelBackground}"
         FontFamily="Segoe UI">
     <Grid Margin="26">
         <Grid.RowDefinitions>
@@ -18,24 +18,24 @@
         </Grid.RowDefinitions>
 
         <StackPanel>
-            <TextBlock Text="New conversation" FontSize="24" FontWeight="SemiBold" Foreground="#111827"/>
-            <TextBlock Text="Choose one or more contacts and create the scenario yourself." FontSize="13" Foreground="#667085" Margin="0,6,0,0"/>
+            <TextBlock Text="New conversation" FontSize="24" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimary}"/>
+            <TextBlock Text="Choose one or more contacts and create the scenario yourself." FontSize="13" Foreground="{DynamicResource TextSecondary}" Margin="0,6,0,0"/>
         </StackPanel>
 
         <StackPanel Grid.Row="1" Margin="0,24,0,0">
-            <TextBlock Text="CONVERSATION TITLE" FontSize="11" FontWeight="SemiBold" Foreground="#667085"/>
+            <TextBlock Text="CONVERSATION TITLE" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource TextSecondary}"/>
             <TextBox x:Name="TitleBox" Height="40" Margin="0,7,0,16" Padding="11" FontSize="14"/>
         </StackPanel>
 
         <StackPanel Grid.Row="2">
-            <TextBlock Text="PARTICIPANTS" FontSize="11" FontWeight="SemiBold" Foreground="#667085"/>
+            <TextBlock Text="PARTICIPANTS" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource TextSecondary}"/>
             <ListBox x:Name="ContactsList" Margin="0,8,0,12" Height="250" SelectionMode="Multiple" FontSize="14"/>
             <CheckBox x:Name="AiCheckBox" Content="Enable AI conversation mode" FontSize="13" Margin="0,0,0,14"/>
-            <TextBlock Text="SCENARIO" FontSize="11" FontWeight="SemiBold" Foreground="#667085"/>
+            <TextBlock Text="SCENARIO" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource TextSecondary}"/>
             <TextBox x:Name="ScenarioBox" Height="86" Margin="0,7,0,0" Padding="11" TextWrapping="Wrap" AcceptsReturn="True"/>
         </StackPanel>
 
-        <TextBlock Grid.Row="3" x:Name="HintText" Text="Select at least one participant." FontSize="11" Foreground="#98A2B3" Margin="0,12,0,14"/>
+        <TextBlock Grid.Row="3" x:Name="HintText" Text="Select at least one participant." FontSize="11" Foreground="{DynamicResource TextSecondary}" Margin="0,12,0,14"/>
 
         <Grid Grid.Row="4">
             <Grid.ColumnDefinitions>
