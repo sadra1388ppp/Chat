@@ -55,8 +55,52 @@ public partial class MainWindow : Window
         var query = SearchBox?.Text?.Trim() ?? "";
 
         var conversations = _project.Conversations
-            .OrderByDescending(c => c.CreatedAt)
-            .Where(c => MatchesSearch(c, query));
+            .OrderByDescending(c => c.Messages.LastOrDefault()?.Timestamp ?? c.CreatedAt)
+            .Where(c => MatchesSearch(c, query))
+            .ToList();
+
+        if (conversations.Count == 0)
+        {
+            ConversationList.Items.Add(new ListBoxItem
+            {
+                IsHitTestVisible = false,
+                Content = new Border
+                {
+                    Background = GetThemeBrush("SoftPanel"),
+                    BorderBrush = GetThemeBrush("Divider"),
+                    BorderThickness = new Thickness(1),
+                    CornerRadius = new CornerRadius(16),
+                    Padding = new Thickness(18),
+                    Margin = new Thickness(4, 4, 4, 0),
+                    Child = new StackPanel
+                    {
+                        Children =
+                        {
+                            new TextBlock
+                            {
+                                Text = "No conversations yet",
+                                FontSize = 14,
+                                FontWeight = FontWeights.SemiBold,
+                                Foreground = GetThemeBrush("TextPrimary")
+                            },
+                            new TextBlock
+                            {
+                                Text = _project.Contacts.Count == 0
+                                    ? "Create a contact first, then start your first chat."
+                                    : "Create a conversation with the + button above.",
+                                FontSize = 11,
+                                Foreground = GetThemeBrush("TextSecondary"),
+                                TextWrapping = TextWrapping.Wrap,
+                                Margin = new Thickness(0, 6, 0, 0)
+                            }
+                        }
+                    }
+                }
+            });
+
+            SidebarStatusText.Text = "No conversations yet";
+            return;
+        }
 
         foreach (var conversation in conversations)
         {
@@ -64,7 +108,7 @@ public partial class MainWindow : Window
             {
                 Tag = conversation.Id,
                 Padding = new Thickness(4),
-                Margin = new Thickness(0, 0, 0, 3),
+                Margin = new Thickness(0, 1, 0, 1),
                 Background = Brushes.Transparent
             };
 
@@ -73,77 +117,94 @@ public partial class MainWindow : Window
                 Background = _selectedConversation?.Id == conversation.Id
                     ? GetThemeBrush("SelectedBackground")
                     : Brushes.Transparent,
-                CornerRadius = new CornerRadius(12),
-                Padding = new Thickness(10)
+                CornerRadius = new CornerRadius(15),
+                Padding = new Thickness(11, 10, 10, 10)
             };
 
             var grid = new Grid();
-            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(48) });
+            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(52) });
             grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
             grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
 
             var avatar = CreateConversationAvatar(conversation);
+            avatar.Width = 48;
+            avatar.Height = 48;
+            avatar.CornerRadius = new CornerRadius(24);
 
-            var content = new StackPanel
+            var content = new Grid
             {
-                Margin = new Thickness(11, 0, 8, 0),
+                Margin = new Thickness(12, 1, 8, 0),
                 VerticalAlignment = VerticalAlignment.Center
             };
-
-            content.Children.Add(new TextBlock
-            {
-                Text = conversation.Title,
-                FontSize = 13,
-                FontWeight = FontWeights.SemiBold,
-                TextTrimming = TextTrimming.CharacterEllipsis
-            });
+            content.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+            content.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
 
             var participantNames = GetParticipants(conversation)
                 .Select(c => c.Name)
                 .Take(2)
                 .ToList();
 
-            content.Children.Add(new TextBlock
+            var title = new TextBlock
             {
-                Text = participantNames.Count == 0
-                    ? "No participants"
-                    : string.Join(", ", participantNames),
+                Text = conversation.Title,
+                FontSize = 13.5,
+                FontWeight = FontWeights.SemiBold,
+                TextTrimming = TextTrimming.CharacterEllipsis
+            };
+
+            var lastMessage = conversation.Messages
+                .OrderByDescending(m => m.Timestamp)
+                .FirstOrDefault();
+
+            var preview = lastMessage is null
+                ? (string.IsNullOrWhiteSpace(conversation.Scenario)
+                    ? (participantNames.Count == 0 ? "New conversation" : string.Join(", ", participantNames))
+                    : conversation.Scenario)
+                : (lastMessage.SenderId == "self"
+                    ? $"You: {lastMessage.Text}"
+                    : lastMessage.Text);
+
+            if (preview.Length > 46)
+                preview = preview[..46] + "…";
+
+            var previewText = new TextBlock
+            {
+                Text = preview,
                 FontSize = 11,
                 Foreground = GetThemeBrush("TextSecondary"),
-                Margin = new Thickness(0, 3, 0, 0),
+                Margin = new Thickness(0, 4, 0, 0),
                 TextTrimming = TextTrimming.CharacterEllipsis
-            });
+            };
 
-            var lastMessage = conversation.Messages.LastOrDefault();
+            Grid.SetRow(title, 0);
+            Grid.SetRow(previewText, 1);
+            content.Children.Add(title);
+            content.Children.Add(previewText);
+
+            var time = new TextBlock
+            {
+                Text = (lastMessage?.Timestamp ?? conversation.CreatedAt).ToString("HH:mm"),
+                FontSize = 9.5,
+                Foreground = GetThemeBrush("TextSecondary"),
+                VerticalAlignment = VerticalAlignment.Top,
+                Margin = new Thickness(0, 2, 1, 0)
+            };
 
             Grid.SetColumn(avatar, 0);
             Grid.SetColumn(content, 1);
+            Grid.SetColumn(time, 2);
+
             grid.Children.Add(avatar);
             grid.Children.Add(content);
-
-            if (lastMessage is not null)
-            {
-                var time = new TextBlock
-                {
-                    Text = lastMessage.Timestamp.ToString("HH:mm"),
-                    FontSize = 9,
-                    Foreground = GetThemeBrush("TextSecondary"),
-                    VerticalAlignment = VerticalAlignment.Top,
-                    Margin = new Thickness(0, 2, 0, 0)
-                };
-
-                Grid.SetColumn(time, 2);
-                grid.Children.Add(time);
-            }
+            grid.Children.Add(time);
 
             wrapper.Child = grid;
             item.Content = wrapper;
+
             ConversationList.Items.Add(item);
         }
 
-        SidebarStatusText.Text = _project.Conversations.Count == 0
-            ? "No chats yet"
-            : $"{_project.Conversations.Count} practice chat{(_project.Conversations.Count == 1 ? "" : "s")}";
+        SidebarStatusText.Text = $"{_project.Conversations.Count} conversation{(_project.Conversations.Count == 1 ? "" : "s")}";
     }
 
     private void RenderContactsList()
