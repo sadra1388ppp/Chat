@@ -261,14 +261,21 @@
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
 
-                    <Button Content="☺"
+                    <ComboBox x:Name="SendAsCombo"
+                              Width="125"
+                              Height="40"
+                              VerticalContentAlignment="Center"
+                              SelectionChanged="SendAsCombo_SelectionChanged"/>
+
+                    <Button Grid.Column="1"
+                            Content="☺"
                             Click="Emoji_Click"
                             Style="{StaticResource IconButton}"
                             FontSize="21"
                             IsEnabled="False"
                             x:Name="EmojiButton"/>
 
-                    <Border Grid.Column="1"
+                    <Border Grid.Column="2"
                             Background="#F1F2F6"
                             CornerRadius="18"
                             Padding="14,0"
@@ -285,7 +292,7 @@
                                  IsEnabled="False"/>
                     </Border>
 
-                    <Button Grid.Column="2"
+                    <Button Grid.Column="3"
                             Content="➤"
                             Click="SendMessage_Click"
                             Style="{StaticResource IconButton}"
