@@ -5,14 +5,50 @@
     <Application.Resources>
         <SolidColorBrush x:Key="WindowBackground" Color="#F4F6F8"/>
         <SolidColorBrush x:Key="PanelBackground" Color="#FFFFFF"/>
-        <SolidColorBrush x:Key="SoftPanel" Color="#F7F8FA"/>
+        <SolidColorBrush x:Key="SoftPanel" Color="#F1F2F6"/>
         <SolidColorBrush x:Key="Divider" Color="#E3E7EC"/>
         <SolidColorBrush x:Key="TextPrimary" Color="#111827"/>
         <SolidColorBrush x:Key="TextSecondary" Color="#667085"/>
         <SolidColorBrush x:Key="Accent" Color="#0A84FF"/>
         <SolidColorBrush x:Key="AccentDark" Color="#0066CC"/>
+        <SolidColorBrush x:Key="AccentSoft" Color="#E8F1FF"/>
+        <SolidColorBrush x:Key="InputBackground" Color="#F1F2F6"/>
+        <SolidColorBrush x:Key="SelectedBackground" Color="#EBF5FF"/>
+        <SolidColorBrush x:Key="MessageOutgoing" Color="#0A84FF"/>
+        <SolidColorBrush x:Key="MessageIncoming" Color="#E9EDF2"/>
+        <SolidColorBrush x:Key="Danger" Color="#D92D20"/>
+        <SolidColorBrush x:Key="CallBackground" Color="#101418"/>
+        <SolidColorBrush x:Key="CallPanel" Color="#171C22"/>
+        <SolidColorBrush x:Key="CallSecondary" Color="#A9B3BF"/>
+
+        <Style TargetType="TextBox">
+            <Setter Property="Background" Value="{DynamicResource InputBackground}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimary}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource Divider}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="12,9"/>
+            <Setter Property="FontFamily" Value="Segoe UI"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+
+        <Style TargetType="ComboBox">
+            <Setter Property="Background" Value="{DynamicResource InputBackground}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimary}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource Divider}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="10,7"/>
+            <Setter Property="FontFamily" Value="Segoe UI"/>
+        </Style>
+
+        <Style TargetType="ListBox">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimary}"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="FontFamily" Value="Segoe UI"/>
+        </Style>
+
         <Style x:Key="PrimaryButton" TargetType="Button">
-            <Setter Property="Background" Value="{StaticResource Accent}"/>
+            <Setter Property="Background" Value="{DynamicResource Accent}"/>
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Padding" Value="16,10"/>
@@ -21,29 +57,34 @@
             <Setter Property="HorizontalContentAlignment" Value="Center"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
         </Style>
+
         <Style x:Key="SecondaryButton" TargetType="Button">
-            <Setter Property="Background" Value="{StaticResource SoftPanel}"/>
-            <Setter Property="Foreground" Value="{StaticResource TextPrimary}"/>
-            <Setter Property="BorderBrush" Value="{StaticResource Divider}"/>
+            <Setter Property="Background" Value="{DynamicResource SoftPanel}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimary}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource Divider}"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="Padding" Value="12,9"/>
             <Setter Property="Cursor" Value="Hand"/>
         </Style>
+
         <Style x:Key="GhostButton" TargetType="Button">
             <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Foreground" Value="{StaticResource TextSecondary}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextSecondary}"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Padding" Value="10,8"/>
             <Setter Property="Cursor" Value="Hand"/>
         </Style>
+
         <Style x:Key="IconButton" TargetType="Button">
             <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Foreground" Value="{StaticResource TextSecondary}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextSecondary}"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Width" Value="38"/>
             <Setter Property="Height" Value="38"/>
             <Setter Property="FontSize" Value="17"/>
             <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
         </Style>
     </Application.Resources>
 </Application>
