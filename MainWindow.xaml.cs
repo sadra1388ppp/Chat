@@ -283,7 +283,7 @@ public partial class MainWindow : Window
         CallButton.IsEnabled = first is not null;
         MoreButton.IsEnabled = true;
 
-        RenderSendAsCombo();
+        RenderSendAsIndicator();
         RenderMessages();
         UpdateComposerState();
     }
@@ -336,50 +336,69 @@ public partial class MainWindow : Window
         return panel;
     }
 
-    private void RenderSendAsCombo()
+    private void RenderSendAsIndicator()
     {
-        SendAsCombo.Items.Clear();
+        if (_selectedConversation is null)
+            return;
 
-        AddSenderOption("self", _project.CurrentUserName);
-
-        foreach (var participant in GetParticipants(_selectedConversation!))
-            AddSenderOption(participant.Id, participant.Name);
-
-        var preferred = _selectedConversation!.PerspectiveId;
-        var index = FindSenderIndex(preferred);
-
-        SendAsCombo.SelectedIndex = index >= 0 ? index : 0;
-        _selectedConversation.PerspectiveId = GetSelectedSenderId() ?? "self";
-    }
-
-    private void AddSenderOption(string id, string name)
-    {
-        SendAsCombo.Items.Add(new ComboBoxItem
+        var options = new List<(string Id, string Name)>
         {
-            Content = id == "self" ? $"{name} (you)" : name,
-            Tag = id
-        });
+            ("self", _project.CurrentUserName)
+        };
+
+        options.AddRange(
+            GetParticipants(_selectedConversation)
+                .Select(c => (c.Id, c.Name)));
+
+        if (options.Count == 0)
+            return;
+
+        var currentIndex = options.FindIndex(
+            option => option.Id == _selectedConversation.PerspectiveId);
+
+        if (currentIndex < 0)
+            currentIndex = 0;
+
+        _selectedConversation.PerspectiveId = options[currentIndex].Id;
+
+        var isSelf = _selectedConversation.PerspectiveId == "self";
+
+        SendAsIndicator.Fill = isSelf
+            ? new SolidColorBrush(Color.FromRgb(174, 180, 190))
+            : new SolidColorBrush(Color.FromRgb(10, 132, 255));
+
+        SendAsButton.ToolTip = $"Send as {options[currentIndex].Name}";
     }
 
-    private int FindSenderIndex(string? id)
+    private void SendAsButton_Click(object sender, RoutedEventArgs e)
     {
-        if (string.IsNullOrWhiteSpace(id))
-            return -1;
+        if (_selectedConversation is null)
+            return;
 
-        for (var i = 0; i < SendAsCombo.Items.Count; i++)
+        var options = new List<(string Id, string Name)>
         {
-            if (SendAsCombo.Items[i] is ComboBoxItem item &&
-                item.Tag?.ToString() == id)
-            {
-                return i;
-            }
-        }
+            ("self", _project.CurrentUserName)
+        };
 
-        return -1;
+        options.AddRange(
+            GetParticipants(_selectedConversation)
+                .Select(c => (c.Id, c.Name)));
+
+        if (options.Count < 2)
+            return;
+
+        var currentIndex = options.FindIndex(
+            option => option.Id == _selectedConversation.PerspectiveId);
+
+        if (currentIndex < 0)
+            currentIndex = 0;
+
+        var nextIndex = (currentIndex + 1) % options.Count;
+        _selectedConversation.PerspectiveId = options[nextIndex].Id;
+
+        RenderSendAsIndicator();
+        MarkDirty();
     }
-
-    private string? GetSelectedSenderId() =>
-        (SendAsCombo.SelectedItem as ComboBoxItem)?.Tag?.ToString();
 
     private void RenderMessages()
     {
@@ -440,9 +459,7 @@ public partial class MainWindow : Window
             HorizontalAlignment = isOutgoing
                 ? HorizontalAlignment.Right
                 : HorizontalAlignment.Left,
-            Margin = isOutgoing
-                ? new Thickness(120, 0, 0, 10)
-                : new Thickness(0, 0, 120, 10)
+            Margin = new Thickness(0, 0, 0, 10)
         };
 
         if (_selectedConversation!.IsGroup && !isOutgoing && sender is not null)
@@ -612,7 +629,7 @@ public partial class MainWindow : Window
 
     private async void MessageInput_PreviewKeyDown(object sender, KeyEventArgs e)
     {
-        if (e.Key == Key.Enter && Keyboard.Modifiers == ModifierKeys.Control)
+        if (e.Key == Key.Enter && Keyboard.Modifiers == ModifierKeys.None)
         {
             e.Handled = true;
             await SendCurrentMessageAsync();
@@ -673,16 +690,6 @@ public partial class MainWindow : Window
 
         RenderCurrentConversation();
         MarkDirty();
-    }
-
-    private void Emoji_Click(object sender, RoutedEventArgs e)
-    {
-        MessageInput.Text += MessageInput.Text.Length == 0
-            ? "🙂"
-            : " 🙂";
-
-        MessageInput.CaretIndex = MessageInput.Text.Length;
-        MessageInput.Focus();
     }
 
     private void NewConversation_Click(object sender, RoutedEventArgs e)
@@ -967,7 +974,8 @@ public partial class MainWindow : Window
 
         MessageInput.IsEnabled = enabled;
         SendButton.IsEnabled = enabled;
-        EmojiButton.IsEnabled = enabled;
+        SendAsButton.IsEnabled = enabled;
+        SendAsIndicator.Opacity = enabled ? 1 : 0.45;
     }
 
     private static string SanitizeFileName(string value)
