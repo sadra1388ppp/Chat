@@ -367,7 +367,7 @@ public partial class MainWindow : Window
             CornerRadius = isPerspective
                 ? new CornerRadius(18, 18, 5, 18)
                 : new CornerRadius(18, 18, 18, 5),
-            Padding = isSticker ? new Thickness(7) : new Thickness(13, 10),
+            Padding = isSticker ? new Thickness(7) : new Thickness(13, 10, 13, 10),
             MaxWidth = 610
         };
 
