@@ -8,21 +8,21 @@
         MinHeight="680"
         WindowStartupLocation="CenterScreen"
         Background="{StaticResource WindowBackground}"
-        Foreground="{StaticResource TextPrimary}"
+        Foreground="{DynamicResource TextPrimary}"
         FontFamily="Segoe UI">
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="330"/>
+            <ColumnDefinition Width="340"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
         <Border Grid.Column="0"
-                Background="#FFFFFF"
-                BorderBrush="{StaticResource Divider}"
+                Background="{DynamicResource PanelBackground}"
+                BorderBrush="{DynamicResource Divider}"
                 BorderThickness="0,0,1,0">
             <Grid>
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="86"/>
+                    <RowDefinition Height="82"/>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
                     <RowDefinition Height="72"/>
@@ -39,7 +39,7 @@
                         <TextBlock x:Name="SidebarStatusText"
                                    Text="Practice conversations"
                                    FontSize="11"
-                                   Foreground="{StaticResource TextSecondary}"
+                                   Foreground="{DynamicResource TextSecondary}"
                                    Margin="0,3,0,0"/>
                     </StackPanel>
 
@@ -54,7 +54,7 @@
 
                 <Border Grid.Row="1"
                         Margin="18,0,18,14"
-                        Background="#F1F2F6"
+                        Background="{DynamicResource InputBackground}"
                         CornerRadius="12"
                         Padding="12,0">
                     <Grid>
@@ -64,7 +64,7 @@
                         </Grid.ColumnDefinitions>
                         <TextBlock Text="⌕"
                                    FontSize="21"
-                                   Foreground="{StaticResource TextSecondary}"
+                                   Foreground="{DynamicResource TextSecondary}"
                                    VerticalAlignment="Center"/>
                         <TextBox Grid.Column="1"
                                  x:Name="SearchBox"
@@ -72,7 +72,7 @@
                                  BorderThickness="0"
                                  Background="Transparent"
                                  FontSize="13"
-                                 Foreground="{StaticResource TextPrimary}"
+                                 Foreground="{DynamicResource TextPrimary}"
                                  VerticalContentAlignment="Center"
                                  Padding="0,2"
                                  ToolTip="Search chats and contacts"/>
@@ -89,7 +89,7 @@
                         <TextBlock Text="CHATS"
                                    FontSize="10"
                                    FontWeight="SemiBold"
-                                   Foreground="{StaticResource TextSecondary}"
+                                   Foreground="{DynamicResource TextSecondary}"
                                    Margin="22,0,0,10"/>
 
                         <ListBox Grid.Row="1"
@@ -111,7 +111,7 @@
                             <TextBlock Text="CONTACTS"
                                        FontSize="10"
                                        FontWeight="SemiBold"
-                                       Foreground="{StaticResource TextSecondary}"
+                                       Foreground="{DynamicResource TextSecondary}"
                                        VerticalAlignment="Center"/>
                             <Button Content="＋ Add"
                                     Click="AddContact_Click"
@@ -124,7 +124,7 @@
                                    x:Name="ContactsEmptyHint"
                                    Text="Create your first contact to start a practice chat."
                                    FontSize="11"
-                                   Foreground="{StaticResource TextSecondary}"
+                                   Foreground="{DynamicResource TextSecondary}"
                                    TextWrapping="Wrap"
                                    Margin="22,0,22,12"
                                    Visibility="Collapsed"/>
@@ -138,9 +138,9 @@
                 </Grid>
 
                 <Border Grid.Row="3"
-                        BorderBrush="{StaticResource Divider}"
+                        BorderBrush="{DynamicResource Divider}"
                         BorderThickness="0,1,0,0"
-                        Background="#FFFFFF">
+                        Background="{DynamicResource PanelBackground}">
                     <Grid Margin="16,9">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
@@ -153,7 +153,7 @@
                                 Click="ChatsTab_Click"
                                 Style="{StaticResource GhostButton}"
                                 FontWeight="SemiBold"
-                                Foreground="{StaticResource Accent}"/>
+                                Foreground="{DynamicResource Accent}"/>
 
                         <Button Grid.Column="1"
                                 x:Name="ContactsTabButton"
@@ -170,16 +170,16 @@
             </Grid>
         </Border>
 
-        <Grid Grid.Column="1" Background="#F4F3F8">
+        <Grid Grid.Column="1" Background="{DynamicResource WindowBackground}">
             <Grid.RowDefinitions>
-                <RowDefinition Height="78"/>
+                <RowDefinition Height="82"/>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="86"/>
             </Grid.RowDefinitions>
 
             <Border Grid.Row="0"
-                    Background="#FFFFFF"
-                    BorderBrush="{StaticResource Divider}"
+                    Background="{DynamicResource PanelBackground}"
+                    BorderBrush="{DynamicResource Divider}"
                     BorderThickness="0,0,0,1"
                     Padding="20,0">
                 <Grid>
@@ -188,11 +188,11 @@
                                 Width="44"
                                 Height="44"
                                 CornerRadius="22"
-                                Background="#DDF5E8"
+                                Background="{DynamicResource AccentSoft}"
                                 Margin="0,0,12,0">
                             <TextBlock x:Name="CurrentAvatarText"
                                        Text="?"
-                                       Foreground="#159447"
+                                       Foreground="{DynamicResource Accent}"
                                        FontSize="15"
                                        FontWeight="SemiBold"
                                        HorizontalAlignment="Center"
@@ -207,7 +207,7 @@
                             <TextBlock x:Name="ConversationSubtitleText"
                                        Text="Create a contact and your first conversation."
                                        FontSize="11"
-                                       Foreground="{StaticResource TextSecondary}"
+                                       Foreground="{DynamicResource TextSecondary}"
                                        Margin="0,3,0,0"/>
                         </StackPanel>
                     </StackPanel>
@@ -242,18 +242,18 @@
                           VerticalScrollBarVisibility="Auto"
                           HorizontalScrollBarVisibility="Disabled">
                 <Border x:Name="ExportSurface"
-                        Background="#F4F3F8"
-                        Padding="0,24,0,30">
+                        Background="{DynamicResource WindowBackground}"
+                        Padding="18,24,18,30">
                     <StackPanel x:Name="MessagesPanel"
                                 HorizontalAlignment="Stretch"/>
                 </Border>
             </ScrollViewer>
 
             <Border Grid.Row="2"
-                    Background="#FFFFFF"
-                    BorderBrush="{StaticResource Divider}"
+                    Background="{DynamicResource PanelBackground}"
+                    BorderBrush="{DynamicResource Divider}"
                     BorderThickness="0,1,0,0"
-                    Padding="16,12">
+                    Padding="18,12">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
@@ -276,9 +276,9 @@
                     </Button>
 
                     <Border Grid.Column="1"
-                            Background="#F1F2F6"
-                            CornerRadius="18"
-                            Padding="14,0"
+                            Background="{DynamicResource InputBackground}"
+                            CornerRadius="20"
+                            Padding="16,0"
                             Margin="0,0,8,0">
                         <TextBox x:Name="MessageInput"
                                  FontSize="13"
@@ -300,7 +300,7 @@
                             Height="46"
                             FontSize="19"
                             Foreground="White"
-                            Background="{StaticResource Accent}"
+                            Background="{DynamicResource Accent}"
                             x:Name="SendButton"
                             IsEnabled="False"/>
                 </Grid>
