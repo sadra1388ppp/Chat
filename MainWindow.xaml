@@ -243,9 +243,9 @@
                           HorizontalScrollBarVisibility="Disabled">
                 <Border x:Name="ExportSurface"
                         Background="#F4F3F8"
-                        Padding="32,24,32,30">
+                        Padding="0,24,0,30">
                     <StackPanel x:Name="MessagesPanel"
-                                MaxWidth="780"/>
+                                HorizontalAlignment="Stretch"/>
                 </Border>
             </ScrollViewer>
 
@@ -257,30 +257,29 @@
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
 
-                    <ComboBox x:Name="SendAsCombo"
-                              Width="125"
-                              Height="40"
-                              VerticalContentAlignment="Center"
-                              SelectionChanged="SendAsCombo_SelectionChanged"/>
-
-                    <Button Grid.Column="1"
-                            Content="☺"
-                            Click="Emoji_Click"
+                    <Button x:Name="SendAsButton"
+                            Click="SendAsButton_Click"
                             Style="{StaticResource IconButton}"
-                            FontSize="21"
-                            IsEnabled="False"
-                            x:Name="EmojiButton"/>
+                            Width="24"
+                            Height="24"
+                            Padding="0"
+                            Margin="0,0,8,0"
+                            ToolTip="Send as You">
+                        <Ellipse x:Name="SendAsIndicator"
+                                 Width="20"
+                                 Height="20"
+                                 Fill="#AEB4BE"/>
+                    </Button>
 
-                    <Border Grid.Column="2"
+                    <Border Grid.Column="1"
                             Background="#F1F2F6"
                             CornerRadius="18"
                             Padding="14,0"
-                            Margin="6,0,8,0">
+                            Margin="0,0,8,0">
                         <TextBox x:Name="MessageInput"
                                  FontSize="13"
                                  BorderThickness="0"
@@ -293,7 +292,7 @@
                                  IsEnabled="False"/>
                     </Border>
 
-                    <Button Grid.Column="3"
+                    <Button Grid.Column="2"
                             Content="➤"
                             Click="SendMessage_Click"
                             Style="{StaticResource IconButton}"
