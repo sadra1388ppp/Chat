@@ -22,40 +22,46 @@
                 BorderThickness="0,0,1,0">
             <Grid>
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="82"/>
+                    <RowDefinition Height="96"/>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
-                    <RowDefinition Height="72"/>
+                    <RowDefinition Height="74"/>
                 </Grid.RowDefinitions>
 
-                <Grid Margin="22,0">
+                <Grid Margin="20,0">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
 
                     <StackPanel VerticalAlignment="Center">
-                        <TextBlock Text="Chat" FontSize="27" FontWeight="SemiBold"/>
+                        <TextBlock Text="Messages"
+                                   FontSize="25"
+                                   FontWeight="SemiBold"
+                                   Foreground="{DynamicResource TextPrimary}"/>
                         <TextBlock x:Name="SidebarStatusText"
-                                   Text="Practice conversations"
+                                   Text="Your conversations"
                                    FontSize="11"
                                    Foreground="{DynamicResource TextSecondary}"
-                                   Margin="0,3,0,0"/>
+                                   Margin="0,5,0,0"/>
                     </StackPanel>
 
                     <Button Grid.Column="1"
                             Content="＋"
                             Click="NewConversation_Click"
                             Style="{StaticResource IconButton}"
-                            FontSize="23"
-                            Width="44"
-                            Height="44"/>
+                            FontSize="21"
+                            Width="42"
+                            Height="42"
+                            Background="{DynamicResource Accent}"
+                            Foreground="White"
+                            ToolTip="New conversation"/>
                 </Grid>
 
                 <Border Grid.Row="1"
-                        Margin="18,0,18,14"
+                        Margin="16,0,16,18"
                         Background="{DynamicResource InputBackground}"
-                        CornerRadius="12"
+                        CornerRadius="15"
                         Padding="12,0">
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -63,7 +69,7 @@
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
                         <TextBlock Text="⌕"
-                                   FontSize="21"
+                                   FontSize="19"
                                    Foreground="{DynamicResource TextSecondary}"
                                    VerticalAlignment="Center"/>
                         <TextBox Grid.Column="1"
@@ -86,18 +92,26 @@
                             <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
 
-                        <TextBlock Text="CHATS"
-                                   FontSize="10"
-                                   FontWeight="SemiBold"
-                                   Foreground="{DynamicResource TextSecondary}"
-                                   Margin="22,0,0,10"/>
+                        <Grid Margin="20,0,20,10">
+                            <TextBlock Text="Conversations"
+                                       FontSize="13"
+                                       FontWeight="SemiBold"
+                                       Foreground="{DynamicResource TextPrimary}"
+                                       VerticalAlignment="Center"/>
+                            <TextBlock Text="RECENT"
+                                       FontSize="9"
+                                       FontWeight="SemiBold"
+                                       Foreground="{DynamicResource TextSecondary}"
+                                       HorizontalAlignment="Right"
+                                       VerticalAlignment="Center"/>
+                        </Grid>
 
                         <ListBox Grid.Row="1"
                                  x:Name="ConversationList"
                                  SelectionChanged="ConversationList_SelectionChanged"
                                  BorderThickness="0"
                                  Background="Transparent"
-                                 Padding="10,0"/>
+                                 Padding="14,0"/>
                     </Grid>
 
                     <Grid x:Name="ContactsPanel" Visibility="Collapsed">
