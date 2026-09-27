@@ -171,8 +171,12 @@ public partial class MainWindow : Window
 
             avatar.Child = new TextBlock
             {
-                Text = contact.Initial,
-                Foreground = Brushes.White,
+                Text = string.IsNullOrWhiteSpace(contact.AvatarIcon)
+                    ? contact.Initial
+                    : contact.AvatarIcon,
+                Foreground = string.IsNullOrWhiteSpace(contact.AvatarIcon)
+                    ? Brushes.White
+                    : new SolidColorBrush(Color.FromRgb(21, 148, 71)),
                 FontWeight = FontWeights.SemiBold,
                 HorizontalAlignment = HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Center
@@ -261,13 +265,18 @@ public partial class MainWindow : Window
 
         CurrentAvatarText.Text = _selectedConversation.IsGroup
             ? "＋"
-            : first?.Initial ?? "?";
+            : string.IsNullOrWhiteSpace(first?.AvatarIcon)
+                ? first?.Initial ?? "?"
+                : first.AvatarIcon;
 
         CurrentAvatar.Background = first is null
-            ? new SolidColorBrush(Color.FromRgb(10, 132, 255))
+            ? new SolidColorBrush(Color.FromRgb(221, 245, 232))
             : ParseBrush(first.AvatarColor);
 
-        CurrentAvatarText.Foreground = Brushes.White;
+        CurrentAvatarText.Foreground = first is not null &&
+            !string.IsNullOrWhiteSpace(first.AvatarIcon)
+                ? new SolidColorBrush(Color.FromRgb(21, 148, 71))
+                : Brushes.White;
 
         AiButton.Visibility = Visibility.Visible;
         AiButton.Content = _selectedConversation.IsAiEnabled ? "AI On" : "AI";
@@ -552,8 +561,12 @@ public partial class MainWindow : Window
 
         border.Child = new TextBlock
         {
-            Text = conversation.IsGroup ? "＋" : first?.Initial ?? "?",
-            Foreground = first is null
+            Text = conversation.IsGroup
+                ? "＋"
+                : string.IsNullOrWhiteSpace(first?.AvatarIcon)
+                    ? first?.Initial ?? "?"
+                    : first.AvatarIcon,
+            Foreground = first is null || !string.IsNullOrWhiteSpace(first?.AvatarIcon)
                 ? new SolidColorBrush(Color.FromRgb(21, 148, 71))
                 : Brushes.White,
             FontWeight = FontWeights.SemiBold,
