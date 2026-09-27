@@ -1,38 +1,31 @@
-# FakeChat Studio
+# Chat
 
-A Windows desktop chat-story creator built with C#, WPF and .NET 10.
+A Windows desktop conversation-practice studio inspired by modern chat rehearsal apps.
 
-## Vision
+## What this build includes
 
-FakeChat Studio is designed to create fictional chat conversations for storytelling, UI prototyping and creative projects.
+- Starts completely empty: no demo chats or pre-created contacts.
+- Create reusable contacts/personas with optional AI mode.
+- Create one-to-one or group conversations.
+- Write both sides by switching the Send as participant.
+- Bubble colors, timestamps, typing indicators and read receipts.
+- Message reactions, emoji insertion and sticker-style messages.
+- Local AI practice responses without requiring an external API key.
+- Practice call simulator with timer and recap.
+- PNG conversation export.
+- Offline-first JSON persistence under %LOCALAPPDATA%\Chat.
 
 ## Stack
 
 - C#
-- .NET 10
 - WPF
-- MVVM architecture (being introduced incrementally)
-- Local/offline-first project storage
-
-## Roadmap
-
-- [x] Windows WPF foundation
-- [x] Initial Studio shell
-- [ ] Project editor
-- [ ] Character editor
-- [ ] Chat message editor
-- [ ] Timeline
-- [ ] Animated preview
-- [ ] PNG export
-- [ ] GIF/video export
-- [ ] Templates and themes
+- .NET 10
+- No third-party packages required.
 
 ## Run
 
-Requirements: Windows + .NET 10 SDK.
-
-```bash
 dotnet restore
 dotnet build
-dotnet run --project src/FakeChatStudio
-```
+dotnet run
+
+The UI and feature set are based on the current public App Store description/version history of Text Simulator, while the implementation here is an independent Windows desktop app.
