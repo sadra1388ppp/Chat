@@ -1,6 +1,6 @@
 using System.Windows;
 
-namespace FakeChatStudio;
+namespace Chat;
 
 public partial class App : Application
 {
