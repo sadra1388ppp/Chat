@@ -6,7 +6,7 @@ namespace Chat.Services;
 
 public sealed class ProjectStorageService
 {
-    private const int CurrentSchemaVersion = 3;
+    private const int CurrentSchemaVersion = 4;
 
     private readonly string _folder = Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
@@ -37,11 +37,12 @@ public sealed class ProjectStorageService
             var json = File.ReadAllText(ProjectPath);
             var project = JsonSerializer.Deserialize<ChatProject>(json);
 
-            if (project is null || project.SchemaVersion < CurrentSchemaVersion)
+            if (project is null)
                 return CreateEmptyProject();
 
             project.Contacts ??= [];
             project.Conversations ??= [];
+            project.ThemeId = ThemeService.Normalize(project.ThemeId);
 
             foreach (var contact in project.Contacts)
             {
@@ -62,6 +63,7 @@ public sealed class ProjectStorageService
     {
         SchemaVersion = CurrentSchemaVersion,
         Name = "Chat",
+        ThemeId = ThemeService.Light,
         CurrentUserName = "You",
         Contacts = [],
         Conversations = [],
