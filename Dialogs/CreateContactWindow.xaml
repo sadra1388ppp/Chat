@@ -6,7 +6,7 @@
         Height="760"
         ResizeMode="NoResize"
         WindowStartupLocation="CenterOwner"
-        Background="#F5F4FA"
+        Background="{DynamicResource WindowBackground}"
         FontFamily="Segoe UI">
     <Grid Margin="24">
         <Grid.RowDefinitions>
@@ -23,7 +23,7 @@
             <Button Content="Cancel"
                     Click="Cancel_Click"
                     Style="{StaticResource GhostButton}"
-                    Foreground="#2B8A57"
+                    Foreground="{DynamicResource Accent}"
                     HorizontalAlignment="Left"/>
             <TextBlock Grid.Column="1"
                        Text="New Contact"
@@ -37,21 +37,21 @@
                       VerticalScrollBarVisibility="Auto"
                       Margin="0,22,0,18">
             <StackPanel>
-                <TextBlock Text="NAME" FontSize="10" FontWeight="SemiBold" Foreground="#8A8A96"/>
+                <TextBlock Text="NAME" FontSize="10" FontWeight="SemiBold" Foreground="{DynamicResource TextSecondary}"/>
                 <TextBox x:Name="NameBox" Height="42" Margin="0,6,0,16" Padding="12" FontSize="14"/>
 
-                <TextBlock Text="SUBTITLE" FontSize="10" FontWeight="SemiBold" Foreground="#8A8A96"/>
+                <TextBlock Text="SUBTITLE" FontSize="10" FontWeight="SemiBold" Foreground="{DynamicResource TextSecondary}"/>
                 <TextBox x:Name="RoleBox" Height="42" Margin="0,6,0,16" Padding="12" FontSize="14" Text="Friend"/>
 
-                <TextBlock Text="PHONE NUMBER" FontSize="10" FontWeight="SemiBold" Foreground="#8A8A96"/>
+                <TextBlock Text="PHONE NUMBER" FontSize="10" FontWeight="SemiBold" Foreground="{DynamicResource TextSecondary}"/>
                 <TextBox x:Name="PhoneBox" Height="42" Margin="0,6,0,16" Padding="12" FontSize="14"/>
 
-                <TextBlock Text="AVATAR" FontSize="10" FontWeight="SemiBold" Foreground="#8A8A96"/>
-                <Border Background="#FFFFFF" CornerRadius="12" Padding="12" Margin="0,6,0,16">
+                <TextBlock Text="AVATAR" FontSize="10" FontWeight="SemiBold" Foreground="{DynamicResource TextSecondary}"/>
+                <Border Background="{DynamicResource PanelBackground}" BorderBrush="{DynamicResource Divider}" BorderThickness="1" CornerRadius="14" Padding="12" Margin="0,6,0,16">
                     <WrapPanel x:Name="AvatarChoices"/>
                 </Border>
 
-                <TextBlock Text="AI PERSONA (FOR AI CHAT MODE)" FontSize="10" FontWeight="SemiBold" Foreground="#8A8A96"/>
+                <TextBlock Text="AI PERSONA (FOR AI CHAT MODE)" FontSize="10" FontWeight="SemiBold" Foreground="{DynamicResource TextSecondary}"/>
                 <TextBox x:Name="ContextBox"
                          Height="120"
                          Margin="0,6,0,16"
@@ -66,7 +66,7 @@
                           FontSize="13"
                           Margin="0,0,0,16"/>
 
-                <TextBlock Text="BUBBLE COLOR" FontSize="10" FontWeight="SemiBold" Foreground="#8A8A96"/>
+                <TextBlock Text="BUBBLE COLOR" FontSize="10" FontWeight="SemiBold" Foreground="{DynamicResource TextSecondary}"/>
                 <TextBox x:Name="ColorBox"
                          Height="42"
                          Margin="0,6,0,5"
@@ -75,7 +75,7 @@
                          Text="#E9EDF2"/>
                 <TextBlock Text="Use a hex color such as #E9EDF2."
                            FontSize="10"
-                           Foreground="#98A2B3"/>
+                           Foreground="{DynamicResource TextSecondary}"/>
             </StackPanel>
         </ScrollViewer>
 
