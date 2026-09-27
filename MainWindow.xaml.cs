@@ -614,16 +614,6 @@ public partial class MainWindow : Window
         RenderContactsList();
     }
 
-    private void SendAsCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
-    {
-        if (_selectedConversation is null ||
-            SendAsCombo.SelectedItem is not ComboBoxItem item)
-            return;
-
-        _selectedConversation.PerspectiveId = item.Tag?.ToString() ?? "self";
-        RenderMessages();
-    }
-
     private async void SendMessage_Click(object sender, RoutedEventArgs e) =>
         await SendCurrentMessageAsync();
 
