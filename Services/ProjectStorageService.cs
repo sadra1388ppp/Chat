@@ -1,18 +1,16 @@
-using System;
 using System.IO;
-using System.Linq;
 using System.Text.Json;
-using FakeChatStudio.Models;
+using Chat.Models;
 
-namespace FakeChatStudio.Services;
+namespace Chat.Services;
 
-public class ProjectStorageService
+public sealed class ProjectStorageService
 {
-    private const int CurrentSchemaVersion = 1;
+    private const int CurrentSchemaVersion = 3;
 
     private readonly string _folder = Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-        "FakeChatStudio");
+        "Chat");
 
     public string ProjectPath => Path.Combine(_folder, "project.json");
 
@@ -21,7 +19,11 @@ public class ProjectStorageService
         Directory.CreateDirectory(_folder);
         project.SchemaVersion = CurrentSchemaVersion;
 
-        var json = JsonSerializer.Serialize(project, new JsonSerializerOptions { WriteIndented = true });
+        var json = JsonSerializer.Serialize(project, new JsonSerializerOptions
+        {
+            WriteIndented = true
+        });
+
         File.WriteAllText(ProjectPath, json);
     }
 
@@ -35,19 +37,19 @@ public class ProjectStorageService
             var json = File.ReadAllText(ProjectPath);
             var project = JsonSerializer.Deserialize<ChatProject>(json);
 
-            if (project is null)
+            if (project is null || project.SchemaVersion < CurrentSchemaVersion)
                 return CreateEmptyProject();
 
-            // One-time migration for the old sample project.
-            // Older project files had no schema version.
-            if (project.SchemaVersion < CurrentSchemaVersion && IsLegacySampleProject(project))
+            project.Contacts ??= [];
+            project.Conversations ??= [];
+
+            foreach (var contact in project.Contacts)
             {
-                var emptyProject = CreateEmptyProject();
-                Save(emptyProject);
-                return emptyProject;
+                contact.Initial = string.IsNullOrWhiteSpace(contact.Initial)
+                    ? BuildInitial(contact.Name)
+                    : contact.Initial;
             }
 
-            project.SchemaVersion = CurrentSchemaVersion;
             return project;
         }
         catch
@@ -56,27 +58,19 @@ public class ProjectStorageService
         }
     }
 
-    private static bool IsLegacySampleProject(ChatProject project)
+    private static ChatProject CreateEmptyProject() => new()
     {
-        var names = project.Characters
-            .Select(c => c.Name)
-            .Where(name => !string.IsNullOrWhiteSpace(name))
-            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+        SchemaVersion = CurrentSchemaVersion,
+        Name = "Chat",
+        CurrentUserName = "You",
+        Contacts = [],
+        Conversations = [],
+        ActiveConversationId = null
+    };
 
-        return names.Contains("Alex")
-            && names.Contains("Sara")
-            && names.Contains("Mike")
-            && project.Messages.Count > 0;
-    }
-
-    private static ChatProject CreateEmptyProject()
+    private static string BuildInitial(string? name)
     {
-        return new ChatProject
-        {
-            SchemaVersion = CurrentSchemaVersion,
-            Name = "Untitled Project",
-            Characters = [],
-            Messages = []
-        };
+        var trimmed = name?.Trim() ?? "";
+        return trimmed.Length == 0 ? "?" : trimmed[..1].ToUpperInvariant();
     }
 }
