@@ -1,0 +1,24 @@
+name: Build Chat
+
+on:
+  push:
+    branches:
+      - main
+      - feature/text-simulator-experience
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - name: Restore
+        run: dotnet restore Chat.csproj
+      - name: Build
+        run: dotnet build Chat.csproj --configuration Release --no-restore
