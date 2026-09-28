@@ -111,7 +111,7 @@
                                  SelectionChanged="ConversationList_SelectionChanged"
                                  BorderThickness="0"
                                  Background="Transparent"
-                                 Padding="14,0"/>
+                                 Padding="8,0"/>
                     </Grid>
 
                     <Grid x:Name="ContactsPanel" Visibility="Collapsed">
