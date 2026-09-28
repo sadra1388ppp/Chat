@@ -3,6 +3,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Shapes;
 using Chat.Dialogs;
 using Chat.Models;
 using Chat.Services;
@@ -966,20 +967,22 @@ public partial class MainWindow : Window
         target.Child = avatar.Child;
     }
 
-    private static SolidColorBrush CreateAvatarBrush(Color baseColor)
+    private static Brush CreateAvatarBrush(Color baseColor)
     {
         var lighter = MixColor(baseColor, Colors.White, 0.22);
         var darker = MixColor(baseColor, Colors.Black, 0.18);
 
-        return new SolidColorBrush(new LinearGradientBrush(
-            new[]
-            {
-                new GradientStop(lighter, 0.0),
-                new GradientStop(baseColor, 0.48),
-                new GradientStop(darker, 1.0)
-            },
-            new Point(0, 0),
-            new Point(1, 1)));
+        var brush = new LinearGradientBrush
+        {
+            StartPoint = new Point(0, 0),
+            EndPoint = new Point(1, 1)
+        };
+
+        brush.GradientStops.Add(new GradientStop(lighter, 0.0));
+        brush.GradientStops.Add(new GradientStop(baseColor, 0.48));
+        brush.GradientStops.Add(new GradientStop(darker, 1.0));
+
+        return brush;
     }
 
     private static Color ParseColor(string color)
