@@ -344,7 +344,7 @@ public partial class MainWindow : Window
 
         AiButton.Visibility = Visibility.Visible;
         AiButton.Content = _selectedConversation.IsAiEnabled ? "AI On" : "AI";
-        CallButton.IsEnabled = first is not null;
+        CallButton.IsEnabled = first is not null && !_selectedConversation.IsGroup;
         MoreButton.IsEnabled = true;
 
         RenderSendAsIndicator();
