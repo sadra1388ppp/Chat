@@ -15,5 +15,6 @@ public sealed class ChatConversation
     public bool ShowReadReceipts { get; set; } = true;
     public string OutgoingBubbleColor { get; set; } = "#0A84FF";
     public string IncomingBubbleColor { get; set; } = "#E9EDF2";
+    public bool UseThemeBubbleColors { get; set; } = true;
     public DateTime CreatedAt { get; set; } = DateTime.Now;
 }
