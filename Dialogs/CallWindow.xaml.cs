@@ -29,13 +29,11 @@ public partial class CallWindow : Window
             try
             {
                 var color = (Color)ColorConverter.ConvertFromString(contact.AvatarColor);
-                var avatarBrush = new SolidColorBrush(color);
-                avatarBrush.Freeze();
-                ((System.Windows.Shapes.Shape)OuterRing).Stroke = ThemeBrush("Accent");
+                AvatarCircle.Background = new SolidColorBrush(color);
             }
             catch
             {
-                // Keep theme accent.
+                // Keep the theme accent.
             }
         }
 
