@@ -364,7 +364,8 @@
                                  Fill="#AEB4BE"/>
                     </Button>
 
-                    <Button x:Name="EmojiButton"
+                    <Button Grid.Column="1"
+                            x:Name="EmojiButton"
                             Click="ToggleEmojiPicker_Click"
                             Style="{StaticResource IconButton}"
                             Width="40"
