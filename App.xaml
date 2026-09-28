@@ -185,6 +185,9 @@
             </Setter>
         </Style>
 
+        <Style TargetType="Button"
+               BasedOn="{StaticResource BaseButtonStyle}"/>
+        
         <Style x:Key="PrimaryButton"
                TargetType="Button"
                BasedOn="{StaticResource BaseButtonStyle}">
