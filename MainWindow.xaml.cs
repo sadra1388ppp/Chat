@@ -1155,17 +1155,30 @@ public partial class MainWindow : Window
         _project.ActiveConversationId = conversation.Id;
         _selectedConversation = conversation;
 
-        RenderAll();
+        // Render exactly once, then select the matching item without re-entering
+        // the conversation rendering path through SelectionChanged.
+        _refreshingConversationList = true;
+        try
+        {
+            RenderConversationList();
 
-        var ordered = _project.Conversations
-            .OrderByDescending(c => c.CreatedAt)
-            .ToList();
+            var listItem = ConversationList.Items
+                .OfType<ListBoxItem>()
+                .FirstOrDefault(item => string.Equals(
+                    item.Tag?.ToString(),
+                    conversation.Id,
+                    StringComparison.Ordinal));
 
-        var index = ordered.FindIndex(c => c.Id == conversation.Id);
+            ConversationList.SelectedItem = listItem;
+        }
+        finally
+        {
+            _refreshingConversationList = false;
+        }
 
-        if (index >= 0)
-            ConversationList.SelectedIndex = index;
-
+        RenderContactsList();
+        RenderCurrentConversation();
+        UpdateComposerState();
         MarkDirty();
     }
 
