@@ -139,13 +139,7 @@
                            TextTrimming="CharacterEllipsis"/>
             </Border>
 
-            <CheckBox x:Name="AiCheckBox"
-                      Grid.Row="5"
-                      Content="Enable AI conversation mode"
-                      FontSize="13"
-                      Margin="0,0,0,12"/>
-
-            <Grid Grid.Row="6">
+            <Grid Grid.Row="5">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="72"/>
