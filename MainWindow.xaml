@@ -480,7 +480,7 @@ Button>
                                 </Grid>
                                 <Border Height="1" Background="{DynamicResource Divider}"/>
                                 <Grid Height="54">
-                                    <TextBlock Text="Typing Indicator" Margin="16,0,0,0" HorizontalContentAlignment="Left" VerticalAlignment="Center"/>
+                                    <TextBlock Text="Typing Indicator" Margin="16,0,0,0" VerticalAlignment="Center"/>
                                     <CheckBox x:Name="SettingsTypingCheckBox" HorizontalAlignment="Right" Margin="0,0,16,0" VerticalAlignment="Center"/>
                                 </Grid>
                             </StackPanel>
