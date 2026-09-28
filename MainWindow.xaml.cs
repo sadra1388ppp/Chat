@@ -359,14 +359,6 @@ public partial class MainWindow : Window
             ? "AI conversation mode is on"
             : "Turn on AI conversation mode";
 
-        if (_selectedConversation.IsAiEnabled)
-        {
-            var aiParticipant = participants.FirstOrDefault(c => c.IsAi);
-            ConversationSubtitleText.Text = aiParticipant is null
-                ? "AI mode enabled"
-                : $"AI • {aiParticipant.Role}";
-        }
-
         CallButton.IsEnabled = first is not null && !_selectedConversation.IsGroup;
         MoreButton.IsEnabled = true;
 
