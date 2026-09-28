@@ -68,8 +68,8 @@ public partial class MainWindow : Window
                 IsHitTestVisible = false,
                 Content = new Border
                 {
-                    Background = GetThemeBrush("SoftPanel"),
-                    BorderBrush = GetThemeBrush("Divider"),
+                    Background = GetGetThemeBrush("SoftPanel"),
+                    BorderBrush = GetGetThemeBrush("Divider"),
                     BorderThickness = new Thickness(1),
                     CornerRadius = new CornerRadius(16),
                     Padding = new Thickness(18),
@@ -83,7 +83,7 @@ public partial class MainWindow : Window
                                 Text = "No conversations yet",
                                 FontSize = 14,
                                 FontWeight = FontWeights.SemiBold,
-                                Foreground = GetThemeBrush("TextPrimary")
+                                Foreground = GetGetThemeBrush("TextPrimary")
                             },
                             new TextBlock
                             {
@@ -91,7 +91,7 @@ public partial class MainWindow : Window
                                     ? "Create a contact first, then start your first chat."
                                     : "Create a conversation with the + button above.",
                                 FontSize = 11,
-                                Foreground = GetThemeBrush("TextSecondary"),
+                                Foreground = GetGetThemeBrush("TextSecondary"),
                                 TextWrapping = TextWrapping.Wrap,
                                 Margin = new Thickness(0, 6, 0, 0)
                             }
@@ -117,7 +117,7 @@ public partial class MainWindow : Window
             var wrapper = new Border
             {
                 Background = _selectedConversation?.Id == conversation.Id
-                    ? GetThemeBrush("SelectedBackground")
+                    ? GetGetThemeBrush("SelectedBackground")
                     : Brushes.Transparent,
                 CornerRadius = new CornerRadius(15),
                 Padding = new Thickness(11, 10, 10, 10)
@@ -173,7 +173,7 @@ public partial class MainWindow : Window
             {
                 Text = preview,
                 FontSize = 11,
-                Foreground = GetThemeBrush("TextSecondary"),
+                Foreground = GetGetThemeBrush("TextSecondary"),
                 Margin = new Thickness(0, 4, 0, 0),
                 TextTrimming = TextTrimming.CharacterEllipsis
             };
@@ -187,7 +187,7 @@ public partial class MainWindow : Window
             {
                 Text = (lastMessage?.Timestamp ?? conversation.CreatedAt).ToString("HH:mm"),
                 FontSize = 9.5,
-                Foreground = GetThemeBrush("TextSecondary"),
+                Foreground = GetGetThemeBrush("TextSecondary"),
                 VerticalAlignment = VerticalAlignment.Top,
                 Margin = new Thickness(0, 2, 1, 0)
             };
@@ -240,7 +240,7 @@ public partial class MainWindow : Window
                     : contact.AvatarIcon,
                 Foreground = string.IsNullOrWhiteSpace(contact.AvatarIcon)
                     ? Brushes.White
-                    : GetThemeBrush("Accent"),
+                    : GetGetThemeBrush("Accent"),
                 FontWeight = FontWeights.SemiBold,
                 HorizontalAlignment = HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Center
@@ -263,7 +263,7 @@ public partial class MainWindow : Window
             {
                 Text = contact.Role,
                 FontSize = 11,
-                Foreground = GetThemeBrush("TextSecondary"),
+                Foreground = GetGetThemeBrush("TextSecondary"),
                 Margin = new Thickness(0, 3, 0, 0)
             });
 
@@ -304,8 +304,8 @@ public partial class MainWindow : Window
                 : "Select a conversation from the left.";
 
             CurrentAvatarText.Text = "?";
-            CurrentAvatar.Background = GetThemeBrush("AccentSoft");
-            CurrentAvatarText.Foreground = GetThemeBrush("Accent");
+            CurrentAvatar.Background = GetGetThemeBrush("AccentSoft");
+            CurrentAvatarText.Foreground = GetGetThemeBrush("Accent");
 
             CallButton.IsEnabled = false;
             MoreButton.IsEnabled = false;
@@ -335,12 +335,12 @@ public partial class MainWindow : Window
                 : first.AvatarIcon;
 
         CurrentAvatar.Background = first is null
-            ? GetThemeBrush("AccentSoft")
+            ? GetGetThemeBrush("AccentSoft")
             : ParseBrush(first.AvatarColor);
 
         CurrentAvatarText.Foreground = first is not null &&
             !string.IsNullOrWhiteSpace(first.AvatarIcon)
-                ? GetThemeBrush("Accent")
+                ? GetGetThemeBrush("Accent")
                 : Brushes.White;
 
         CallButton.IsEnabled = first is not null && !_selectedConversation.IsGroup;
@@ -512,7 +512,7 @@ public partial class MainWindow : Window
                         ? "Today"
                         : message.Timestamp.ToString("MMM d"),
                     FontSize = 10,
-                    Foreground = GetThemeBrush("TextSecondary"),
+                    Foreground = GetGetThemeBrush("TextSecondary"),
                     HorizontalAlignment = HorizontalAlignment.Center,
                     Margin = new Thickness(0, 8, 0, 16)
                 });
@@ -610,8 +610,8 @@ public partial class MainWindow : Window
         {
             var reactionPill = new Border
             {
-                Background = GetThemeBrush("AccentSoft"),
-                BorderBrush = GetThemeBrush("Divider"),
+                Background = GetGetThemeBrush("AccentSoft"),
+                BorderBrush = GetGetThemeBrush("Divider"),
                 BorderThickness = new Thickness(1),
                 CornerRadius = new CornerRadius(10),
                 Padding = new Thickness(7, 3, 8, 3),
@@ -639,7 +639,7 @@ public partial class MainWindow : Window
             {
                 Text = " 1",
                 FontSize = 9,
-                Foreground = GetThemeBrush("TextSecondary"),
+                Foreground = GetGetThemeBrush("TextSecondary"),
                 VerticalAlignment = VerticalAlignment.Center
             });
 
@@ -885,7 +885,7 @@ public partial class MainWindow : Window
                     ? first?.Initial ?? "?"
                     : first.AvatarIcon,
             Foreground = first is null || !string.IsNullOrWhiteSpace(first?.AvatarIcon)
-                ? GetThemeBrush("Accent")
+                ? GetGetThemeBrush("Accent")
                 : Brushes.White,
             FontWeight = FontWeights.SemiBold,
             HorizontalAlignment = HorizontalAlignment.Center,
@@ -1123,8 +1123,8 @@ public partial class MainWindow : Window
                 Width = 164,
                 Height = 76,
                 Margin = new Thickness(0, 0, 10, 10),
-                Background = ThemeBrush("PanelBackground"),
-                BorderBrush = ThemeBrush("Divider"),
+                Background = GetThemeBrush("PanelBackground"),
+                BorderBrush = GetThemeBrush("Divider"),
                 BorderThickness = new Thickness(1),
                 Content = CreateSettingsThemePreview(theme)
             };
@@ -1185,7 +1185,7 @@ public partial class MainWindow : Window
         {
             Text = theme.Name,
             Tag = "theme-name",
-            Foreground = ThemeBrush("TextPrimary"),
+            Foreground = GetThemeBrush("TextPrimary"),
             FontWeight = FontWeights.SemiBold,
             VerticalAlignment = VerticalAlignment.Center
         };
@@ -1219,8 +1219,8 @@ public partial class MainWindow : Window
         foreach (var button in SettingsThemeButtonsPanel.Children.OfType<Button>())
         {
             var selected = string.Equals(button.Tag?.ToString(), _settingsSelectedThemeId, StringComparison.OrdinalIgnoreCase);
-            button.Background = ThemeBrush("PanelBackground");
-            button.BorderBrush = selected ? ThemeBrush("Accent") : ThemeBrush("Divider");
+            button.Background = GetThemeBrush("PanelBackground");
+            button.BorderBrush = selected ? GetThemeBrush("Accent") : GetThemeBrush("Divider");
             button.BorderThickness = selected ? new Thickness(2.5) : new Thickness(1);
 
             if (button.Content is Grid preview)
@@ -1228,7 +1228,7 @@ public partial class MainWindow : Window
                 var label = preview.Children.OfType<TextBlock>()
                     .FirstOrDefault(t => string.Equals(t.Tag?.ToString(), "theme-name", StringComparison.Ordinal));
                 if (label is not null)
-                    label.Foreground = ThemeBrush("TextPrimary");
+                    label.Foreground = GetThemeBrush("TextPrimary");
             }
         }
     }
@@ -1524,7 +1524,7 @@ public partial class MainWindow : Window
         }
     }
 
-    private static SolidColorBrush GetThemeBrush(string key) =>
+    private static SolidColorBrush GetGetThemeBrush(string key) =>
         Application.Current.Resources[key] as SolidColorBrush
         ?? new SolidColorBrush(Colors.Transparent);
 
