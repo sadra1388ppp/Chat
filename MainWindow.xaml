@@ -393,6 +393,8 @@
                             IsEnabled="False"/>
                 </Grid>
             </Border>
+        </Grid>
+
         <Canvas x:Name="OverlayCanvas"
                 Grid.Column="1"
                 Panel.ZIndex="1000"
