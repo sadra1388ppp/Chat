@@ -16,7 +16,6 @@ public static class ThemeService
     public const string Graphite = "graphite";
     public const string Arctic = "arctic";
     public const string Plum = "plum";
-    public const string Instagram = "instagram";
     public const string Forest = "forest";
     public const string Coffee = "coffee";
     public const string Neon = "neon";
@@ -29,6 +28,7 @@ public static class ThemeService
     public const string Electric = "electric";
     public const string Aurora = "aurora";
     public const string Matrix = "matrix";
+    public const string King = "king";
 
     private sealed record ThemePalette(
         string WindowBackground,
@@ -107,11 +107,6 @@ public static class ThemeService
                 "#A05AE8", "#7E3DC2", "#F0E4FF", "#F0E5F2", "#F2E8FF",
                 "#A05AE8", "#EDE5F0", "#D54E75", "#28192D", "#36203C", "#AE9DB4"),
 
-            [Instagram] = new(
-                "#FFF4F9", "#FFFFFF", "#FBE4EF", "#EED4E0", "#341B2A", "#7D6873",
-                "#E1306C", "#C2185B", "#FFE0EC", "#F9E9F1", "#FFE7F0",
-                "#E1306C", "#F3E5EC", "#C93655", "#2B1722", "#3A1E2D", "#BEA4B0"),
-
             [Forest] = new(
                 "#F1F7F3", "#FFFFFF", "#E3EFE7", "#D2E3D8", "#193025", "#63766C",
                 "#2F8A5B", "#246B46", "#DDF3E6", "#E8F2EB", "#DFF4E7",
@@ -170,7 +165,12 @@ public static class ThemeService
             [Matrix] = new(
                 "#030704", "#07100A", "#0C180E", "#162A19", "#D8FFE0", "#78A681",
                 "#00FF41", "#00BE30", "#0A3516", "#09140C", "#093516",
-                "#00E83B", "#112016", "#FF4A67", "#020503", "#071009", "#74A17D")
+                "#00E83B", "#112016", "#FF4A67", "#020503", "#071009", "#74A17D"),
+
+            [King] = new(
+                "#090A10", "#11131B", "#191B25", "#2B2A2E", "#F8F2E4", "#B9AE91",
+                "#D4AF37", "#A98218", "#2A2412", "#1A1B23", "#302711",
+                "#D4AF37", "#29282F", "#FF5A70", "#06070B", "#11131A", "#AAA18C")
         };
 
     public static string CurrentThemeId { get; private set; } = Light;
@@ -196,7 +196,6 @@ public static class ThemeService
         new(Graphite, "Graphite", "#15171A", "#8C9AA8", "#343A41", "#F1F3F5"),
         new(Arctic, "Arctic", "#F1F7FC", "#2D8FD5", "#D2E1EE", "#172B3A"),
         new(Plum, "Plum", "#F8F2F9", "#A05AE8", "#E3D5E7", "#332037"),
-        new(Instagram, "Instagram", "#FFF4F9", "#E1306C", "#EED4E0", "#341B2A"),
         new(Forest, "Forest", "#F1F7F3", "#2F8A5B", "#D2E3D8", "#193025"),
         new(Coffee, "Coffee", "#F8F3EE", "#A96D3D", "#E2D6C9", "#34271F"),
         new(Neon, "Neon", "#0B0F14", "#00E5FF", "#27333E", "#F4F8FC"),
@@ -208,7 +207,8 @@ public static class ThemeService
         new(Synthwave, "Synthwave", "#12091C", "#FF2BD6", "#39224F", "#FFEFFF"),
         new(Electric, "Electric", "#071018", "#00C8FF", "#1D3A4C", "#EAFBFF"),
         new(Aurora, "Aurora", "#071313", "#47F3C0", "#1E4039", "#E9FFFB"),
-        new(Matrix, "Matrix", "#030704", "#00FF41", "#162A19", "#D8FFE0")
+        new(Matrix, "Matrix", "#030704", "#00FF41", "#162A19", "#D8FFE0"),
+        new(King, "King", "#090A10", "#D4AF37", "#2B2A2E", "#F8F2E4")
     ];
 
     public static string Normalize(string? themeId) =>
