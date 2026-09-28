@@ -878,97 +878,6 @@ public partial class MainWindow : Window
         popup.IsOpen = true;
     }
 
-    private void ShowConversationActionsPopup()
-    {
-        if (_selectedConversation is null)
-            return;
-
-        var popup = new Popup
-        {
-            AllowsTransparency = true,
-            StaysOpen = false,
-            PlacementTarget = MoreButton,
-            Placement = PlacementMode.Bottom,
-            HorizontalOffset = -190,
-            VerticalOffset = 8
-        };
-
-        var card = CreatePopupCard(260);
-        var panel = (StackPanel)card.Child!;
-
-        var header = new Border
-        {
-            Background = GetThemeBrush("AccentSoft"),
-            CornerRadius = new CornerRadius(11),
-            Padding = new Thickness(11, 9, 11, 9),
-            Margin = new Thickness(2, 2, 2, 7)
-        };
-
-        var headerStack = new StackPanel();
-        headerStack.Children.Add(new TextBlock
-        {
-            Text = _selectedConversation.Title,
-            FontSize = 12.5,
-            FontWeight = FontWeights.SemiBold,
-            Foreground = GetThemeBrush("TextPrimary"),
-            TextTrimming = TextTrimming.CharacterEllipsis
-        });
-        headerStack.Children.Add(new TextBlock
-        {
-            Text = _selectedConversation.Messages.Count == 0
-                ? "No messages yet"
-                : $"{_selectedConversation.Messages.Count} message{(_selectedConversation.Messages.Count == 1 ? "" : "s")}",
-            FontSize = 9.5,
-            Foreground = GetThemeBrush("TextSecondary"),
-            Margin = new Thickness(0, 3, 0, 0)
-        });
-        header.Child = headerStack;
-        panel.Children.Add(header);
-
-        panel.Children.Add(CreatePopupAction(
-            "Customize chat",
-            "✦",
-            false,
-            (_, _) =>
-            {
-                popup.IsOpen = false;
-                Settings_Click(this, new RoutedEventArgs());
-            }));
-
-        panel.Children.Add(CreatePopupAction(
-            "Export as PNG",
-            "↗",
-            false,
-            (_, _) =>
-            {
-                popup.IsOpen = false;
-                Export_Click(this, new RoutedEventArgs());
-            }));
-
-        panel.Children.Add(CreatePopupAction(
-            _selectedConversation.IsAiEnabled ? "AI conversation on" : "Turn on AI conversation",
-            "AI",
-            false,
-            (_, _) =>
-            {
-                popup.IsOpen = false;
-                AiPractice_Click(this, new RoutedEventArgs());
-            }));
-
-        panel.Children.Add(CreatePopupAction(
-            "Delete conversation",
-            "×",
-            true,
-            (_, _) =>
-            {
-                popup.IsOpen = false;
-                DeleteConversation_Click(this, new RoutedEventArgs());
-            }));
-
-        popup.Child = card;
-        popup.IsOpen = true;
-    }
-
     private Border CreatePopupCard(double width)
     {
         var shadow = FindResource("PopupShadow") as System.Windows.Media.Effects.DropShadowEffect;
@@ -1415,7 +1324,99 @@ public partial class MainWindow : Window
 
     private void More_Click(object sender, RoutedEventArgs e)
     {
-        ShowConversationActionsPopup();
+        ToggleConversationActionsFlyout();
+    }
+
+    private void ToggleConversationActionsFlyout()
+    {
+        if (_selectedConversation is null)
+            return;
+
+        var isOpening = ConversationActionsFlyout.Visibility != Visibility.Visible;
+
+        if (!isOpening)
+        {
+            CloseConversationActionsFlyout();
+            return;
+        }
+
+        ConversationActionsCountText.Text = _selectedConversation.Messages.Count == 0
+            ? "No messages yet"
+            : $"{_selectedConversation.Messages.Count} message{(_selectedConversation.Messages.Count == 1 ? "" : "s")}";
+
+        AiChatFlyoutLabel.Text = _selectedConversation.IsAiEnabled
+            ? "AI conversation on"
+            : "Turn on AI conversation";
+
+        ConversationActionsFlyout.Visibility = Visibility.Visible;
+        ConversationActionsFlyout.IsHitTestVisible = true;
+    }
+
+    private void CloseConversationActionsFlyout()
+    {
+        ConversationActionsFlyout.IsHitTestVisible = false;
+        ConversationActionsFlyout.Visibility = Visibility.Collapsed;
+    }
+
+    private void CustomizeChatFlyout_Click(object sender, RoutedEventArgs e)
+    {
+        CloseConversationActionsFlyout();
+        Settings_Click(this, new RoutedEventArgs());
+    }
+
+    private void ExportChatFlyout_Click(object sender, RoutedEventArgs e)
+    {
+        CloseConversationActionsFlyout();
+        Export_Click(this, new RoutedEventArgs());
+    }
+
+    private void AiChatFlyout_Click(object sender, RoutedEventArgs e)
+    {
+        CloseConversationActionsFlyout();
+        AiPractice_Click(this, new RoutedEventArgs());
+    }
+
+    private void DeleteChatFlyout_Click(object sender, RoutedEventArgs e)
+    {
+        CloseConversationActionsFlyout();
+        DeleteConversation_Click(this, new RoutedEventArgs());
+    }
+
+    private void MainWindow_Deactivated(object? sender, EventArgs e)
+    {
+        CloseConversationActionsFlyout();
+    }
+
+    private void MainWindow_PreviewMouseDown(object sender, MouseButtonEventArgs e)
+    {
+        if (ConversationActionsFlyout.Visibility != Visibility.Visible)
+            return;
+
+        if (IsInsideElement(e.OriginalSource as DependencyObject, ConversationActionsFlyout) ||
+            IsInsideElement(e.OriginalSource as DependencyObject, MoreButton))
+            return;
+
+        CloseConversationActionsFlyout();
+    }
+
+    private static bool IsInsideElement(DependencyObject? source, DependencyObject target)
+    {
+        var current = source;
+
+        while (current is not null)
+        {
+            if (ReferenceEquals(current, target))
+                return true;
+
+            current = current switch
+            {
+                Visual visual => VisualTreeHelper.GetParent(visual),
+                FrameworkContentElement content => content.Parent,
+                _ => null
+            };
+        }
+
+        return false;
     }
 
     private void DeleteConversation_Click(object sender, RoutedEventArgs e)
