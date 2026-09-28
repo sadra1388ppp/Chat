@@ -892,16 +892,16 @@ public partial class MainWindow : Window
     private Border CreateConversationAvatar(ChatConversation conversation)
     {
         var first = GetParticipants(conversation).FirstOrDefault();
+        var baseColor = first is null
+            ? Color.FromRgb(88, 166, 255)
+            : ParseColor(first.AvatarColor);
 
         var border = new Border
         {
             Width = 50,
             Height = 50,
             CornerRadius = new CornerRadius(25),
-            Background = CreateAvatarBrush(
-                first is null
-                    ? Color.FromRgb(88, 166, 255)
-                    : ParseColor(first.AvatarColor)),
+            Background = CreateAvatarBrush(baseColor),
             BorderBrush = new SolidColorBrush(Color.FromArgb(48, 255, 255, 255)),
             BorderThickness = new Thickness(1)
         };
@@ -917,9 +917,7 @@ public partial class MainWindow : Window
             FontWeight = FontWeights.Bold,
             FontSize = conversation.IsGroup
                 ? 17
-                : !string.IsNullOrWhiteSpace(first?.AvatarIcon)
-                    ? 15
-                    : 15,
+                : 15,
             HorizontalAlignment = HorizontalAlignment.Center,
             VerticalAlignment = VerticalAlignment.Center,
             TextAlignment = TextAlignment.Center
@@ -930,12 +928,13 @@ public partial class MainWindow : Window
 
     private void UpdateHeaderAvatar(ChatCharacter? contact, bool isGroup)
     {
-        var color = contact is null
+        var baseColor = contact is null
             ? Color.FromRgb(88, 166, 255)
             : ParseColor(contact.AvatarColor);
 
-        CurrentAvatar.Background = CreateAvatarBrush(color);
-        CurrentAvatar.BorderBrush = new SolidColorBrush(Color.FromArgb(48, 255, 255, 255));
+        CurrentAvatar.Background = CreateAvatarBrush(baseColor);
+        CurrentAvatar.BorderBrush =
+            new SolidColorBrush(Color.FromArgb(48, 255, 255, 255));
         CurrentAvatar.BorderThickness = new Thickness(1);
 
         CurrentAvatarText.Text = isGroup
@@ -945,40 +944,10 @@ public partial class MainWindow : Window
                 : contact.AvatarIcon;
 
         CurrentAvatarText.Foreground = Brushes.White;
-        CurrentAvatarText.FontSize = isGroup
-            ? 15
-            : !string.IsNullOrWhiteSpace(contact?.AvatarIcon)
-                ? 14
-                : 15;
+        CurrentAvatarText.FontSize = isGroup ? 15 : 14;
     }
 
     private static Brush CreateAvatarBrush(Color baseColor)
-    private void UpdateHeaderAvatar(ChatCharacter? contact, bool isGroup)
-    {
-        var color = contact is null
-            ? Color.FromRgb(88, 166, 255)
-            : ParseColor(contact.AvatarColor);
-
-        CurrentAvatar.Background = CreateAvatarBrush(color);
-        CurrentAvatar.BorderBrush = new SolidColorBrush(Color.FromArgb(56, 255, 255, 255));
-
-        CurrentAvatarText.Text = isGroup
-            ? "＋"
-            : string.IsNullOrWhiteSpace(contact?.AvatarIcon)
-                ? contact?.Initial ?? "?"
-                : contact.AvatarIcon;
-
-        CurrentAvatarText.Foreground = Brushes.White;
-        CurrentAvatarText.FontSize = isGroup
-            ? 15
-            : !string.IsNullOrWhiteSpace(contact?.AvatarIcon)
-                ? 14
-                : 15;
-
-        CurrentAvatarHighlight.Fill = new SolidColorBrush(
-            Color.FromArgb(34, 255, 255, 255));
-    }
-
     {
         var lighter = MixColor(baseColor, Colors.White, 0.22);
         var darker = MixColor(baseColor, Colors.Black, 0.18);
