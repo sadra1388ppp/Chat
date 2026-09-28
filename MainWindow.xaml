@@ -11,35 +11,70 @@
         Foreground="{DynamicResource TextPrimary}"
         FontFamily="Segoe UI">
     <Window.Resources>
-        <Style TargetType="ContextMenu">
-            <Setter Property="Background" Value="{DynamicResource PanelBackground}"/>
-            <Setter Property="Foreground" Value="{DynamicResource TextPrimary}"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource Divider}"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Padding" Value="6"/>
-            <Setter Property="HasDropShadow" Value="True"/>
-            <Setter Property="FontFamily" Value="Segoe UI"/>
-        </Style>
+        <DropShadowEffect x:Key="PopupShadow"
+                          BlurRadius="28"
+                          ShadowDepth="8"
+                          Opacity="0.22"/>
 
-        <Style TargetType="MenuItem">
-            <Setter Property="Foreground" Value="{DynamicResource TextPrimary}"/>
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Padding" Value="12,9"/>
-            <Setter Property="Margin" Value="2"/>
-            <Setter Property="FontSize" Value="12.5"/>
+        <Style x:Key="PopupActionButton" TargetType="Button">
+            <Setter Property="Height" Value="44"/>
             <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimary}"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="10,0"/>
+            <Setter Property="FontFamily" Value="Segoe UI"/>
+            <Setter Property="FontSize" Value="12.5"/>
+            <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
-            <Style.Triggers>
-                <Trigger Property="IsHighlighted" Value="True">
-                    <Setter Property="Background" Value="{DynamicResource AccentSoft}"/>
-                    <Setter Property="Foreground" Value="{DynamicResource Accent}"/>
-                </Trigger>
-                <Trigger Property="IsEnabled" Value="False">
-                    <Setter Property="Opacity" Value="0.5"/>
-                </Trigger>
-            </Style.Triggers>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Chrome"
+                                Background="{TemplateBinding Background}"
+                                CornerRadius="10">
+                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                              VerticalAlignment="Center"
+                                              Content="{TemplateBinding Content}"
+                                              ContentTemplate="{TemplateBinding ContentTemplate}"
+                                              Margin="{TemplateBinding Padding}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Chrome"
+                                        Property="Background"
+                                        Value="{DynamicResource AccentSoft}"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Chrome"
+                                        Property="Opacity"
+                                        Value="0.76"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="Chrome"
+                                        Property="Opacity"
+                                        Value="0.45"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
 
+        <Style x:Key="PopupDangerButton"
+               TargetType="Button"
+               BasedOn="{StaticResource PopupActionButton}">
+            <Setter Property="Foreground" Value="{DynamicResource Danger}"/>
+        </Style>
+
+        <Style x:Key="PopupReactionButton"
+               TargetType="Button"
+               BasedOn="{StaticResource PopupActionButton}">
+            <Setter Property="Width" Value="46"/>
+            <Setter Property="Height" Value="46"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        </Style>
     </Window.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
