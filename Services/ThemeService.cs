@@ -12,6 +12,10 @@ public static class ThemeService
     public const string Lavender = "lavender";
     public const string Mint = "mint";
     public const string Rose = "rose";
+    public const string Sunset = "sunset";
+    public const string Graphite = "graphite";
+    public const string Arctic = "arctic";
+    public const string Plum = "plum";
 
     private sealed record ThemePalette(
         string WindowBackground,
@@ -68,7 +72,27 @@ public static class ThemeService
             [Rose] = new(
                 "#FCF4F7", "#FFFFFF", "#F8EAEE", "#F0DCE2", "#341E26", "#806A73",
                 "#E45D83", "#C84468", "#FCE7EF", "#F8EAEE", "#FCEAF0",
-                "#E45D83", "#F1E4E8", "#C93655", "#301A22", "#40232D", "#BDA4AD")
+                "#E45D83", "#F1E4E8", "#C93655", "#301A22", "#40232D", "#BDA4AD"),
+
+            [Sunset] = new(
+                "#FFF6F0", "#FFFFFF", "#FBE9DE", "#F0D6C7", "#342117", "#806A5F",
+                "#F26A3D", "#D84B20", "#FFE7DC", "#FBE9DE", "#FFF0E8",
+                "#F26A3D", "#F1DED3", "#C84352", "#2A1813", "#3A2119", "#C7A69A"),
+
+            [Graphite] = new(
+                "#15171A", "#1D2024", "#272B30", "#343A41", "#F1F3F5", "#9FA7B2",
+                "#8C9AA8", "#6F7F8F", "#25313C", "#272B30", "#26303A",
+                "#6D8EA8", "#2A3036", "#FF6B7D", "#111316", "#1B1E22", "#9FA7B2"),
+
+            [Arctic] = new(
+                "#F1F7FC", "#FFFFFF", "#E5F0F9", "#D2E1EE", "#172B3A", "#62788A",
+                "#2D8FD5", "#1F70AA", "#E2F1FC", "#EAF3FA", "#E4F2FC",
+                "#2D8FD5", "#E5EDF4", "#D94C64", "#12202C", "#192A37", "#9EB2C1"),
+
+            [Plum] = new(
+                "#F8F2F9", "#FFFFFF", "#F0E5F2", "#E3D5E7", "#332037", "#7B697E",
+                "#A05AE8", "#7E3DC2", "#F0E4FF", "#F0E5F2", "#F2E8FF",
+                "#A05AE8", "#EDE5F0", "#D54E75", "#28192D", "#36203C", "#AE9DB4")
         };
 
     public static string CurrentThemeId { get; private set; } = Light;
@@ -112,6 +136,10 @@ public static class ThemeService
             Lavender => Palettes[Lavender].MessageOutgoing,
             Mint => Palettes[Mint].MessageOutgoing,
             Rose => Palettes[Rose].MessageOutgoing,
+            Sunset => Palettes[Sunset].MessageOutgoing,
+            Graphite => Palettes[Graphite].MessageOutgoing,
+            Arctic => Palettes[Arctic].MessageOutgoing,
+            Plum => Palettes[Plum].MessageOutgoing,
             _ => Palettes[Light].MessageOutgoing
         };
 
@@ -124,8 +152,32 @@ public static class ThemeService
             Lavender => Palettes[Lavender].MessageIncoming,
             Mint => Palettes[Mint].MessageIncoming,
             Rose => Palettes[Rose].MessageIncoming,
+            Sunset => Palettes[Sunset].MessageIncoming,
+            Graphite => Palettes[Graphite].MessageIncoming,
+            Arctic => Palettes[Arctic].MessageIncoming,
+            Plum => Palettes[Plum].MessageIncoming,
             _ => Palettes[Light].MessageIncoming
         };
+
+    public static string GetParticipantBubbleColor(string? themeId, int index)
+    {
+        var colors = Normalize(themeId) switch
+        {
+            Dark => new[] { "#5D8CFF", "#A56BFF", "#E58A4F", "#42BE8C", "#D86BA5", "#39A8C7" },
+            Midnight => new[] { "#607DFF", "#A76FFF", "#F08E58", "#43C7A0", "#E06BAA", "#4AAFC8" },
+            Ocean => new[] { "#008BA7", "#7559D9", "#D96D42", "#279B70", "#C65D8A", "#438AA5" },
+            Lavender => new[] { "#7C5CFC", "#B04CDB", "#E07355", "#2BAA78", "#D45A91", "#4B91C7" },
+            Mint => new[] { "#2B8F70", "#7D62D9", "#D66F4C", "#238E63", "#C95D8B", "#3A8FA8" },
+            Rose => new[] { "#C84C73", "#7656D7", "#D46A45", "#268F6B", "#B34F8D", "#3D8EAA" },
+            Sunset => new[] { "#D9542E", "#735AD2", "#C97932", "#238C69", "#BB4F87", "#378BA4" },
+            Graphite => new[] { "#6D8EA8", "#9B72D8", "#D07C4C", "#49A986", "#C56D9A", "#4E9DB5" },
+            Arctic => new[] { "#2D7FBD", "#795FD2", "#D37646", "#2A956F", "#C35F8C", "#3C90AA" },
+            Plum => new[] { "#8D4ED0", "#C458A4", "#D06C46", "#2B956F", "#B94F83", "#3B8EA8" },
+            _ => new[] { "#4D74D9", "#7D5AD8", "#C96D3E", "#28966D", "#C35687", "#298DA8" }
+        };
+
+        return colors[Math.Abs(index) % colors.Length];
+    }
 
     private static void SetBrush(string key, string color)
     {
