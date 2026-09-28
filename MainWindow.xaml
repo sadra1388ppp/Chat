@@ -3,6 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         PreviewMouseDown="MainWindow_PreviewMouseDown"
         Deactivated="MainWindow_Deactivated"
+        PreviewKeyDown="MainWindow_PreviewKeyDown"
         Title="Chat"
         Width="1440"
         Height="900"
@@ -78,7 +79,7 @@
             <Setter Property="HorizontalContentAlignment" Value="Center"/>
         </Style>
     </Window.Resources>
-    <Grid>
+    <Grid x:Name="RootLayout">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="340"/>
             <ColumnDefinition Width="*"/>
@@ -392,155 +393,306 @@
                             IsEnabled="False"/>
                 </Grid>
             </Border>
-        <!-- Safe in-window flyout: avoids a separate native Popup window. -->
-            <Grid x:Name="ConversationActionsFlyout"
-                  Panel.ZIndex="100"
-                  Width="280"
-                  HorizontalAlignment="Right"
-                  VerticalAlignment="Top"
-                  Margin="0,72,18,0"
-                  Visibility="Collapsed"
-                  IsHitTestVisible="False">
-                <Border Background="{DynamicResource PanelBackground}"
-                        BorderBrush="{DynamicResource Divider}"
-                        BorderThickness="1"
-                        CornerRadius="18"
-                        Padding="7"
-                        Effect="{StaticResource PopupShadow}">
-                    <StackPanel>
-                        <Border Background="{DynamicResource AccentSoft}"
-                                CornerRadius="12"
-                                Padding="12,10"
-                                Margin="2,2,2,7">
-                            <StackPanel>
-                                <TextBlock Text="{Binding ElementName=ConversationTitleText, Path=Text}"
-                                           FontSize="12.5"
+        <Canvas x:Name="OverlayCanvas"
+                Grid.Column="1"
+                Panel.ZIndex="1000"
+                IsHitTestVisible="True"
+                ClipToBounds="False">
+
+            <!-- Conversation menu -->
+            <Border x:Name="ConversationActionsFlyout"
+                    Width="280"
+                    Background="{DynamicResource PanelBackground}"
+                    BorderBrush="{DynamicResource Divider}"
+                    BorderThickness="1"
+                    CornerRadius="18"
+                    Padding="7"
+                    Effect="{StaticResource PopupShadow}"
+                    Visibility="Collapsed"
+                    IsHitTestVisible="True">
+                <StackPanel>
+                    <Border Background="{DynamicResource AccentSoft}"
+                            CornerRadius="12"
+                            Padding="12,10"
+                            Margin="2,2,2,7">
+                        <StackPanel>
+                            <TextBlock Text="{Binding ElementName=ConversationTitleText, Path=Text}"
+                                       FontSize="12.5"
+                                       FontWeight="SemiBold"
+                                       Foreground="{DynamicResource TextPrimary}"
+                                       TextTrimming="CharacterEllipsis"/>
+                            <TextBlock x:Name="ConversationActionsCountText"
+                                       Text="No messages yet"
+                                       FontSize="9.5"
+                                       Foreground="{DynamicResource TextSecondary}"
+                                       Margin="0,3,0,0"/>
+                        </StackPanel>
+                    </Border>
+
+                    <Button Click="CustomizeChatFlyout_Click"
+                            Style="{StaticResource PopupActionButton}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="34"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Border Width="28"
+                                    Height="28"
+                                    CornerRadius="8"
+                                    Background="{DynamicResource AccentSoft}"
+                                    VerticalAlignment="Center">
+                                <TextBlock Text="✦"
+                                           FontSize="12"
                                            FontWeight="SemiBold"
-                                           Foreground="{DynamicResource TextPrimary}"
-                                           TextTrimming="CharacterEllipsis"/>
-                                <TextBlock x:Name="ConversationActionsCountText"
-                                           Text="No messages yet"
-                                           FontSize="9.5"
-                                           Foreground="{DynamicResource TextSecondary}"
-                                           Margin="0,3,0,0"/>
-                            </StackPanel>
-                        </Border>
-
-                        <Button Click="CustomizeChatFlyout_Click"
-                                Style="{StaticResource PopupActionButton}">
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="34"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                <Border Width="28"
-                                        Height="28"
-                                        CornerRadius="8"
-                                        Background="{DynamicResource AccentSoft}"
-                                        VerticalAlignment="Center">
-                                    <TextBlock Text="✦"
-                                               FontSize="12"
-                                               FontWeight="SemiBold"
-                                               Foreground="{DynamicResource Accent}"
-                                               HorizontalAlignment="Center"
-                                               VerticalAlignment="Center"/>
-                                </Border>
-                                <TextBlock Grid.Column="1"
-                                           Text="Customize chat"
-                                           FontSize="12"
-                                           FontWeight="Medium"
-                                           Foreground="{DynamicResource TextPrimary}"
+                                           Foreground="{DynamicResource Accent}"
+                                           HorizontalAlignment="Center"
                                            VerticalAlignment="Center"/>
-                            </Grid>
-                        </Button>
+                            </Border>
+                            <TextBlock Grid.Column="1"
+                                       Text="Customize chat"
+                                       FontSize="12"
+                                       FontWeight="Medium"
+                                       Foreground="{DynamicResource TextPrimary}"
+                                       VerticalAlignment="Center"/>
+                        </Grid>
+                    </Button>
 
-                        <Button Click="ExportChatFlyout_Click"
-                                Style="{StaticResource PopupActionButton}">
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="34"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                <Border Width="28"
-                                        Height="28"
-                                        CornerRadius="8"
-                                        Background="{DynamicResource AccentSoft}"
-                                        VerticalAlignment="Center">
-                                    <TextBlock Text="↗"
-                                               FontSize="12"
-                                               FontWeight="SemiBold"
-                                               Foreground="{DynamicResource Accent}"
-                                               HorizontalAlignment="Center"
-                                               VerticalAlignment="Center"/>
-                                </Border>
-                                <TextBlock Grid.Column="1"
-                                           Text="Export as PNG"
+                    <Button Click="ExportChatFlyout_Click"
+                            Style="{StaticResource PopupActionButton}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="34"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Border Width="28"
+                                    Height="28"
+                                    CornerRadius="8"
+                                    Background="{DynamicResource AccentSoft}"
+                                    VerticalAlignment="Center">
+                                <TextBlock Text="↗"
                                            FontSize="12"
-                                           FontWeight="Medium"
-                                           Foreground="{DynamicResource TextPrimary}"
+                                           FontWeight="SemiBold"
+                                           Foreground="{DynamicResource Accent}"
+                                           HorizontalAlignment="Center"
                                            VerticalAlignment="Center"/>
-                            </Grid>
-                        </Button>
+                            </Border>
+                            <TextBlock Grid.Column="1"
+                                       Text="Export as PNG"
+                                       FontSize="12"
+                                       FontWeight="Medium"
+                                       Foreground="{DynamicResource TextPrimary}"
+                                       VerticalAlignment="Center"/>
+                        </Grid>
+                    </Button>
 
-                        <Button Click="AiChatFlyout_Click"
-                                Style="{StaticResource PopupActionButton}">
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="34"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                <Border Width="28"
-                                        Height="28"
-                                        CornerRadius="8"
-                                        Background="{DynamicResource AccentSoft}"
-                                        VerticalAlignment="Center">
-                                    <TextBlock Text="AI"
-                                               FontSize="10"
-                                               FontWeight="Bold"
-                                               Foreground="{DynamicResource Accent}"
-                                               HorizontalAlignment="Center"
-                                               VerticalAlignment="Center"/>
-                                </Border>
-                                <TextBlock x:Name="AiChatFlyoutLabel"
-                                           Grid.Column="1"
-                                           Text="Turn on AI conversation"
-                                           FontSize="12"
-                                           FontWeight="Medium"
-                                           Foreground="{DynamicResource TextPrimary}"
+                    <Button Click="AiChatFlyout_Click"
+                            Style="{StaticResource PopupActionButton}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="34"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Border Width="28"
+                                    Height="28"
+                                    CornerRadius="8"
+                                    Background="{DynamicResource AccentSoft}"
+                                    VerticalAlignment="Center">
+                                <TextBlock Text="AI"
+                                           FontSize="10"
+                                           FontWeight="Bold"
+                                           Foreground="{DynamicResource Accent}"
+                                           HorizontalAlignment="Center"
                                            VerticalAlignment="Center"/>
-                            </Grid>
-                        </Button>
+                            </Border>
+                            <TextBlock x:Name="AiChatFlyoutLabel"
+                                       Grid.Column="1"
+                                       Text="Turn on AI conversation"
+                                       FontSize="12"
+                                       FontWeight="Medium"
+                                       Foreground="{DynamicResource TextPrimary}"
+                                       VerticalAlignment="Center"/>
+                        </Grid>
+                    </Button>
 
-                        <Button Click="DeleteChatFlyout_Click"
-                                Style="{StaticResource PopupDangerButton}">
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="34"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                <Border Width="28"
-                                        Height="28"
-                                        CornerRadius="8"
-                                        Background="#18D92D20"
-                                        VerticalAlignment="Center">
-                                    <TextBlock Text="×"
-                                               FontSize="15"
-                                               FontWeight="SemiBold"
-                                               Foreground="{DynamicResource Danger}"
-                                               HorizontalAlignment="Center"
-                                               VerticalAlignment="Center"/>
-                                </Border>
-                                <TextBlock Grid.Column="1"
-                                           Text="Delete conversation"
-                                           FontSize="12"
-                                           FontWeight="Medium"
+                    <Button Click="DeleteChatFlyout_Click"
+                            Style="{StaticResource PopupDangerButton}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="34"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Border Width="28"
+                                    Height="28"
+                                    CornerRadius="8"
+                                    Background="#18D92D20"
+                                    VerticalAlignment="Center">
+                                <TextBlock Text="×"
+                                           FontSize="15"
+                                           FontWeight="SemiBold"
                                            Foreground="{DynamicResource Danger}"
+                                           HorizontalAlignment="Center"
                                            VerticalAlignment="Center"/>
-                            </Grid>
-                        </Button>
+                            </Border>
+                            <TextBlock Grid.Column="1"
+                                       Text="Delete conversation"
+                                       FontSize="12"
+                                       FontWeight="Medium"
+                                       Foreground="{DynamicResource Danger}"
+                                       VerticalAlignment="Center"/>
+                        </Grid>
+                    </Button>
+                </StackPanel>
+            </Border>
+
+            <!-- Message right-click menu -->
+            <Border x:Name="MessageActionsFlyout"
+                    Width="245"
+                    Background="{DynamicResource PanelBackground}"
+                    BorderBrush="{DynamicResource Divider}"
+                    BorderThickness="1"
+                    CornerRadius="16"
+                    Padding="7"
+                    Effect="{StaticResource PopupShadow}"
+                    Visibility="Collapsed"
+                    IsHitTestVisible="True">
+                <StackPanel>
+                    <TextBlock x:Name="MessageActionsHeader"
+                               Text="MESSAGE"
+                               FontSize="9"
+                               FontWeight="SemiBold"
+                               Foreground="{DynamicResource TextSecondary}"
+                               Margin="10,5,10,8"/>
+
+                    <Button Click="MessageReactFlyout_Click"
+                            Style="{StaticResource PopupActionButton}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="34"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Border Width="28"
+                                    Height="28"
+                                    CornerRadius="8"
+                                    Background="{DynamicResource AccentSoft}"
+                                    VerticalAlignment="Center">
+                                <TextBlock Text="☺"
+                                           FontSize="13"
+                                           Foreground="{DynamicResource Accent}"
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center"/>
+                            </Border>
+                            <TextBlock x:Name="MessageReactFlyoutLabel"
+                                       Grid.Column="1"
+                                       Text="React to message"
+                                       FontSize="12"
+                                       FontWeight="Medium"
+                                       Foreground="{DynamicResource TextPrimary}"
+                                       VerticalAlignment="Center"/>
+                        </Grid>
+                    </Button>
+
+                    <Button Click="CopyMessageFlyout_Click"
+                            Style="{StaticResource PopupActionButton}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="34"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Border Width="28"
+                                    Height="28"
+                                    CornerRadius="8"
+                                    Background="{DynamicResource AccentSoft}"
+                                    VerticalAlignment="Center">
+                                <TextBlock Text="▣"
+                                           FontSize="12"
+                                           Foreground="{DynamicResource Accent}"
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center"/>
+                            </Border>
+                            <TextBlock Grid.Column="1"
+                                       Text="Copy message"
+                                       FontSize="12"
+                                       FontWeight="Medium"
+                                       Foreground="{DynamicResource TextPrimary}"
+                                       VerticalAlignment="Center"/>
+                        </Grid>
+                    </Button>
+
+                    <Button Click="DeleteMessageFlyout_Click"
+                            Style="{StaticResource PopupDangerButton}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="34"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Border Width="28"
+                                    Height="28"
+                                    CornerRadius="8"
+                                    Background="#18D92D20"
+                                    VerticalAlignment="Center">
+                                <TextBlock Text="×"
+                                           FontSize="15"
+                                           FontWeight="SemiBold"
+                                           Foreground="{DynamicResource Danger}"
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center"/>
+                            </Border>
+                            <TextBlock Grid.Column="1"
+                                       Text="Delete message"
+                                       FontSize="12"
+                                       FontWeight="Medium"
+                                       Foreground="{DynamicResource Danger}"
+                                       VerticalAlignment="Center"/>
+                        </Grid>
+                    </Button>
+                </StackPanel>
+            </Border>
+
+            <!-- Reaction chooser opened only from the right-click menu -->
+            <Border x:Name="ReactionActionsFlyout"
+                    Width="330"
+                    Background="{DynamicResource PanelBackground}"
+                    BorderBrush="{DynamicResource Divider}"
+                    BorderThickness="1"
+                    CornerRadius="16"
+                    Padding="8"
+                    Effect="{StaticResource PopupShadow}"
+                    Visibility="Collapsed"
+                    IsHitTestVisible="True">
+                <StackPanel>
+                    <TextBlock Text="REACTION"
+                               FontSize="9"
+                               FontWeight="SemiBold"
+                               Foreground="{DynamicResource TextSecondary}"
+                               Margin="10,4,10,7"/>
+
+                    <StackPanel Orientation="Horizontal"
+                                HorizontalAlignment="Center">
+                        <Button Tag="❤️" Click="ReactionChoice_Click" Style="{StaticResource PopupReactionButton}" Content="❤️"/>
+                        <Button Tag="👍" Click="ReactionChoice_Click" Style="{StaticResource PopupReactionButton}" Content="👍"/>
+                        <Button Tag="😂" Click="ReactionChoice_Click" Style="{StaticResource PopupReactionButton}" Content="😂"/>
+                        <Button Tag="😮" Click="ReactionChoice_Click" Style="{StaticResource PopupReactionButton}" Content="😮"/>
+                        <Button Tag="😢" Click="ReactionChoice_Click" Style="{StaticResource PopupReactionButton}" Content="😢"/>
+                        <Button Tag="🔥" Click="ReactionChoice_Click" Style="{StaticResource PopupReactionButton}" Content="🔥"/>
                     </StackPanel>
-                </Border>
-            </Grid>
-        </Grid>
+
+                    <TextBlock x:Name="ReactionCurrentText"
+                               Text="Choose a reaction"
+                               FontSize="9.5"
+                               Foreground="{DynamicResource TextSecondary}"
+                               HorizontalAlignment="Center"
+                               Margin="0,5,0,3"/>
+
+                    <Button x:Name="RemoveReactionFlyoutButton"
+                            Click="RemoveReactionFlyout_Click"
+                            Style="{StaticResource PopupDangerButton}"
+                            Visibility="Collapsed">
+                        <TextBlock Text="Remove reaction"
+                                   HorizontalAlignment="Center"
+                                   FontSize="11.5"/>
+                    </Button>
+                </StackPanel>
+            </Border>
+        </Canvas>
     </Grid>
 </Window>
