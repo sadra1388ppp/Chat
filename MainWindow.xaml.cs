@@ -1,7 +1,6 @@
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media;
 using Chat.Dialogs;
@@ -17,6 +16,7 @@ public partial class MainWindow : Window
     private ChatProject _project;
     private ChatConversation? _selectedConversation;
     private bool _refreshingConversationList;
+    private ChatMessage? _activeMessageAction;
 
     public MainWindow()
     {
@@ -612,27 +612,6 @@ public partial class MainWindow : Window
                 : Brushes.White
         };
 
-        var reactionButton = new Button
-        {
-            Style = (Style)FindResource("PopupActionButton"),
-            Width = 34,
-            Height = 30,
-            Padding = new Thickness(0),
-            Background = Brushes.Transparent,
-            ToolTip = "React to message",
-            Visibility = Visibility.Collapsed
-        };
-
-        reactionButton.Content = new TextBlock
-        {
-            Text = "☺",
-            FontSize = 15,
-            HorizontalAlignment = HorizontalAlignment.Center,
-            VerticalAlignment = VerticalAlignment.Center
-        };
-
-        reactionButton.Click += (_, _) => ShowReactionPopup(message, reactionButton);
-
         var messageRow = new StackPanel
         {
             Orientation = Orientation.Horizontal,
@@ -641,29 +620,12 @@ public partial class MainWindow : Window
                 : HorizontalAlignment.Left
         };
 
-        if (isOutgoing)
-        {
-            messageRow.Children.Add(bubble);
-            messageRow.Children.Add(reactionButton);
-        }
-        else
-        {
-            messageRow.Children.Add(reactionButton);
-            messageRow.Children.Add(bubble);
-        }
-
-        // Keep the reaction control hidden until the message is hovered.
-        wrapper.MouseEnter += (_, _) => reactionButton.Visibility = Visibility.Visible;
-        wrapper.MouseLeave += (_, _) =>
-        {
-            if (!reactionButton.IsMouseOver)
-                reactionButton.Visibility = Visibility.Collapsed;
-        };
+        messageRow.Children.Add(bubble);
 
         wrapper.PreviewMouseRightButtonUp += (_, e) =>
         {
             e.Handled = true;
-            ShowMessageActionsPopup(message, wrapper);
+            ShowMessageActionsFlyout(message, e.GetPosition(OverlayCanvas));
         };
 
         wrapper.Children.Add(messageRow);
@@ -736,230 +698,143 @@ public partial class MainWindow : Window
         return wrapper;
     }
 
-    private void ShowReactionPopup(ChatMessage message, UIElement placementTarget)
+    private void ShowMessageActionsFlyout(ChatMessage message, Point position)
     {
-        var popup = new Popup
-        {
-            AllowsTransparency = true,
-            StaysOpen = false,
-            PlacementTarget = placementTarget,
-            Placement = PlacementMode.Top,
-            VerticalOffset = -8,
-            HorizontalOffset = 0
-        };
+        _activeMessageAction = message;
+        CloseConversationActionsFlyout();
+        ReactionActionsFlyout.Visibility = Visibility.Collapsed;
 
-        var card = CreatePopupCard(210);
+        MessageActionsHeader.Text = "MESSAGE";
+        MessageReactFlyoutLabel.Text = string.IsNullOrWhiteSpace(message.Reaction)
+            ? "React to message"
+            : "Change reaction";
 
-        var title = new TextBlock
-        {
-            Text = "React to message",
-            FontSize = 11,
-            FontWeight = FontWeights.SemiBold,
-            Foreground = GetThemeBrush("TextPrimary"),
-            Margin = new Thickness(10, 6, 10, 8)
-        };
-        card.Child = new StackPanel();
-        var panel = (StackPanel)card.Child;
-        panel.Children.Add(title);
+        ShowOverlayFlyout(
+            MessageActionsFlyout,
+            position,
+            245,
+            185);
+    }
 
-        var reactionRow = new StackPanel
-        {
-            Orientation = Orientation.Horizontal,
-            HorizontalAlignment = HorizontalAlignment.Center,
-            Margin = new Thickness(3, 0, 3, 5)
-        };
+    private void MessageReactFlyout_Click(object sender, RoutedEventArgs e)
+    {
+        if (_activeMessageAction is null)
+            return;
 
-        foreach (var emoji in new[] { "❤️", "👍", "😂", "😮", "😢", "🔥" })
-        {
-            var button = new Button
-            {
-                Style = (Style)FindResource("PopupReactionButton"),
-                Content = emoji,
-                ToolTip = "React with " + emoji
-            };
+        MessageActionsFlyout.Visibility = Visibility.Collapsed;
 
-            button.Click += (_, _) =>
-            {
-                message.Reaction = emoji;
-                popup.IsOpen = false;
-                RenderMessages();
-                MarkDirty();
-            };
-
-            reactionRow.Children.Add(button);
-        }
-
-        panel.Children.Add(reactionRow);
-
-        var changeText = string.IsNullOrWhiteSpace(message.Reaction)
+        var position = GetFlyoutPosition(MessageActionsFlyout);
+        ReactionCurrentText.Text = string.IsNullOrWhiteSpace(_activeMessageAction.Reaction)
             ? "Choose a reaction"
-            : $"Current reaction: {message.Reaction}";
+            : $"Current: {_activeMessageAction.Reaction}";
+        RemoveReactionFlyoutButton.Visibility =
+            string.IsNullOrWhiteSpace(_activeMessageAction.Reaction)
+                ? Visibility.Collapsed
+                : Visibility.Visible;
 
-        panel.Children.Add(new TextBlock
-        {
-            Text = changeText,
-            FontSize = 9.5,
-            Foreground = GetThemeBrush("TextSecondary"),
-            HorizontalAlignment = HorizontalAlignment.Center,
-            Margin = new Thickness(0, 1, 0, 4)
-        });
+        ShowOverlayFlyout(
+            ReactionActionsFlyout,
+            new Point(position.X, position.Y),
+            330,
+            135);
+    }
 
-        if (!string.IsNullOrWhiteSpace(message.Reaction))
+    private void ReactionChoice_Click(object sender, RoutedEventArgs e)
+    {
+        if (_activeMessageAction is null ||
+            sender is not Button button ||
+            button.Tag is not string reaction)
+            return;
+
+        _activeMessageAction.Reaction = reaction;
+        CloseAllFlyouts();
+        RenderCurrentConversation();
+        MarkDirty();
+    }
+
+    private void RemoveReactionFlyout_Click(object sender, RoutedEventArgs e)
+    {
+        if (_activeMessageAction is null)
+            return;
+
+        _activeMessageAction.Reaction = null;
+        CloseAllFlyouts();
+        RenderCurrentConversation();
+        MarkDirty();
+    }
+
+    private void CopyMessageFlyout_Click(object sender, RoutedEventArgs e)
+    {
+        if (_activeMessageAction is null)
+            return;
+
+        try
         {
-            var remove = CreatePopupAction("Remove reaction", "×", true);
-            remove.Click += (_, _) =>
-            {
-                message.Reaction = null;
-                popup.IsOpen = false;
-                RenderMessages();
-                MarkDirty();
-            };
-            panel.Children.Add(remove);
+            Clipboard.SetText(_activeMessageAction.Text);
+        }
+        catch
+        {
+            // Clipboard failures should not close the application.
         }
 
-        popup.Child = card;
-        popup.IsOpen = true;
+        CloseAllFlyouts();
     }
 
-    private void ShowMessageActionsPopup(ChatMessage message, UIElement placementTarget)
+    private void DeleteMessageFlyout_Click(object sender, RoutedEventArgs e)
     {
-        var popup = new Popup
-        {
-            AllowsTransparency = true,
-            StaysOpen = false,
-            PlacementTarget = placementTarget,
-            Placement = PlacementMode.MousePoint,
-            HorizontalOffset = 10,
-            VerticalOffset = 6
-        };
+        if (_activeMessageAction is null)
+            return;
 
-        var card = CreatePopupCard(245);
-        var panel = (StackPanel)card.Child!;
-
-        panel.Children.Add(new TextBlock
-        {
-            Text = "MESSAGE",
-            FontSize = 9,
-            FontWeight = FontWeights.SemiBold,
-            Foreground = GetThemeBrush("TextSecondary"),
-            Margin = new Thickness(10, 5, 10, 8)
-        });
-
-        panel.Children.Add(CreatePopupAction(
-            message.Reaction is null ? "React" : "Change reaction",
-            "☺",
-            false,
-            (_, _) =>
-            {
-                popup.IsOpen = false;
-                ShowReactionPopup(message, placementTarget);
-            }));
-
-        panel.Children.Add(CreatePopupAction(
-            "Copy message",
-            "▣",
-            false,
-            (_, _) => Clipboard.SetText(message.Text)));
-
-        panel.Children.Add(CreatePopupAction(
-            "Delete message",
-            "×",
-            true,
-            (_, _) =>
-            {
-                _selectedConversation?.Messages.Remove(message);
-                popup.IsOpen = false;
-                RenderCurrentConversation();
-                RefreshConversationListPreservingSelection();
-                MarkDirty();
-            }));
-
-        popup.Child = card;
-        popup.IsOpen = true;
+        _selectedConversation?.Messages.Remove(_activeMessageAction);
+        CloseAllFlyouts();
+        _activeMessageAction = null;
+        RenderCurrentConversation();
+        RefreshConversationListPreservingSelection();
+        MarkDirty();
     }
 
-    private Border CreatePopupCard(double width)
+    private void ShowOverlayFlyout(
+        FrameworkElement flyout,
+        Point position,
+        double width,
+        double estimatedHeight)
     {
-        var shadow = FindResource("PopupShadow") as System.Windows.Media.Effects.DropShadowEffect;
+        flyout.Width = width;
+        flyout.Visibility = Visibility.Visible;
+        flyout.IsHitTestVisible = true;
 
-        return new Border
-        {
-            Width = width,
-            Background = GetThemeBrush("PanelBackground"),
-            BorderBrush = GetThemeBrush("Divider"),
-            BorderThickness = new Thickness(1),
-            CornerRadius = new CornerRadius(16),
-            Padding = new Thickness(6),
-            Effect = shadow
-        };
+        var maxWidth = Math.Max(0, OverlayCanvas.ActualWidth - width - 12);
+        var maxHeight = Math.Max(0, OverlayCanvas.ActualHeight - estimatedHeight - 12);
+
+        var left = Math.Clamp(position.X + 10, 12, maxWidth);
+        var top = Math.Clamp(position.Y + 8, 86, maxHeight);
+
+        Canvas.SetLeft(flyout, left);
+        Canvas.SetTop(flyout, top);
     }
 
-    private Button CreatePopupAction(
-        string label,
-        string glyph,
-        bool destructive,
-        RoutedEventHandler? click = null)
+    private Point GetFlyoutPosition(FrameworkElement flyout) =>
+        new(
+            Canvas.GetLeft(flyout),
+            Canvas.GetTop(flyout));
+
+    private void CloseAllFlyouts()
     {
-        var content = new Grid();
-        content.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(34) });
-        content.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+        CloseConversationActionsFlyout();
 
-        var icon = new Border
-        {
-            Width = 28,
-            Height = 28,
-            CornerRadius = new CornerRadius(8),
-            Background = destructive
-                ? new SolidColorBrush(Color.FromArgb(24, 217, 45, 32))
-                : GetThemeBrush("AccentSoft"),
-            VerticalAlignment = VerticalAlignment.Center
-        };
+        MessageActionsFlyout.IsHitTestVisible = false;
+        MessageActionsFlyout.Visibility = Visibility.Collapsed;
 
-        icon.Child = new TextBlock
-        {
-            Text = glyph,
-            FontSize = 12,
-            FontWeight = FontWeights.SemiBold,
-            Foreground = destructive
-                ? GetThemeBrush("Danger")
-                : GetThemeBrush("Accent"),
-            HorizontalAlignment = HorizontalAlignment.Center,
-            VerticalAlignment = VerticalAlignment.Center
-        };
+        ReactionActionsFlyout.IsHitTestVisible = false;
+        ReactionActionsFlyout.Visibility = Visibility.Collapsed;
 
-        content.Children.Add(icon);
-        Grid.SetColumn(icon, 0);
+        _activeMessageAction = null;
+    }
 
-        var text = new StackPanel
-        {
-            VerticalAlignment = VerticalAlignment.Center
-        };
-
-        text.Children.Add(new TextBlock
-        {
-            Text = label,
-            FontSize = 12,
-            FontWeight = FontWeights.Medium,
-            Foreground = destructive
-                ? GetThemeBrush("Danger")
-                : GetThemeBrush("TextPrimary")
-        });
-
-        Grid.SetColumn(text, 1);
-        content.Children.Add(text);
-
-        var button = new Button
-        {
-            Content = content,
-            Style = (Style)FindResource(destructive
-                ? "PopupDangerButton"
-                : "PopupActionButton")
-        };
-
-        if (click is not null)
-            button.Click += click;
-
-        return button;
+    private void CloseConversationActionsFlyout()
+    {
+        ConversationActionsFlyout.IsHitTestVisible = false;
+        ConversationActionsFlyout.Visibility = Visibility.Collapsed;
     }
 
     private string GetMessageBubbleColor(string senderId)
@@ -1340,6 +1215,10 @@ public partial class MainWindow : Window
             return;
         }
 
+        MessageActionsFlyout.Visibility = Visibility.Collapsed;
+        ReactionActionsFlyout.Visibility = Visibility.Collapsed;
+        _activeMessageAction = null;
+
         ConversationActionsCountText.Text = _selectedConversation.Messages.Count == 0
             ? "No messages yet"
             : $"{_selectedConversation.Messages.Count} message{(_selectedConversation.Messages.Count == 1 ? "" : "s")}";
@@ -1348,8 +1227,11 @@ public partial class MainWindow : Window
             ? "AI conversation on"
             : "Turn on AI conversation";
 
-        ConversationActionsFlyout.Visibility = Visibility.Visible;
-        ConversationActionsFlyout.IsHitTestVisible = true;
+        ShowOverlayFlyout(
+            ConversationActionsFlyout,
+            new Point(OverlayCanvas.ActualWidth, 0),
+            280,
+            245);
     }
 
     private void CloseConversationActionsFlyout()
@@ -1384,19 +1266,29 @@ public partial class MainWindow : Window
 
     private void MainWindow_Deactivated(object? sender, EventArgs e)
     {
-        CloseConversationActionsFlyout();
+        CloseAllFlyouts();
     }
 
     private void MainWindow_PreviewMouseDown(object sender, MouseButtonEventArgs e)
     {
-        if (ConversationActionsFlyout.Visibility != Visibility.Visible)
+        var source = e.OriginalSource as DependencyObject;
+
+        if (IsInsideElement(source, ConversationActionsFlyout) ||
+            IsInsideElement(source, MessageActionsFlyout) ||
+            IsInsideElement(source, ReactionActionsFlyout) ||
+            IsInsideElement(source, MoreButton))
             return;
 
-        if (IsInsideElement(e.OriginalSource as DependencyObject, ConversationActionsFlyout) ||
-            IsInsideElement(e.OriginalSource as DependencyObject, MoreButton))
-            return;
+        CloseAllFlyouts();
+    }
 
-        CloseConversationActionsFlyout();
+    private void MainWindow_PreviewKeyDown(object sender, KeyEventArgs e)
+    {
+        if (e.Key == Key.Escape)
+        {
+            CloseAllFlyouts();
+            e.Handled = true;
+        }
     }
 
     private static bool IsInsideElement(DependencyObject? source, DependencyObject target)
