@@ -438,9 +438,17 @@ public partial class MainWindow : Window
         _selectedConversation.PerspectiveId = options[currentIndex].Id;
 
         var currentId = _selectedConversation.PerspectiveId;
-        var indicatorColor = currentId == "self"
-            ? ThemeService.GetOutgoingBubbleColor(_project.ThemeId)
-            : GetSenderPaletteColor(currentId);
+
+        // Keep normal chats instantly understandable:
+        // self = neutral gray, other participant = blue.
+        // Groups use the participant palette below.
+        var indicatorColor = _selectedConversation.IsGroup
+            ? (currentId == "self"
+                ? "#AEB4BE"
+                : GetSenderPaletteColor(currentId))
+            : (currentId == "self"
+                ? "#AEB4BE"
+                : "#0A84FF");
 
         SendAsIndicator.Fill = ParseBrush(indicatorColor);
         SendAsButton.ToolTip = $"Send as {options[currentIndex].Name}";
@@ -707,7 +715,7 @@ public partial class MainWindow : Window
                     ? first?.Initial ?? "?"
                     : first.AvatarIcon,
             Foreground = first is null || !string.IsNullOrWhiteSpace(first?.AvatarIcon)
-                ? new SolidColorBrush(Color.FromRgb(21, 148, 71))
+                ? GetThemeBrush("Accent")
                 : Brushes.White,
             FontWeight = FontWeights.SemiBold,
             HorizontalAlignment = HorizontalAlignment.Center,
