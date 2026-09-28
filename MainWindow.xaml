@@ -238,10 +238,14 @@
                                 Margin="0,0,7,0"
                                 Visibility="Collapsed"/>
                         <Button x:Name="CallButton"
-                                Content="☎"
                                 Click="Call_Click"
                                 Style="{StaticResource IconButton}"
-                                IsEnabled="False"/>
+                                IsEnabled="False"
+                                ToolTip="Practice call">
+                            <TextBlock Text="&#xE717;"
+                                       FontFamily="Segoe MDL2 Assets"
+                                       FontSize="17"/>
+                        </Button>
                         <Button x:Name="MoreButton"
                                 Content="⋯"
                                 Click="More_Click"
