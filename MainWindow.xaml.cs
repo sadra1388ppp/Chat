@@ -1726,7 +1726,7 @@ public partial class MainWindow : Window
 
     private static string SanitizeFileName(string value)
     {
-        foreach (var invalid in Path.GetInvalidFileNameChars())
+        foreach (var invalid in System.IO.Path.GetInvalidFileNameChars())
             value = value.Replace(invalid, '_');
 
         return string.IsNullOrWhiteSpace(value)
