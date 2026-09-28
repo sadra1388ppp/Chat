@@ -89,7 +89,7 @@ public static class AiResponseService
         if (text.Contains('?'))
             return "Good question. Answer naturally, then add one concrete detail so the conversation can move forward.";
 
-        return history.Count % 3 switch
+        return (history.Count % 3) switch
         {
             0 => "I hear you. Keep going — what's the next thing you'd say?",
             1 => "That makes sense. Tell me a little more so I can respond realistically.",
