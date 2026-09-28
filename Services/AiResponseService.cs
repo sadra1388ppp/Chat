@@ -24,8 +24,8 @@ public static class AiResponseService
             if (ContainsAny(lower, "سلام", "درود", "هی", "خوبی"))
                 return "سلام! من آماده‌ام. دوست داری از کجا شروع کنیم؟";
 
-            if (ContainsAny(lower, "ممنون", "مرسی", "متشکرم"))
-                return "خواهش می‌کنم. ادامه بده، با دقت گوش می‌دم.";
+            if (ContainsAny(lower, "ممنون", "مرسی", "متشکرم", "دمت گرم"))
+                return "خواهش می‌کنم. ادامه بده؛ من با دقت گوش می‌دم و نقش طرف مقابل رو حفظ می‌کنم.";
 
             if (ContainsAny(lower, "ببخشید", "معذرت"))
                 return "اشکالی نداره. با آرامش ادامه بده؛ دوست داری دقیقاً چی بگی؟";
@@ -34,13 +34,18 @@ public static class AiResponseService
                 ContainsAny(scenarioText, "interview", "job"))
                 return "خوبه؛ برای تمرین مصاحبه، جواب کوتاه و مشخص بده. درباره تجربه و مهارت اصلیت بگو.";
 
-            if (ContainsAny(lower, "پشتیبانی", "سفارش", "خرید", "مشکل"))
-                return "متوجه شدم. اول مشکل را در یک جمله مشخص کنیم. شماره سفارش یا جزئیات اصلی را بگو.";
+            if (ContainsAny(lower, "پشتیبانی", "سفارش", "خرید", "مشکل", "مرجوع", "بازپرداخت"))
+            {
+                if (ContainsAny(lower, "مرجوع", "بازپرداخت", "پس دادن"))
+                    return "حتماً، کمکت می‌کنم. بگو دقیقاً چه اتفاقی افتاده و چه نتیجه‌ای انتظار داری.";
 
-            if (ContainsAny(lower, "دعوا", "اختلاف", "ناراحت", "سخت"))
+                return "متوجه شدم. اول مشکل را در یک جمله مشخص کنیم. شماره سفارش یا جزئیات اصلی را بگو.";
+            }
+
+            if (ContainsAny(lower, "دعوا", "اختلاف", "ناراحت", "عصبانی", "سخت", "بحث"))
                 return "می‌فهمم. سعی کنیم بدون سرزنش جلو بریم. دقیقاً چه نتیجه‌ای می‌خوای از این گفتگو بگیری؟";
 
-            if (text.Contains('?'))
+            if (text.Contains('?') || text.Contains('؟'))
                 return "سؤال خوبیه. جواب کوتاه و طبیعی بده و یک دلیل یا مثال کوچک هم اضافه کن.";
 
             return (history.Count % 3) switch
@@ -86,7 +91,7 @@ public static class AiResponseService
         if (ContainsAny(lower, "difficult", "argument", "upset", "angry", "disagree"))
             return "I hear you. Let's keep this constructive. What outcome would you like from this conversation?";
 
-        if (text.Contains('?'))
+        if (text.Contains('?') || text.Contains('؟'))
             return "Good question. Answer naturally, then add one concrete detail so the conversation can move forward.";
 
         return (history.Count % 3) switch
