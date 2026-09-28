@@ -323,7 +323,9 @@ public partial class MainWindow : Window
         var first = participants.FirstOrDefault();
 
         ConversationTitleText.Text = _selectedConversation.Title;
-        ConversationSubtitleText.Text = first?.Name ?? "Practice conversation";
+        ConversationSubtitleText.Text = _selectedConversation.IsGroup
+            ? $"{participants.Count} participants"
+            : first?.Name ?? "Practice conversation";
 
         CurrentAvatarText.Text = _selectedConversation.IsGroup
             ? "＋"
@@ -544,7 +546,7 @@ public partial class MainWindow : Window
             {
                 Text = sender.Name,
                 FontSize = 10,
-                Foreground = ParseBrush(sender.AvatarColor),
+                Foreground = ParseBrush(GetSenderPaletteColor(sender.Id)),
                 FontWeight = FontWeights.SemiBold,
                 Margin = new Thickness(7, 0, 0, 4)
             });
@@ -573,9 +575,9 @@ public partial class MainWindow : Window
             Text = message.Text,
             FontSize = isSticker ? 40 : 14,
             TextWrapping = TextWrapping.Wrap,
-            Foreground = isOutgoing
-                ? Brushes.White
-                : new SolidColorBrush(Color.FromRgb(17, 24, 39))
+            Foreground = IsLightColor(GetMessageBubbleColor(message.SenderId))
+                ? new SolidColorBrush(Color.FromRgb(17, 24, 39))
+                : Brushes.White
         };
 
         wrapper.Children.Add(bubble);
@@ -1091,6 +1093,20 @@ public partial class MainWindow : Window
         SendButton.IsEnabled = enabled;
         SendAsButton.IsEnabled = enabled;
         SendAsIndicator.Opacity = enabled ? 1 : 0.45;
+    }
+
+    private static bool IsLightColor(string color)
+    {
+        try
+        {
+            var value = (Color)ColorConverter.ConvertFromString(color);
+            var luminance = (0.299 * value.R) + (0.587 * value.G) + (0.114 * value.B);
+            return luminance > 182;
+        }
+        catch
+        {
+            return false;
+        }
     }
 
     private static SolidColorBrush GetThemeBrush(string key) =>
