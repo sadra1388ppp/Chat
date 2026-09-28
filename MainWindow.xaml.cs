@@ -1,6 +1,7 @@
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media;
 using Chat.Dialogs;
@@ -611,6 +612,27 @@ public partial class MainWindow : Window
                 : Brushes.White
         };
 
+        var reactionButton = new Button
+        {
+            Style = (Style)FindResource("PopupActionButton"),
+            Width = 34,
+            Height = 30,
+            Padding = new Thickness(0),
+            Background = Brushes.Transparent,
+            ToolTip = "React to message",
+            Visibility = Visibility.Collapsed
+        };
+
+        reactionButton.Content = new TextBlock
+        {
+            Text = "☺",
+            FontSize = 15,
+            HorizontalAlignment = HorizontalAlignment.Center,
+            VerticalAlignment = VerticalAlignment.Center
+        };
+
+        reactionButton.Click += (_, _) => ShowReactionPopup(message, reactionButton);
+
         var messageRow = new StackPanel
         {
             Orientation = Orientation.Horizontal,
@@ -618,27 +640,6 @@ public partial class MainWindow : Window
                 ? HorizontalAlignment.Right
                 : HorizontalAlignment.Left
         };
-
-        var reactionButton = new Button
-        {
-            Content = new TextBlock
-            {
-                Text = "☺",
-                FontSize = 16,
-                HorizontalAlignment = HorizontalAlignment.Center,
-                VerticalAlignment = VerticalAlignment.Center
-            },
-            Width = 30,
-            Height = 30,
-            Padding = new Thickness(0),
-            Margin = isOutgoing
-                ? new Thickness(7, 0, 0, 0)
-                : new Thickness(0, 0, 7, 0),
-            Style = (Style)FindResource("IconButton"),
-            ToolTip = "Add reaction"
-        };
-
-        reactionButton.ContextMenu = CreateReactionMenu(message, reactionButton);
 
         if (isOutgoing)
         {
@@ -651,6 +652,20 @@ public partial class MainWindow : Window
             messageRow.Children.Add(bubble);
         }
 
+        // Keep the reaction control hidden until the message is hovered.
+        wrapper.MouseEnter += (_, _) => reactionButton.Visibility = Visibility.Visible;
+        wrapper.MouseLeave += (_, _) =>
+        {
+            if (!reactionButton.IsMouseOver)
+                reactionButton.Visibility = Visibility.Collapsed;
+        };
+
+        wrapper.PreviewMouseRightButtonUp += (_, e) =>
+        {
+            e.Handled = true;
+            ShowMessageActionsPopup(message, wrapper);
+        };
+
         wrapper.Children.Add(messageRow);
 
         if (!string.IsNullOrWhiteSpace(message.Reaction))
@@ -660,23 +675,37 @@ public partial class MainWindow : Window
                 Background = GetThemeBrush("AccentSoft"),
                 BorderBrush = GetThemeBrush("Divider"),
                 BorderThickness = new Thickness(1),
-                CornerRadius = new CornerRadius(9),
-                Padding = new Thickness(7, 3, 7, 3),
+                CornerRadius = new CornerRadius(10),
+                Padding = new Thickness(7, 3, 8, 3),
                 HorizontalAlignment = isOutgoing
                     ? HorizontalAlignment.Right
                     : HorizontalAlignment.Left,
                 Margin = isOutgoing
-                    ? new Thickness(0, 4, 38, 0)
-                    : new Thickness(38, 4, 0, 0),
-                ToolTip = "Click the reaction button to change it"
+                    ? new Thickness(0, 5, 40, 0)
+                    : new Thickness(40, 5, 0, 0)
             };
 
-            reactionPill.Child = new TextBlock
+            var reactionRow = new StackPanel
+            {
+                Orientation = Orientation.Horizontal
+            };
+
+            reactionRow.Children.Add(new TextBlock
             {
                 Text = message.Reaction,
-                FontSize = 13
-            };
+                FontSize = 12.5,
+                VerticalAlignment = VerticalAlignment.Center
+            });
 
+            reactionRow.Children.Add(new TextBlock
+            {
+                Text = " 1",
+                FontSize = 9,
+                Foreground = GetThemeBrush("TextSecondary"),
+                VerticalAlignment = VerticalAlignment.Center
+            });
+
+            reactionPill.Child = reactionRow;
             wrapper.Children.Add(reactionPill);
         }
 
@@ -704,110 +733,324 @@ public partial class MainWindow : Window
             });
         }
 
-        var menu = new ContextMenu();
-        menu.Items.Add(CreateStyledMenuItem("Copy", "Copy message", (_, _) =>
-        {
-            Clipboard.SetText(message.Text);
-        }));
-        menu.Items.Add(CreateStyledMenuItem(
-            message.Reaction is null ? "React" : "Change reaction",
-            "Choose a reaction",
-            (_, _) => reactionButton.ContextMenu!.IsOpen = true));
-        menu.Items.Add(new Separator());
-        menu.Items.Add(CreateStyledMenuItem("Delete", "Delete message", (_, _) =>
-        {
-            _selectedConversation.Messages.Remove(message);
-            RenderCurrentConversation();
-            RefreshConversationListPreservingSelection();
-            MarkDirty();
-        }, destructive: true));
-
-        wrapper.ContextMenu = menu;
-
         return wrapper;
     }
 
-    private ContextMenu CreateReactionMenu(ChatMessage message, UIElement placementTarget)
+    private void ShowReactionPopup(ChatMessage message, UIElement placementTarget)
     {
-        var menu = new ContextMenu
+        var popup = new Popup
         {
+            AllowsTransparency = true,
+            StaysOpen = false,
             PlacementTarget = placementTarget,
-            StaysOpen = false
+            Placement = PlacementMode.Top,
+            VerticalOffset = -8,
+            HorizontalOffset = 0
         };
 
-        var header = new MenuItem
+        var card = CreatePopupCard(210);
+
+        var title = new TextBlock
         {
-            Header = "Quick reactions",
-            IsEnabled = false
+            Text = "React to message",
+            FontSize = 11,
+            FontWeight = FontWeights.SemiBold,
+            Foreground = GetThemeBrush("TextPrimary"),
+            Margin = new Thickness(10, 6, 10, 8)
         };
-        menu.Items.Add(header);
+        card.Child = new StackPanel();
+        var panel = (StackPanel)card.Child;
+        panel.Children.Add(title);
 
-        var reactions = new[] { "❤️", "👍", "😂", "😮", "😢", "🔥" };
-
-        foreach (var emoji in reactions)
+        var reactionRow = new StackPanel
         {
-            var item = CreateStyledMenuItem(emoji, "React with " + emoji, (_, _) =>
+            Orientation = Orientation.Horizontal,
+            HorizontalAlignment = HorizontalAlignment.Center,
+            Margin = new Thickness(3, 0, 3, 5)
+        };
+
+        foreach (var emoji in new[] { "❤️", "👍", "😂", "😮", "😢", "🔥" })
+        {
+            var button = new Button
+            {
+                Style = (Style)FindResource("PopupReactionButton"),
+                Content = emoji,
+                ToolTip = "React with " + emoji
+            };
+
+            button.Click += (_, _) =>
             {
                 message.Reaction = emoji;
+                popup.IsOpen = false;
                 RenderMessages();
                 MarkDirty();
-            });
+            };
 
-            menu.Items.Add(item);
+            reactionRow.Children.Add(button);
         }
 
-        menu.Items.Add(new Separator());
-        menu.Items.Add(CreateStyledMenuItem("×", "Remove reaction", (_, _) =>
-        {
-            message.Reaction = null;
-            RenderMessages();
-            MarkDirty();
-        }, destructive: true));
+        panel.Children.Add(reactionRow);
 
-        return menu;
+        var changeText = string.IsNullOrWhiteSpace(message.Reaction)
+            ? "Choose a reaction"
+            : $"Current reaction: {message.Reaction}";
+
+        panel.Children.Add(new TextBlock
+        {
+            Text = changeText,
+            FontSize = 9.5,
+            Foreground = GetThemeBrush("TextSecondary"),
+            HorizontalAlignment = HorizontalAlignment.Center,
+            Margin = new Thickness(0, 1, 0, 4)
+        });
+
+        if (!string.IsNullOrWhiteSpace(message.Reaction))
+        {
+            var remove = CreatePopupAction("Remove reaction", "×", true);
+            remove.Click += (_, _) =>
+            {
+                message.Reaction = null;
+                popup.IsOpen = false;
+                RenderMessages();
+                MarkDirty();
+            };
+            panel.Children.Add(remove);
+        }
+
+        popup.Child = card;
+        popup.IsOpen = true;
     }
 
-    private MenuItem CreateStyledMenuItem(
-        string glyph,
-        string text,
-        RoutedEventHandler click,
-        bool destructive = false)
+    private void ShowMessageActionsPopup(ChatMessage message, UIElement placementTarget)
     {
-        var header = new StackPanel
+        var popup = new Popup
         {
-            Orientation = Orientation.Horizontal
+            AllowsTransparency = true,
+            StaysOpen = false,
+            PlacementTarget = placementTarget,
+            Placement = PlacementMode.MousePoint,
+            HorizontalOffset = 10,
+            VerticalOffset = 6
         };
 
-        header.Children.Add(new TextBlock
+        var card = CreatePopupCard(245);
+        var panel = (StackPanel)card.Child!;
+
+        panel.Children.Add(new TextBlock
+        {
+            Text = "MESSAGE",
+            FontSize = 9,
+            FontWeight = FontWeights.SemiBold,
+            Foreground = GetThemeBrush("TextSecondary"),
+            Margin = new Thickness(10, 5, 10, 8)
+        });
+
+        panel.Children.Add(CreatePopupAction(
+            message.Reaction is null ? "React" : "Change reaction",
+            "☺",
+            false,
+            (_, _) =>
+            {
+                popup.IsOpen = false;
+                ShowReactionPopup(message, placementTarget);
+            }));
+
+        panel.Children.Add(CreatePopupAction(
+            "Copy message",
+            "▣",
+            false,
+            (_, _) => Clipboard.SetText(message.Text)));
+
+        panel.Children.Add(CreatePopupAction(
+            "Delete message",
+            "×",
+            true,
+            (_, _) =>
+            {
+                _selectedConversation?.Messages.Remove(message);
+                popup.IsOpen = false;
+                RenderCurrentConversation();
+                RefreshConversationListPreservingSelection();
+                MarkDirty();
+            }));
+
+        popup.Child = card;
+        popup.IsOpen = true;
+    }
+
+    private void ShowConversationActionsPopup()
+    {
+        if (_selectedConversation is null)
+            return;
+
+        var popup = new Popup
+        {
+            AllowsTransparency = true,
+            StaysOpen = false,
+            PlacementTarget = MoreButton,
+            Placement = PlacementMode.Bottom,
+            HorizontalOffset = -190,
+            VerticalOffset = 8
+        };
+
+        var card = CreatePopupCard(260);
+        var panel = (StackPanel)card.Child!;
+
+        var header = new Border
+        {
+            Background = GetThemeBrush("AccentSoft"),
+            CornerRadius = new CornerRadius(11),
+            Padding = new Thickness(11, 9),
+            Margin = new Thickness(2, 2, 2, 7)
+        };
+
+        var headerStack = new StackPanel();
+        headerStack.Children.Add(new TextBlock
+        {
+            Text = _selectedConversation.Title,
+            FontSize = 12.5,
+            FontWeight = FontWeights.SemiBold,
+            Foreground = GetThemeBrush("TextPrimary"),
+            TextTrimming = TextTrimming.CharacterEllipsis
+        });
+        headerStack.Children.Add(new TextBlock
+        {
+            Text = _selectedConversation.Messages.Count == 0
+                ? "No messages yet"
+                : $"{_selectedConversation.Messages.Count} message{(_selectedConversation.Messages.Count == 1 ? "" : "s")}",
+            FontSize = 9.5,
+            Foreground = GetThemeBrush("TextSecondary"),
+            Margin = new Thickness(0, 3, 0, 0)
+        });
+        header.Child = headerStack;
+        panel.Children.Add(header);
+
+        panel.Children.Add(CreatePopupAction(
+            "Customize chat",
+            "✦",
+            false,
+            (_, _) =>
+            {
+                popup.IsOpen = false;
+                Settings_Click(this, new RoutedEventArgs());
+            }));
+
+        panel.Children.Add(CreatePopupAction(
+            "Export as PNG",
+            "↗",
+            false,
+            (_, _) =>
+            {
+                popup.IsOpen = false;
+                Export_Click(this, new RoutedEventArgs());
+            }));
+
+        panel.Children.Add(CreatePopupAction(
+            _selectedConversation.IsAiEnabled ? "AI conversation on" : "Turn on AI conversation",
+            "AI",
+            false,
+            (_, _) =>
+            {
+                popup.IsOpen = false;
+                AiPractice_Click(this, new RoutedEventArgs());
+            }));
+
+        panel.Children.Add(CreatePopupAction(
+            "Delete conversation",
+            "×",
+            true,
+            (_, _) =>
+            {
+                popup.IsOpen = false;
+                DeleteConversation_Click(this, new RoutedEventArgs());
+            }));
+
+        popup.Child = card;
+        popup.IsOpen = true;
+    }
+
+    private Border CreatePopupCard(double width)
+    {
+        var shadow = FindResource("PopupShadow") as System.Windows.Media.Effects.DropShadowEffect;
+
+        return new Border
+        {
+            Width = width,
+            Background = GetThemeBrush("PanelBackground"),
+            BorderBrush = GetThemeBrush("Divider"),
+            BorderThickness = new Thickness(1),
+            CornerRadius = new CornerRadius(16),
+            Padding = new Thickness(6),
+            Effect = shadow
+        };
+    }
+
+    private Button CreatePopupAction(
+        string label,
+        string glyph,
+        bool destructive,
+        RoutedEventHandler? click = null)
+    {
+        var content = new Grid();
+        content.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(34) });
+        content.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+
+        var icon = new Border
+        {
+            Width = 28,
+            Height = 28,
+            CornerRadius = new CornerRadius(8),
+            Background = destructive
+                ? new SolidColorBrush(Color.FromArgb(24, 217, 45, 32))
+                : GetThemeBrush("AccentSoft"),
+            VerticalAlignment = VerticalAlignment.Center
+        };
+
+        icon.Child = new TextBlock
         {
             Text = glyph,
-            Width = 28,
-            FontSize = 14,
-            VerticalAlignment = VerticalAlignment.Center,
+            FontSize = 12,
+            FontWeight = FontWeights.SemiBold,
             Foreground = destructive
                 ? GetThemeBrush("Danger")
-                : GetThemeBrush("Accent")
-        });
-
-        header.Children.Add(new TextBlock
-        {
-            Text = text,
-            VerticalAlignment = VerticalAlignment.Center,
-            Foreground = destructive
-                ? GetThemeBrush("Danger")
-                : GetThemeBrush("TextPrimary")
-        });
-
-        var item = new MenuItem
-        {
-            Header = header,
-            Foreground = destructive
-                ? GetThemeBrush("Danger")
-                : GetThemeBrush("TextPrimary")
+                : GetThemeBrush("Accent"),
+            HorizontalAlignment = HorizontalAlignment.Center,
+            VerticalAlignment = VerticalAlignment.Center
         };
 
-        item.Click += click;
-        return item;
+        content.Children.Add(icon);
+        Grid.SetColumn(icon, 0);
+
+        var text = new StackPanel
+        {
+            VerticalAlignment = VerticalAlignment.Center
+        };
+
+        text.Children.Add(new TextBlock
+        {
+            Text = label,
+            FontSize = 12,
+            FontWeight = FontWeights.Medium,
+            Foreground = destructive
+                ? GetThemeBrush("Danger")
+                : GetThemeBrush("TextPrimary")
+        });
+
+        Grid.SetColumn(text, 1);
+        content.Children.Add(text);
+
+        var button = new Button
+        {
+            Content = content,
+            Style = (Style)FindResource(destructive
+                ? "PopupDangerButton"
+                : "PopupActionButton")
+        };
+
+        if (click is not null)
+            button.Click += click;
+
+        return button;
     }
 
     private string GetMessageBubbleColor(string senderId)
@@ -1172,49 +1415,7 @@ public partial class MainWindow : Window
 
     private void More_Click(object sender, RoutedEventArgs e)
     {
-        if (_selectedConversation is null)
-            return;
-
-        var menu = new ContextMenu
-        {
-            PlacementTarget = MoreButton,
-            StaysOpen = false
-        };
-
-        var title = new MenuItem
-        {
-            Header = $"Chat • {_selectedConversation.Title}",
-            IsEnabled = false
-        };
-        menu.Items.Add(title);
-        menu.Items.Add(new Separator());
-
-        menu.Items.Add(CreateStyledMenuItem(
-            "✦",
-            "Customize chat",
-            Settings_Click));
-
-        menu.Items.Add(CreateStyledMenuItem(
-            "↗",
-            "Export as PNG",
-            Export_Click));
-
-        if (_selectedConversation.IsAiEnabled)
-        {
-            menu.Items.Add(CreateStyledMenuItem(
-                "AI",
-                "AI conversation is on",
-                (_, _) => { }));
-        }
-
-        menu.Items.Add(new Separator());
-        menu.Items.Add(CreateStyledMenuItem(
-            "×",
-            "Delete conversation",
-            DeleteConversation_Click,
-            destructive: true));
-
-        menu.IsOpen = true;
+        ShowConversationActionsPopup();
     }
 
     private void DeleteConversation_Click(object sender, RoutedEventArgs e)
