@@ -298,24 +298,7 @@
                     <StackPanel Orientation="Horizontal"
                                 HorizontalAlignment="Right"
                                 VerticalAlignment="Center">
-                        <Button x:Name="AiButton"
-                                Content="AI"
-                                Click="AiPractice_Click"
-                                Style="{StaticResource SecondaryButton}"
-                                Height="38"
-                                Padding="13,7"
-                                Margin="0,0,7,0"
-                                Visibility="Collapsed"
-                                ToolTip="Toggle AI conversation mode"/>
-                        <Button x:Name="CallButton"
-                                Click="Call_Click"
-                                Style="{StaticResource IconButton}"
-                                IsEnabled="False"
-                                ToolTip="Call">
-                            <TextBlock Text="&#xE717;"
-                                       FontFamily="Segoe MDL2 Assets"
-                                       FontSize="17"/>
-                        </Button>
+Button>
                         <Button x:Name="MoreButton"
                                 Content="⋯"
                                 Click="More_Click"
@@ -393,6 +376,130 @@
                             IsEnabled="False"/>
                 </Grid>
             </Border>
+        </Grid>
+
+        <Grid x:Name="SettingsView"
+              Grid.Column="1"
+              Panel.ZIndex="900"
+              Background="{DynamicResource WindowBackground}"
+              Visibility="Collapsed">
+            <Grid Margin="28">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Button Content="←  Back" Click="CloseSettings_Click"
+                            Style="{StaticResource GhostButton}"
+                            Foreground="{DynamicResource Accent}" Padding="4,8"/>
+                    <StackPanel Grid.Column="1" HorizontalAlignment="Right">
+                        <TextBlock Text="Settings" FontSize="22" FontWeight="SemiBold" HorizontalAlignment="Right"/>
+                        <TextBlock Text="Customize your Chat experience" FontSize="10.5"
+                                   Foreground="{DynamicResource TextSecondary}" HorizontalAlignment="Right" Margin="0,3,0,0"/>
+                    </StackPanel>
+                </Grid>
+                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Margin="0,20,0,18">
+                    <StackPanel>
+                        <TextBlock Text="THEME" FontSize="10" FontWeight="SemiBold"
+                                   Foreground="{DynamicResource TextSecondary}" Margin="0,0,0,8"/>
+                        <Border Background="{DynamicResource PanelBackground}" BorderBrush="{DynamicResource Divider}"
+                                BorderThickness="1" CornerRadius="16" Padding="14" Margin="0,0,0,20">
+                            <StackPanel>
+                                <TextBlock Text="Choose your Chat look" FontSize="14" FontWeight="SemiBold"/>
+                                <TextBlock Text="Pick a theme and it applies instantly." FontSize="11"
+                                           Foreground="{DynamicResource TextSecondary}" Margin="0,4,0,12"/>
+                                <WrapPanel x:Name="SettingsThemeButtonsPanel"/>
+                            </StackPanel>
+                        </Border>
+                        <TextBlock Text="THEME SYNC" FontSize="10" FontWeight="SemiBold"
+                                   Foreground="{DynamicResource TextSecondary}" Margin="0,0,0,8"/>
+                        <Border Background="{DynamicResource PanelBackground}" BorderBrush="{DynamicResource Divider}"
+                                BorderThickness="1" CornerRadius="14" Margin="0,0,0,20">
+                            <Grid Height="58">
+                                <StackPanel Margin="16,0,70,0" VerticalAlignment="Center">
+                                    <TextBlock Text="Use theme colors" FontSize="13" FontWeight="SemiBold"/>
+                                    <TextBlock Text="Synchronize message bubbles with the selected theme."
+                                               FontSize="10" Foreground="{DynamicResource TextSecondary}" Margin="0,3,0,0"/>
+                                </StackPanel>
+                                <CheckBox x:Name="SettingsUseThemeColorsCheckBox" HorizontalAlignment="Right"
+                                          VerticalAlignment="Center" Margin="0,0,16,0"
+                                          Click="SettingsUseThemeColorsCheckBox_Click"/>
+                            </Grid>
+                        </Border>
+                        <TextBlock Text="PREVIEW" FontSize="10" FontWeight="SemiBold"
+                                   Foreground="{DynamicResource TextSecondary}" Margin="0,0,0,8"/>
+                        <Border Background="{DynamicResource PanelBackground}" BorderBrush="{DynamicResource Divider}"
+                                BorderThickness="1" CornerRadius="16" Padding="16" Margin="0,0,0,20">
+                            <StackPanel HorizontalAlignment="Center">
+                                <Border Background="{DynamicResource MessageIncoming}" CornerRadius="16,16,16,5"
+                                        Padding="12,10" HorizontalAlignment="Left" Margin="0,0,0,10">
+                                    <TextBlock Text="Hey, how's it going?" Foreground="{DynamicResource TextPrimary}" FontSize="13"/>
+                                </Border>
+                                <Border Background="{DynamicResource MessageOutgoing}" CornerRadius="16,16,5,16"
+                                        Padding="12,10" HorizontalAlignment="Right">
+                                    <TextBlock Text="I'm doing great, thanks!" Foreground="White" FontSize="13"/>
+                                </Border>
+                            </StackPanel>
+                        </Border>
+                        <TextBlock Text="BUBBLE COLORS" FontSize="10" FontWeight="SemiBold"
+                                   Foreground="{DynamicResource TextSecondary}" Margin="0,0,0,8"/>
+                        <Border Background="{DynamicResource PanelBackground}" BorderBrush="{DynamicResource Divider}"
+                                BorderThickness="1" CornerRadius="14" Margin="0,0,0,20">
+                            <StackPanel>
+                                <Grid Height="54">
+                                    <TextBlock Text="My Bubbles" Margin="16,0,0,0" VerticalAlignment="Center"/>
+                                    <TextBox x:Name="SettingsOutgoingColorBox" Width="104" Height="34"
+                                             HorizontalAlignment="Right" Margin="0,0,12,0" Padding="9"/>
+                                </Grid>
+                                <Border Height="1" Background="{DynamicResource Divider}"/>
+                                <Grid Height="54">
+                                    <TextBlock Text="Their Bubbles" Margin="16,0,0,0" VerticalAlignment="Center"/>
+                                    <TextBox x:Name="SettingsIncomingColorBox" Width="104" Height="34"
+                                             HorizontalAlignment="Right" Margin="0,0,12,0" Padding="9"/>
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+                        <TextBlock Text="APPEARANCE" FontSize="10" FontWeight="SemiBold"
+                                   Foreground="{DynamicResource TextSecondary}" Margin="0,0,0,8"/>
+                        <Border Background="{DynamicResource PanelBackground}" BorderBrush="{DynamicResource Divider}"
+                                BorderThickness="1" CornerRadius="14" Margin="0,0,0,20">
+                            <StackPanel>
+                                <Grid Height="54">
+                                    <TextBlock Text="Read Receipts" Margin="16,0,0,0" VerticalAlignment="Center"/>
+                                    <CheckBox x:Name="SettingsReadReceiptsCheckBox" HorizontalAlignment="Right" Margin="0,0,16,0" VerticalAlignment="Center"/>
+                                </Grid>
+                                <Border Height="1" Background="{DynamicResource Divider}"/>
+                                <Grid Height="54">
+                                    <TextBlock Text="Timestamps" Margin="16,0,0,0" VerticalAlignment="Center"/>
+                                    <CheckBox x:Name="SettingsTimestampCheckBox" HorizontalAlignment="Right" Margin="0,0,16,0" VerticalAlignment="Center"/>
+                                </Grid>
+                                <Border Height="1" Background="{DynamicResource Divider}"/>
+                                <Grid Height="54">
+                                    <TextBlock Text="Typing Indicator" Margin="16,0,0,0" HorizontalContentAlignment="Left" VerticalAlignment="Center"/>
+                                    <CheckBox x:Name="SettingsTypingCheckBox" HorizontalAlignment="Right" Margin="0,0,16,0" VerticalAlignment="Center"/>
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+                        <TextBlock Text="ABOUT" FontSize="10" FontWeight="SemiBold"
+                                   Foreground="{DynamicResource TextSecondary}" Margin="0,0,0,8"/>
+                        <Border Background="{DynamicResource PanelBackground}" BorderBrush="{DynamicResource Divider}"
+                                BorderThickness="1" CornerRadius="14" Padding="16">
+                            <StackPanel>
+                                <TextBlock Text="Chat" FontSize="14" FontWeight="SemiBold"/>
+                                <TextBlock Text="Conversation practice • Windows" FontSize="11"
+                                           Foreground="{DynamicResource TextSecondary}" Margin="0,4,0,0"/>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </ScrollViewer>
+                <Button Grid.Row="2" Content="Done" Click="DoneSettings_Click"
+                        Style="{StaticResource PrimaryButton}" Height="46"/>
+            </Grid>
         </Grid>
 
         <Canvas x:Name="OverlayCanvas"
@@ -487,36 +594,7 @@
                         </Grid>
                     </Button>
 
-                    <Button Click="AiChatFlyout_Click"
-                            Style="{StaticResource PopupActionButton}">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="34"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <Border Width="28"
-                                    Height="28"
-                                    CornerRadius="8"
-                                    Background="{DynamicResource AccentSoft}"
-                                    VerticalAlignment="Center">
-                                <TextBlock Text="AI"
-                                           FontSize="10"
-                                           FontWeight="Bold"
-                                           Foreground="{DynamicResource Accent}"
-                                           HorizontalAlignment="Center"
-                                           VerticalAlignment="Center"/>
-                            </Border>
-                            <TextBlock x:Name="AiChatFlyoutLabel"
-                                       Grid.Column="1"
-                                       Text="Turn on AI conversation"
-                                       FontSize="12"
-                                       FontWeight="Medium"
-                                       Foreground="{DynamicResource TextPrimary}"
-                                       VerticalAlignment="Center"/>
-                        </Grid>
-                    </Button>
-
-                    <Button Click="DeleteChatFlyout_Click"
+               <Button Click="DeleteChatFlyout_Click"
                             Style="{StaticResource PopupDangerButton}">
                         <Grid>
                             <Grid.ColumnDefinitions>
