@@ -51,7 +51,7 @@
                     <WrapPanel x:Name="AvatarChoices"/>
                 </Border>
 
-                <TextBlock Text="AI PERSONA (FOR AI CHAT MODE)" FontSize="10" FontWeight="SemiBold" Foreground="{DynamicResource TextSecondary}"/>
+                <TextBlock Text="CONTEXT / NOTES" FontSize="10" FontWeight="SemiBold" Foreground="{DynamicResource TextSecondary}"/>
                 <TextBox x:Name="ContextBox"
                          Height="120"
                          Margin="0,6,0,16"
@@ -60,11 +60,6 @@
                          TextWrapping="Wrap"
                          AcceptsReturn="True"
                          VerticalScrollBarVisibility="Auto"/>
-
-                <CheckBox x:Name="AiCheckBox"
-                          Content="Use this contact as an AI persona"
-                          FontSize="13"
-                          Margin="0,0,0,16"/>
 
                 <TextBlock Text="BUBBLE COLOR" FontSize="10" FontWeight="SemiBold" Foreground="{DynamicResource TextSecondary}"/>
                 <TextBox x:Name="ColorBox"
