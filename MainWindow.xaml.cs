@@ -601,7 +601,7 @@ public partial class MainWindow : Window
             }
         };
 
-        bubble.Child = new TextBlock
+        bubble.Child = new Emoji.Wpf.TextBlock
         {
             Text = message.Text,
             FontSize = isSticker ? 40 : 14,
@@ -651,7 +651,7 @@ public partial class MainWindow : Window
                 Orientation = Orientation.Horizontal
             };
 
-            reactionRow.Children.Add(new TextBlock
+            reactionRow.Children.Add(new Emoji.Wpf.TextBlock
             {
                 Text = message.Reaction,
                 FontSize = 12.5,
@@ -1544,7 +1544,7 @@ public partial class MainWindow : Window
 
             var button = new Button
             {
-                Content = entry.Emoji,
+                Tag = entry.Emoji,
                 ToolTip = entry.Name,
                 Width = 42,
                 Height = 42,
@@ -1552,10 +1552,15 @@ public partial class MainWindow : Window
                 Padding = new Thickness(0),
                 Background = Brushes.Transparent,
                 BorderThickness = new Thickness(0),
-                FontFamily = new System.Windows.Media.FontFamily("Segoe UI Emoji"),
-                FontSize = 23,
                 Cursor = Cursors.Hand,
-                FocusVisualStyle = null
+                FocusVisualStyle = null,
+                Content = new Emoji.Wpf.TextBlock
+                {
+                    Text = entry.Emoji,
+                    FontSize = 23,
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    VerticalAlignment = VerticalAlignment.Center
+                }
             };
 
             button.Click += EmojiChoice_Click;
@@ -1600,7 +1605,7 @@ public partial class MainWindow : Window
     private void EmojiChoice_Click(object sender, RoutedEventArgs e)
     {
         if (sender is not Button button ||
-            button.Content is not string emoji)
+            button.Tag is not string emoji)
             return;
 
         var caret = Math.Clamp(MessageInput.CaretIndex, 0, MessageInput.Text.Length);
