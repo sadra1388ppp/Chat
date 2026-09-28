@@ -273,7 +273,7 @@
                                 Click="Call_Click"
                                 Style="{StaticResource IconButton}"
                                 IsEnabled="False"
-                                ToolTip="Practice call">
+                                ToolTip="Call">
                             <TextBlock Text="&#xE717;"
                                        FontFamily="Segoe MDL2 Assets"
                                        FontSize="17"/>
