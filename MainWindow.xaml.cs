@@ -3,7 +3,6 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Shapes;
 using Chat.Dialogs;
 using Chat.Models;
 using Chat.Services;
@@ -893,65 +892,64 @@ public partial class MainWindow : Window
     private Border CreateConversationAvatar(ChatConversation conversation)
     {
         var first = GetParticipants(conversation).FirstOrDefault();
-        return CreateAvatar(first, 50, conversation.IsGroup);
-    }
-
-    private static Border CreateAvatar(ChatCharacter? contact, double size, bool isGroup = false)
-    {
-        var color = contact is null
-            ? Color.FromRgb(88, 166, 255)
-            : ParseColor(contact.AvatarColor);
 
         var border = new Border
         {
-            Width = size,
-            Height = size,
-            CornerRadius = new CornerRadius(size / 2),
-            Background = CreateAvatarBrush(color),
+            Width = 50,
+            Height = 50,
+            CornerRadius = new CornerRadius(25),
+            Background = CreateAvatarBrush(
+                first is null
+                    ? Color.FromRgb(88, 166, 255)
+                    : ParseColor(first.AvatarColor)),
             BorderBrush = new SolidColorBrush(Color.FromArgb(48, 255, 255, 255)),
-            BorderThickness = new Thickness(1),
-            Effect = new System.Windows.Media.Effects.DropShadowEffect
-            {
-                BlurRadius = 12,
-                ShadowDepth = 2,
-                Opacity = 0.16
-            }
+            BorderThickness = new Thickness(1)
         };
 
-        var grid = new Grid();
-
-        grid.Children.Add(new Ellipse
+        border.Child = new TextBlock
         {
-            Fill = new SolidColorBrush(Color.FromArgb(30, 255, 255, 255)),
-            HorizontalAlignment = HorizontalAlignment.Left,
-            VerticalAlignment = VerticalAlignment.Top,
-            Width = size * 0.58,
-            Height = size * 0.58,
-            Margin = new Thickness(size * 0.13, size * 0.10, 0, 0)
-        });
-
-        var label = new TextBlock
-        {
-            Text = isGroup
+            Text = conversation.IsGroup
                 ? "＋"
-                : string.IsNullOrWhiteSpace(contact?.AvatarIcon)
-                    ? contact?.Initial ?? "?"
-                    : contact.AvatarIcon,
+                : string.IsNullOrWhiteSpace(first?.AvatarIcon)
+                    ? first?.Initial ?? "?"
+                    : first.AvatarIcon,
             Foreground = Brushes.White,
             FontWeight = FontWeights.Bold,
-            FontSize = isGroup
-                ? size * 0.34
-                : !string.IsNullOrWhiteSpace(contact?.AvatarIcon)
-                    ? size * 0.30
-                    : size * 0.29,
+            FontSize = conversation.IsGroup
+                ? 17
+                : !string.IsNullOrWhiteSpace(first?.AvatarIcon)
+                    ? 15
+                    : 15,
             HorizontalAlignment = HorizontalAlignment.Center,
             VerticalAlignment = VerticalAlignment.Center,
             TextAlignment = TextAlignment.Center
         };
 
-        grid.Children.Add(label);
-        border.Child = grid;
         return border;
+    }
+
+    private void UpdateHeaderAvatar(ChatCharacter? contact, bool isGroup)
+    {
+        var color = contact is null
+            ? Color.FromRgb(88, 166, 255)
+            : ParseColor(contact.AvatarColor);
+
+        CurrentAvatar.Background = CreateAvatarBrush(color);
+        CurrentAvatar.BorderBrush = new SolidColorBrush(Color.FromArgb(48, 255, 255, 255));
+        CurrentAvatar.BorderThickness = new Thickness(1);
+
+        CurrentAvatarText.Text = isGroup
+            ? "＋"
+            : string.IsNullOrWhiteSpace(contact?.AvatarIcon)
+                ? contact?.Initial ?? "?"
+                : contact.AvatarIcon;
+
+        CurrentAvatarText.Foreground = Brushes.White;
+        CurrentAvatarText.FontSize = isGroup
+            ? 15
+            : !string.IsNullOrWhiteSpace(contact?.AvatarIcon)
+                ? 14
+                : 15;
     }
 
     private static Brush CreateAvatarBrush(Color baseColor)
@@ -1151,35 +1149,60 @@ public partial class MainWindow : Window
             UseThemeBubbleColors = true
         };
 
-        _project.Conversations.Insert(0, conversation);
-        _project.ActiveConversationId = conversation.Id;
-        _selectedConversation = conversation;
-
-        // Render exactly once, then select the matching item without re-entering
-        // the conversation rendering path through SelectionChanged.
-        _refreshingConversationList = true;
         try
         {
-            RenderConversationList();
+            _project.Conversations.Insert(0, conversation);
+            _project.ActiveConversationId = conversation.Id;
+            _selectedConversation = conversation;
 
-            var listItem = ConversationList.Items
-                .OfType<ListBoxItem>()
-                .FirstOrDefault(item => string.Equals(
-                    item.Tag?.ToString(),
-                    conversation.Id,
-                    StringComparison.Ordinal));
+            _refreshingConversationList = true;
+            try
+            {
+                RenderConversationList();
 
-            ConversationList.SelectedItem = listItem;
+                var listItem = ConversationList.Items
+                    .OfType<ListBoxItem>()
+                    .FirstOrDefault(item => string.Equals(
+                        item.Tag?.ToString(),
+                        conversation.Id,
+                        StringComparison.Ordinal));
+
+                ConversationList.SelectedItem = listItem;
+            }
+            finally
+            {
+                _refreshingConversationList = false;
+            }
+
+            RenderContactsList();
+            RenderCurrentConversation();
+            UpdateComposerState();
+            MarkDirty();
         }
-        finally
+        catch (Exception ex)
         {
+            _project.Conversations.Remove(conversation);
+            _project.ActiveConversationId = null;
+            _selectedConversation = null;
             _refreshingConversationList = false;
-        }
 
-        RenderContactsList();
-        RenderCurrentConversation();
-        UpdateComposerState();
-        MarkDirty();
+            try
+            {
+                RenderAll();
+                UpdateComposerState();
+            }
+            catch
+            {
+                // Keep the original failure as the useful diagnostic.
+            }
+
+            MessageBox.Show(
+                this,
+                $"The chat could not be created.\n\n{ex.GetType().Name}: {ex.Message}",
+                "Chat Error",
+                MessageBoxButton.OK,
+                MessageBoxImage.Error);
+        }
     }
 
     private void AddContact_Click(object sender, RoutedEventArgs e)
