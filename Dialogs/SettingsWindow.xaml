@@ -242,7 +242,7 @@
                     </StackPanel>
                 </Border>
 
-                <TextBlock Text="BUBBLE COLORS"
+                <TextBlock Text="THEME SYNC"
                            FontSize="10"
                            FontWeight="SemiBold"
                            Foreground="{DynamicResource TextSecondary}"
