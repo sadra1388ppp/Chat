@@ -100,8 +100,7 @@ public partial class CreateContactWindow : Window
             Initial = BuildInitial(name),
             AvatarIcon = _selectedAvatar,
             AvatarColor = ColorBox.Text.Trim(),
-            BubbleColor = color,
-            IsAi = AiCheckBox.IsChecked == true
+            BubbleColor = color
         };
 
         DialogResult = true;
