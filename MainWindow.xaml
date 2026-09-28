@@ -334,6 +334,7 @@
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
@@ -352,7 +353,19 @@
                                  Fill="#AEB4BE"/>
                     </Button>
 
-                    <Border Grid.Column="1"
+                    <Button x:Name="EmojiButton"
+                            Click="ToggleEmojiPicker_Click"
+                            Style="{StaticResource IconButton}"
+                            Width="40"
+                            Height="40"
+                            Padding="0"
+                            Margin="0,0,8,0"
+                            FontFamily="Segoe UI Emoji"
+                            FontSize="21"
+                            Content="😊"
+                            ToolTip="Emoji"/>
+
+                    <Border Grid.Column="2"
                             Background="{DynamicResource InputBackground}"
                             CornerRadius="20"
                             Padding="16,0"
@@ -369,7 +382,7 @@
                                  IsEnabled="False"/>
                     </Border>
 
-                    <Button Grid.Column="2"
+                    <Button Grid.Column="3"
                             Content="➤"
                             Click="SendMessage_Click"
                             Style="{StaticResource IconButton}"
@@ -513,6 +526,59 @@
                 Panel.ZIndex="1000"
                 IsHitTestVisible="False"
                 ClipToBounds="False">
+
+            <!-- Emoji picker -->
+            <Border x:Name="EmojiPickerFlyout"
+                    Width="390"
+                    Height="430"
+                    Background="{DynamicResource PanelBackground}"
+                    BorderBrush="{DynamicResource Divider}"
+                    BorderThickness="1"
+                    CornerRadius="20"
+                    Padding="12"
+                    Effect="{StaticResource PopupShadow}"
+                    Visibility="Collapsed"
+                    IsHitTestVisible="True">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="Emoji"
+                                   FontSize="15"
+                                   FontWeight="SemiBold"
+                                   VerticalAlignment="Center"
+                                   Margin="4,0,12,0"/>
+                        <Border Grid.Column="1"
+                                Background="{DynamicResource InputBackground}"
+                                CornerRadius="12"
+                                Padding="10,0">
+                            <TextBox x:Name="EmojiSearchBox"
+                                     Height="34"
+                                     BorderThickness="0"
+                                     Background="Transparent"
+                                     FontSize="12"
+                                     Foreground="{DynamicResource TextPrimary}"
+                                     VerticalContentAlignment="Center"
+                                     TextChanged="EmojiSearchBox_TextChanged"/>
+                        </Border>
+                    </Grid>
+
+                    <ScrollViewer Grid.Row="1"
+                                  Margin="0,12,0,0"
+                                  VerticalScrollBarVisibility="Auto"
+                                  HorizontalScrollBarVisibility="Disabled">
+                        <WrapPanel x:Name="EmojiButtonsPanel"
+                                   HorizontalAlignment="Center"/>
+                    </ScrollViewer>
+                </Grid>
+            </Border>
 
             <!-- Conversation menu -->
             <Border x:Name="ConversationActionsFlyout"
