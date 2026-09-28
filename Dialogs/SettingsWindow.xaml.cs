@@ -24,6 +24,7 @@ public partial class SettingsWindow : Window
         ReadReceiptsCheckBox.IsChecked = conversation?.ShowReadReceipts ?? true;
         TimestampCheckBox.IsChecked = conversation?.ShowTimestamps ?? true;
         TypingCheckBox.IsChecked = conversation?.ShowTypingIndicators ?? true;
+        UseThemeColorsCheckBox.IsChecked = conversation?.UseThemeBubbleColors ?? true;
 
         OutgoingColorBox.Text = conversation?.OutgoingBubbleColor
             ?? ThemeService.GetOutgoingBubbleColor(SelectedThemeId);
@@ -42,7 +43,7 @@ public partial class SettingsWindow : Window
         SelectedThemeId = ThemeService.Normalize(button.Tag?.ToString());
         ThemeService.ApplyTheme(SelectedThemeId);
 
-        if (_conversation is null)
+        if (UseThemeColorsCheckBox.IsChecked == true || _conversation is null)
         {
             OutgoingColorBox.Text = ThemeService.GetOutgoingBubbleColor(SelectedThemeId);
             IncomingColorBox.Text = ThemeService.GetIncomingBubbleColor(SelectedThemeId);
@@ -73,6 +74,15 @@ public partial class SettingsWindow : Window
         }
     }
 
+    private void UseThemeColorsCheckBox_Click(object sender, RoutedEventArgs e)
+    {
+        if (UseThemeColorsCheckBox.IsChecked != true)
+            return;
+
+        OutgoingColorBox.Text = ThemeService.GetOutgoingBubbleColor(SelectedThemeId);
+        IncomingColorBox.Text = ThemeService.GetIncomingBubbleColor(SelectedThemeId);
+    }
+
     private void Apply_Click(object sender, RoutedEventArgs e)
     {
         var outgoing = OutgoingColorBox.Text.Trim();
@@ -91,11 +101,18 @@ public partial class SettingsWindow : Window
 
         if (_conversation is not null)
         {
+            var useThemeColors = UseThemeColorsCheckBox.IsChecked == true;
+
             _conversation.ShowReadReceipts = ReadReceiptsCheckBox.IsChecked == true;
             _conversation.ShowTimestamps = TimestampCheckBox.IsChecked == true;
             _conversation.ShowTypingIndicators = TypingCheckBox.IsChecked == true;
-            _conversation.OutgoingBubbleColor = outgoing;
-            _conversation.IncomingBubbleColor = incoming;
+            _conversation.UseThemeBubbleColors = useThemeColors;
+            _conversation.OutgoingBubbleColor = useThemeColors
+                ? ThemeService.GetOutgoingBubbleColor(SelectedThemeId)
+                : outgoing;
+            _conversation.IncomingBubbleColor = useThemeColors
+                ? ThemeService.GetIncomingBubbleColor(SelectedThemeId)
+                : incoming;
         }
 
         DialogResult = true;
