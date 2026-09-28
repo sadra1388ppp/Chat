@@ -978,8 +978,13 @@ public partial class MainWindow : Window
         if (!_selectedConversation.IsAiEnabled)
             return;
 
-        var aiContact = GetParticipants(_selectedConversation)
-            .FirstOrDefault(c => c.IsAi && c.Id != senderId);
+        var participants = GetParticipants(_selectedConversation);
+
+        // Prefer an explicitly configured AI persona; otherwise let the first
+        // other participant act as the AI persona for this conversation.
+        var aiContact = participants
+            .FirstOrDefault(c => c.IsAi && c.Id != senderId)
+            ?? participants.FirstOrDefault(c => c.Id != senderId);
 
         if (aiContact is null)
             return;
@@ -1118,18 +1123,12 @@ public partial class MainWindow : Window
         if (_selectedConversation is null)
             return;
 
-        _selectedConversation.IsAiEnabled = !_selectedConversation.IsAiEnabled;
+        var participants = GetParticipants(_selectedConversation);
 
-        if (_selectedConversation.IsAiEnabled &&
-            !GetParticipants(_selectedConversation).Any(c => c.IsAi))
-        {
-            MessageBox.Show(
-                this,
-                "AI mode is enabled, but no participant is marked as an AI persona.",
-                "AI Practice",
-                MessageBoxButton.OK,
-                MessageBoxImage.Information);
-        }
+        if (participants.Count == 0)
+            return;
+
+        _selectedConversation.IsAiEnabled = !_selectedConversation.IsAiEnabled;
 
         RenderCurrentConversation();
         MarkDirty();
