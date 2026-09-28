@@ -43,7 +43,7 @@ public static class AiResponseService
             if (text.Contains('?'))
                 return "سؤال خوبیه. جواب کوتاه و طبیعی بده و یک دلیل یا مثال کوچک هم اضافه کن.";
 
-            return history.Count % 3 switch
+            return (history.Count % 3) switch
             {
                 0 => "ادامه بده؛ من گوش می‌دم. نکته بعدی که می‌خوای بگی چیه؟",
                 1 => "متوجه شدم. یکم بیشتر توضیح بده تا بهتر بتونیم این موقعیت رو تمرین کنیم.",
