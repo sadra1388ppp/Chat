@@ -398,6 +398,18 @@ public partial class MainWindow : Window
         return panel;
     }
 
+    private string GetSenderPaletteColor(string senderId)
+    {
+        if (_selectedConversation is null)
+            return ThemeService.GetIncomingBubbleColor(_project.ThemeId);
+
+        var index = _selectedConversation.ParticipantIds.FindIndex(id => id == senderId);
+
+        return index >= 0
+            ? ThemeService.GetParticipantBubbleColor(_project.ThemeId, index)
+            : ThemeService.GetIncomingBubbleColor(_project.ThemeId);
+    }
+
     private void RenderSendAsIndicator()
     {
         if (_selectedConversation is null)
@@ -423,12 +435,12 @@ public partial class MainWindow : Window
 
         _selectedConversation.PerspectiveId = options[currentIndex].Id;
 
-        var isSelf = _selectedConversation.PerspectiveId == "self";
+        var currentId = _selectedConversation.PerspectiveId;
+        var indicatorColor = currentId == "self"
+            ? ThemeService.GetOutgoingBubbleColor(_project.ThemeId)
+            : GetSenderPaletteColor(currentId);
 
-        SendAsIndicator.Fill = isSelf
-            ? new SolidColorBrush(Color.FromRgb(174, 180, 190))
-            : new SolidColorBrush(Color.FromRgb(10, 132, 255));
-
+        SendAsIndicator.Fill = ParseBrush(indicatorColor);
         SendAsButton.ToolTip = $"Send as {options[currentIndex].Name}";
     }
 
@@ -540,14 +552,7 @@ public partial class MainWindow : Window
 
         var bubble = new Border
         {
-            Background = ParseBrush(
-                isOutgoing
-                    ? (_selectedConversation.OutgoingBubbleColor == "#0A84FF"
-                        ? ThemeService.GetOutgoingBubbleColor(_project.ThemeId)
-                        : _selectedConversation.OutgoingBubbleColor)
-                    : (_selectedConversation.IncomingBubbleColor == "#E9EDF2"
-                        ? ThemeService.GetIncomingBubbleColor(_project.ThemeId)
-                        : _selectedConversation.IncomingBubbleColor)),
+            Background = ParseBrush(GetMessageBubbleColor(message.SenderId)),
             CornerRadius = isOutgoing
                 ? new CornerRadius(17, 17, 5, 17)
                 : new CornerRadius(17, 17, 17, 5),
@@ -635,6 +640,47 @@ public partial class MainWindow : Window
         wrapper.ContextMenu = menu;
 
         return wrapper;
+    }
+
+    private string GetMessageBubbleColor(string senderId)
+    {
+        if (_selectedConversation is null)
+            return ThemeService.GetIncomingBubbleColor(_project.ThemeId);
+
+        if (senderId == "self")
+        {
+            return _selectedConversation.UseThemeBubbleColors
+                ? ThemeService.GetOutgoingBubbleColor(_project.ThemeId)
+                : _selectedConversation.OutgoingBubbleColor;
+        }
+
+        if (_selectedConversation.IsGroup)
+        {
+            var index = _selectedConversation.ParticipantIds
+                .FindIndex(id => id == senderId);
+
+            if (index >= 0)
+                return ThemeService.GetParticipantBubbleColor(_project.ThemeId, index);
+        }
+
+        return _selectedConversation.UseThemeBubbleColors
+            ? ThemeService.GetIncomingBubbleColor(_project.ThemeId)
+            : _selectedConversation.IncomingBubbleColor;
+    }
+
+    private void ApplyThemeToConversations()
+    {
+        foreach (var conversation in _project.Conversations)
+        {
+            if (!conversation.UseThemeBubbleColors)
+                continue;
+
+            conversation.OutgoingBubbleColor =
+                ThemeService.GetOutgoingBubbleColor(_project.ThemeId);
+
+            conversation.IncomingBubbleColor =
+                ThemeService.GetIncomingBubbleColor(_project.ThemeId);
+        }
     }
 
     private Border CreateConversationAvatar(ChatConversation conversation)
@@ -791,7 +837,8 @@ public partial class MainWindow : Window
             IsAiEnabled = dialog.AiEnabled,
             PerspectiveId = "self",
             OutgoingBubbleColor = ThemeService.GetOutgoingBubbleColor(_project.ThemeId),
-            IncomingBubbleColor = ThemeService.GetIncomingBubbleColor(_project.ThemeId)
+            IncomingBubbleColor = ThemeService.GetIncomingBubbleColor(_project.ThemeId),
+            UseThemeBubbleColors = true
         };
 
         _project.Conversations.Insert(0, conversation);
@@ -894,6 +941,7 @@ public partial class MainWindow : Window
         {
             _project.ThemeId = dialog.SelectedThemeId;
             ThemeService.ApplyTheme(_project.ThemeId);
+            ApplyThemeToConversations();
 
             RenderAll();
             MarkDirty();
