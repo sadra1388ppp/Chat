@@ -396,7 +396,7 @@
         <Canvas x:Name="OverlayCanvas"
                 Grid.Column="1"
                 Panel.ZIndex="1000"
-                IsHitTestVisible="True"
+                IsHitTestVisible="False"
                 ClipToBounds="False">
 
             <!-- Conversation menu -->
