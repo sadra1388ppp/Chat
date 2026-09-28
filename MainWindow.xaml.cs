@@ -799,6 +799,7 @@ public partial class MainWindow : Window
         double width,
         double estimatedHeight)
     {
+        OverlayCanvas.IsHitTestVisible = true;
         flyout.Width = width;
         flyout.Visibility = Visibility.Visible;
         flyout.IsHitTestVisible = true;
@@ -820,7 +821,8 @@ public partial class MainWindow : Window
 
     private void CloseAllFlyouts()
     {
-        CloseConversationActionsFlyout();
+        ConversationActionsFlyout.IsHitTestVisible = false;
+        ConversationActionsFlyout.Visibility = Visibility.Collapsed;
 
         MessageActionsFlyout.IsHitTestVisible = false;
         MessageActionsFlyout.Visibility = Visibility.Collapsed;
@@ -828,6 +830,7 @@ public partial class MainWindow : Window
         ReactionActionsFlyout.IsHitTestVisible = false;
         ReactionActionsFlyout.Visibility = Visibility.Collapsed;
 
+        OverlayCanvas.IsHitTestVisible = false;
         _activeMessageAction = null;
     }
 
@@ -835,6 +838,12 @@ public partial class MainWindow : Window
     {
         ConversationActionsFlyout.IsHitTestVisible = false;
         ConversationActionsFlyout.Visibility = Visibility.Collapsed;
+
+        if (MessageActionsFlyout.Visibility != Visibility.Visible &&
+            ReactionActionsFlyout.Visibility != Visibility.Visible)
+        {
+            OverlayCanvas.IsHitTestVisible = false;
+        }
     }
 
     private string GetMessageBubbleColor(string senderId)
