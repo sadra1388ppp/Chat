@@ -163,17 +163,17 @@ public static class ThemeService
     {
         var colors = Normalize(themeId) switch
         {
-            Dark => new[] { "#5D8CFF", "#A56BFF", "#E58A4F", "#42BE8C", "#D86BA5", "#39A8C7" },
-            Midnight => new[] { "#607DFF", "#A76FFF", "#F08E58", "#43C7A0", "#E06BAA", "#4AAFC8" },
-            Ocean => new[] { "#008BA7", "#7559D9", "#D96D42", "#279B70", "#C65D8A", "#438AA5" },
-            Lavender => new[] { "#7C5CFC", "#B04CDB", "#E07355", "#2BAA78", "#D45A91", "#4B91C7" },
-            Mint => new[] { "#2B8F70", "#7D62D9", "#D66F4C", "#238E63", "#C95D8B", "#3A8FA8" },
-            Rose => new[] { "#C84C73", "#7656D7", "#D46A45", "#268F6B", "#B34F8D", "#3D8EAA" },
-            Sunset => new[] { "#D9542E", "#735AD2", "#C97932", "#238C69", "#BB4F87", "#378BA4" },
-            Graphite => new[] { "#6D8EA8", "#9B72D8", "#D07C4C", "#49A986", "#C56D9A", "#4E9DB5" },
-            Arctic => new[] { "#2D7FBD", "#795FD2", "#D37646", "#2A956F", "#C35F8C", "#3C90AA" },
-            Plum => new[] { "#8D4ED0", "#C458A4", "#D06C46", "#2B956F", "#B94F83", "#3B8EA8" },
-            _ => new[] { "#4D74D9", "#7D5AD8", "#C96D3E", "#28966D", "#C35687", "#298DA8" }
+            Dark => new[] { "#5D8CFF", "#A56BFF", "#E58A4F", "#42BE8C", "#D86BA5", "#39A8C7", "#D0A33A", "#5C78C9", "#C45C5C", "#4B9ED1", "#9B67C0", "#559C63" },
+            Midnight => new[] { "#607DFF", "#A76FFF", "#F08E58", "#43C7A0", "#E06BAA", "#4AAFC8", "#D6AE3B", "#647CD0", "#D05B67", "#4AA5D6", "#A56CCB", "#5CAA6B" },
+            Ocean => new[] { "#008BA7", "#7559D9", "#D96D42", "#279B70", "#C65D8A", "#438AA5", "#BE941E", "#4771C0", "#C65B5B", "#398FB6", "#8E5AC2", "#4E986B" },
+            Lavender => new[] { "#7C5CFC", "#B04CDB", "#E07355", "#2BAA78", "#D45A91", "#4B91C7", "#B89424", "#5D74C8", "#C5535E", "#438FAF", "#915DB8", "#4B9661" },
+            Mint => new[] { "#2B8F70", "#7D62D9", "#D66F4C", "#238E63", "#C95D8B", "#3A8FA8", "#B49327", "#5974C5", "#C2535F", "#3E8FAE", "#925DB8", "#4A9561" },
+            Rose => new[] { "#C84C73", "#7656D7", "#D46A45", "#268F6B", "#B34F8D", "#3D8EAA", "#B98F22", "#5B74C4", "#C4545E", "#3D8FB0", "#8F5DB6", "#4E9863" },
+            Sunset => new[] { "#D9542E", "#735AD2", "#C97932", "#238C69", "#BB4F87", "#378BA4", "#B78E22", "#5D73C5", "#C65458", "#418EAE", "#8E5DB7", "#4D9663" },
+            Graphite => new[] { "#6D8EA8", "#9B72D8", "#D07C4C", "#49A986", "#C56D9A", "#4E9DB5", "#C09A36", "#667FC6", "#CF686C", "#4B9BB8", "#9468BD", "#579B68" },
+            Arctic => new[] { "#2D7FBD", "#795FD2", "#D37646", "#2A956F", "#C35F8C", "#3C90AA", "#B99425", "#5574C7", "#C2545D", "#3E90B0", "#925DBA", "#4C9860" },
+            Plum => new[] { "#8D4ED0", "#C458A4", "#D06C46", "#2B956F", "#B94F83", "#3B8EA8", "#B68E25", "#5E71C5", "#C7545E", "#3F90AF", "#8E5FB8", "#4D9865" },
+            _ => new[] { "#4D74D9", "#7D5AD8", "#C96D3E", "#28966D", "#C35687", "#298DA8", "#B68F25", "#5A74C6", "#C5555E", "#3E91B0", "#8E5CB9", "#4D9864" }
         };
 
         return colors[Math.Abs(index) % colors.Length];
