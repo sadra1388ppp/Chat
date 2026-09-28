@@ -392,9 +392,7 @@
                             IsEnabled="False"/>
                 </Grid>
             </Border>
-        </Grid>
-
-            <!-- Safe in-window flyout: avoids a separate native Popup window. -->
+        <!-- Safe in-window flyout: avoids a separate native Popup window. -->
             <Grid x:Name="ConversationActionsFlyout"
                   Panel.ZIndex="100"
                   Width="280"
