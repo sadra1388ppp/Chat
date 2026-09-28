@@ -10,6 +10,37 @@
         Background="{StaticResource WindowBackground}"
         Foreground="{DynamicResource TextPrimary}"
         FontFamily="Segoe UI">
+    <Window.Resources>
+        <Style TargetType="ContextMenu">
+            <Setter Property="Background" Value="{DynamicResource PanelBackground}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimary}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource Divider}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="6"/>
+            <Setter Property="HasDropShadow" Value="True"/>
+            <Setter Property="FontFamily" Value="Segoe UI"/>
+        </Style>
+
+        <Style TargetType="MenuItem">
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimary}"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Padding" Value="12,9"/>
+            <Setter Property="Margin" Value="2"/>
+            <Setter Property="FontSize" Value="12.5"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Style.Triggers>
+                <Trigger Property="IsHighlighted" Value="True">
+                    <Setter Property="Background" Value="{DynamicResource AccentSoft}"/>
+                    <Setter Property="Foreground" Value="{DynamicResource Accent}"/>
+                </Trigger>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter Property="Opacity" Value="0.5"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+    </Window.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="340"/>
@@ -236,7 +267,8 @@
                                 Height="38"
                                 Padding="13,7"
                                 Margin="0,0,7,0"
-                                Visibility="Collapsed"/>
+                                Visibility="Collapsed"
+                                ToolTip="Toggle AI conversation mode"/>
                         <Button x:Name="CallButton"
                                 Click="Call_Click"
                                 Style="{StaticResource IconButton}"
