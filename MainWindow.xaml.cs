@@ -900,7 +900,7 @@ public partial class MainWindow : Window
         {
             Background = GetThemeBrush("AccentSoft"),
             CornerRadius = new CornerRadius(11),
-            Padding = new Thickness(11, 9),
+            Padding = new Thickness(11, 9, 11, 9),
             Margin = new Thickness(2, 2, 2, 7)
         };
 
