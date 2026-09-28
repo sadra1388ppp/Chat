@@ -98,7 +98,7 @@ public partial class SettingsWindow : Window
             Tag = "theme-name",
             VerticalAlignment = VerticalAlignment.Center,
             FontWeight = FontWeights.SemiBold,
-            Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(theme.PreviewText))
+            Foreground = ThemeBrush("TextPrimary")
         };
 
         Grid.SetColumn(label, 1);
