@@ -164,9 +164,10 @@ public partial class SettingsWindow : Window
 
                 if (label is not null)
                 {
-                    label.Foreground = selected
-                        ? Brushes.White
-                        : new SolidColorBrush(ParseColor(theme.PreviewText));
+                    // Theme names always use the current app text color.
+                    // They never inherit a preview theme's text color, so every
+                    // name stays readable on both light and dark app themes.
+                    label.Foreground = ThemeBrush("TextPrimary");
                 }
             }
         }
