@@ -7,7 +7,6 @@ public sealed class ChatConversation
     public string Scenario { get; set; } = "";
     public List<string> ParticipantIds { get; set; } = [];
     public List<ChatMessage> Messages { get; set; } = [];
-    public bool IsAiEnabled { get; set; }
     public bool IsGroup => ParticipantIds.Count > 1;
     public string PerspectiveId { get; set; } = "self";
     public bool ShowTimestamps { get; set; } = true;
