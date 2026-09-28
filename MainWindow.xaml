@@ -727,9 +727,9 @@
                                     CornerRadius="8"
                                     Background="{DynamicResource AccentSoft}"
                                     VerticalAlignment="Center">
-                                <TextBlock Text="☺"
-                                           FontSize="13"
-                                           Foreground="{DynamicResource Accent}"
+                                <TextBlock Text="🙂"
+                                           FontFamily="Segoe UI Emoji"
+                                           FontSize="15"
                                            HorizontalAlignment="Center"
                                            VerticalAlignment="Center"/>
                             </Border>
