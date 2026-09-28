@@ -16,7 +16,6 @@ public static class ThemeService
     public const string Graphite = "graphite";
     public const string Arctic = "arctic";
     public const string Plum = "plum";
-    public const string Telegram = "telegram";
     public const string Instagram = "instagram";
     public const string Forest = "forest";
     public const string Coffee = "coffee";
@@ -24,6 +23,12 @@ public static class ThemeService
     public const string Sakura = "sakura";
     public const string Solar = "solar";
     public const string Slate = "slate";
+    public const string Hacker = "hacker";
+    public const string Cyber = "cyber";
+    public const string Synthwave = "synthwave";
+    public const string Electric = "electric";
+    public const string Aurora = "aurora";
+    public const string Matrix = "matrix";
 
     private sealed record ThemePalette(
         string WindowBackground,
@@ -102,11 +107,6 @@ public static class ThemeService
                 "#A05AE8", "#7E3DC2", "#F0E4FF", "#F0E5F2", "#F2E8FF",
                 "#A05AE8", "#EDE5F0", "#D54E75", "#28192D", "#36203C", "#AE9DB4"),
 
-            [Telegram] = new(
-                "#F2F7FA", "#FFFFFF", "#E6F0F5", "#D5E2E8", "#17232D", "#687A86",
-                "#229ED9", "#1684B8", "#DDF3FF", "#EAF3F7", "#E0F3FF",
-                "#229ED9", "#E8F1F5", "#D6455D", "#10202A", "#172C38", "#A7BBC5"),
-
             [Instagram] = new(
                 "#FFF4F9", "#FFFFFF", "#FBE4EF", "#EED4E0", "#341B2A", "#7D6873",
                 "#E1306C", "#C2185B", "#FFE0EC", "#F9E9F1", "#FFE7F0",
@@ -140,7 +140,37 @@ public static class ThemeService
             [Slate] = new(
                 "#F2F5F8", "#FFFFFF", "#E4EAF0", "#D2DBE4", "#1C2732", "#6C7B88",
                 "#5B6F82", "#46596A", "#E6EDF4", "#EAF0F5", "#E8EFF5",
-                "#5B6F82", "#E5EBF0", "#D14B5D", "#162029", "#202B34", "#A7B4BF")
+                "#5B6F82", "#E5EBF0", "#D14B5D", "#162029", "#202B34", "#A7B4BF"),
+
+            [Hacker] = new(
+                "#060B08", "#0A120E", "#101A14", "#1B2A20", "#D9FFE8", "#7BA88A",
+                "#39FF88", "#1BCE67", "#123A25", "#0E1812", "#10331F",
+                "#24E77A", "#15221A", "#FF4D67", "#050907", "#0B130E", "#7FA58D"),
+
+            [Cyber] = new(
+                "#090B16", "#101327", "#181C38", "#292E52", "#F5F4FF", "#AAA9C8",
+                "#B026FF", "#7C14C8", "#2C184A", "#151933", "#27184C",
+                "#B026FF", "#222641", "#FF4F7A", "#070914", "#0F1226", "#AAA9C8"),
+
+            [Synthwave] = new(
+                "#12091C", "#1A0F27", "#251638", "#39224F", "#FFEFFF", "#BCA6C9",
+                "#FF2BD6", "#C014A8", "#4A1745", "#20132F", "#431548",
+                "#FF2BD6", "#2C1B3B", "#FF5A72", "#0D0614", "#180B24", "#C2A7D0"),
+
+            [Electric] = new(
+                "#071018", "#0C1822", "#122531", "#1D3A4C", "#EAFBFF", "#87AAB9",
+                "#00C8FF", "#008DB5", "#103E4E", "#11212B", "#0E3D4D",
+                "#00C8FF", "#1A303B", "#FF526F", "#050C12", "#0C1720", "#82A5B4"),
+
+            [Aurora] = new(
+                "#071313", "#0C1B1A", "#132B28", "#1E4039", "#E9FFFB", "#88B8B0",
+                "#47F3C0", "#20B996", "#103D34", "#102320", "#0F3B32",
+                "#47F3C0", "#1A3431", "#FF5672", "#06100F", "#0C1D1A", "#86AEA5"),
+
+            [Matrix] = new(
+                "#030704", "#07100A", "#0C180E", "#162A19", "#D8FFE0", "#78A681",
+                "#00FF41", "#00BE30", "#0A3516", "#09140C", "#093516",
+                "#00E83B", "#112016", "#FF4A67", "#020503", "#071009", "#74A17D")
         };
 
     public static string CurrentThemeId { get; private set; } = Light;
@@ -166,14 +196,19 @@ public static class ThemeService
         new(Graphite, "Graphite", "#15171A", "#8C9AA8", "#343A41", "#F1F3F5"),
         new(Arctic, "Arctic", "#F1F7FC", "#2D8FD5", "#D2E1EE", "#172B3A"),
         new(Plum, "Plum", "#F8F2F9", "#A05AE8", "#E3D5E7", "#332037"),
-        new(Telegram, "Telegram", "#F2F7FA", "#229ED9", "#D5E2E8", "#17232D"),
         new(Instagram, "Instagram", "#FFF4F9", "#E1306C", "#EED4E0", "#341B2A"),
         new(Forest, "Forest", "#F1F7F3", "#2F8A5B", "#D2E3D8", "#193025"),
         new(Coffee, "Coffee", "#F8F3EE", "#A96D3D", "#E2D6C9", "#34271F"),
         new(Neon, "Neon", "#0B0F14", "#00E5FF", "#27333E", "#F4F8FC"),
         new(Sakura, "Sakura", "#FFF5F7", "#F06F91", "#F0D4DA", "#351D25"),
         new(Solar, "Solar", "#FFF8EA", "#E6A400", "#EEDDB4", "#382814"),
-        new(Slate, "Slate", "#F2F5F8", "#5B6F82", "#D2DBE4", "#1C2732")
+        new(Slate, "Slate", "#F2F5F8", "#5B6F82", "#D2DBE4", "#1C2732"),
+        new(Hacker, "Hacker", "#060B08", "#39FF88", "#1B2A20", "#D9FFE8"),
+        new(Cyber, "Cyber", "#090B16", "#B026FF", "#292E52", "#F5F4FF"),
+        new(Synthwave, "Synthwave", "#12091C", "#FF2BD6", "#39224F", "#FFEFFF"),
+        new(Electric, "Electric", "#071018", "#00C8FF", "#1D3A4C", "#EAFBFF"),
+        new(Aurora, "Aurora", "#071313", "#47F3C0", "#1E4039", "#E9FFFB"),
+        new(Matrix, "Matrix", "#030704", "#00FF41", "#162A19", "#D8FFE0")
     ];
 
     public static string Normalize(string? themeId) =>
