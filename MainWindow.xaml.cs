@@ -964,7 +964,12 @@ public partial class MainWindow : Window
         target.BorderThickness = avatar.BorderThickness;
         target.Effect = avatar.Effect;
         target.CornerRadius = new CornerRadius(size / 2);
-        target.Child = avatar.Child;
+
+        // Detach the generated child before assigning it to the existing named Border.
+        // WPF logical/visual children cannot have two parents.
+        var child = avatar.Child;
+        avatar.Child = null;
+        target.Child = child;
     }
 
     private static Brush CreateAvatarBrush(Color baseColor)
