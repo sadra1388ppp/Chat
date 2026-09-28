@@ -32,7 +32,78 @@ public partial class SettingsWindow : Window
         IncomingColorBox.Text = conversation?.IncomingBubbleColor
             ?? ThemeService.GetIncomingBubbleColor(SelectedThemeId);
 
+        BuildThemeButtons();
         RefreshThemeSelection();
+    }
+
+    private void BuildThemeButtons()
+    {
+        ThemeButtonsPanel.Children.Clear();
+
+        foreach (var theme in ThemeService.GetThemeOptions())
+        {
+            var button = new Button
+            {
+                Tag = theme.Id,
+                Width = 164,
+                Height = 76,
+                Margin = new Thickness(0, 0, 10, 10),
+                Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString(theme.PreviewBackground)),
+                BorderBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString(theme.PreviewBorder)),
+                BorderThickness = new Thickness(1.5),
+                Content = CreateThemePreview(theme)
+            };
+
+            button.Click += ThemeButton_Click;
+            ThemeButtonsPanel.Children.Add(button);
+        }
+    }
+
+    private static Grid CreateThemePreview(ThemeService.ThemeOption theme)
+    {
+        var grid = new Grid();
+        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(44) });
+        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+
+        var swatches = new StackPanel
+        {
+            Orientation = Orientation.Horizontal,
+            VerticalAlignment = VerticalAlignment.Center
+        };
+
+        swatches.Children.Add(new Border
+        {
+            Width = 18,
+            Height = 40,
+            Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString(theme.PreviewBackground)),
+            CornerRadius = new CornerRadius(6),
+            BorderBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString(theme.PreviewBorder)),
+            BorderThickness = new Thickness(1)
+        });
+
+        swatches.Children.Add(new Border
+        {
+            Width = 18,
+            Height = 40,
+            Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString(theme.PreviewAccent)),
+            CornerRadius = new CornerRadius(6),
+            Margin = new Thickness(-2, 0, 0, 0)
+        });
+
+        grid.Children.Add(swatches);
+
+        var label = new TextBlock
+        {
+            Text = theme.Name,
+            VerticalAlignment = VerticalAlignment.Center,
+            FontWeight = FontWeights.SemiBold,
+            Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(theme.PreviewText))
+        };
+
+        Grid.SetColumn(label, 1);
+        grid.Children.Add(label);
+
+        return grid;
     }
 
     private void ThemeButton_Click(object sender, RoutedEventArgs e)
