@@ -282,7 +282,7 @@ public partial class MainWindow : Window
 
         foreach (var contact in contacts)
         {
-            var avatar = CreateAvatar(contact, 46);
+            var avatar = CreateContactAvatar(contact, 46);
 
             var text = new StackPanel
             {
@@ -887,6 +887,38 @@ public partial class MainWindow : Window
             conversation.IncomingBubbleColor =
                 ThemeService.GetIncomingBubbleColor(_project.ThemeId);
         }
+    }
+
+    private Border CreateContactAvatar(ChatCharacter contact, double size)
+    {
+        var baseColor = ParseColor(contact.AvatarColor);
+
+        var border = new Border
+        {
+            Width = size,
+            Height = size,
+            CornerRadius = new CornerRadius(size / 2),
+            Background = CreateAvatarBrush(baseColor),
+            BorderBrush = new SolidColorBrush(Color.FromArgb(48, 255, 255, 255)),
+            BorderThickness = new Thickness(1)
+        };
+
+        border.Child = new TextBlock
+        {
+            Text = string.IsNullOrWhiteSpace(contact.AvatarIcon)
+                ? contact.Initial
+                : contact.AvatarIcon,
+            Foreground = Brushes.White,
+            FontWeight = FontWeights.Bold,
+            FontSize = string.IsNullOrWhiteSpace(contact.AvatarIcon)
+                ? 15
+                : 14,
+            HorizontalAlignment = HorizontalAlignment.Center,
+            VerticalAlignment = VerticalAlignment.Center,
+            TextAlignment = TextAlignment.Center
+        };
+
+        return border;
     }
 
     private Border CreateConversationAvatar(ChatConversation conversation)
