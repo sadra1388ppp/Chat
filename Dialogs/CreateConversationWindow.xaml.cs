@@ -21,8 +21,7 @@ public partial class CreateConversationWindow : Window
         InitializeComponent();
 
         _contacts = contacts;
-        ContactsList.ItemsSource = contacts;
-        ContactsList.DisplayMemberPath = nameof(ChatCharacter.Name);
+        BuildContactList();
 
         SetMode(false);
 
@@ -31,6 +30,86 @@ public partial class CreateConversationWindow : Window
 
         ContactsList.SelectionChanged += (_, _) => UpdateSelectionSummary();
         UpdateSelectionSummary();
+    }
+
+    private void BuildContactList()
+    {
+        ContactsList.Items.Clear();
+
+        foreach (var contact in _contacts)
+        {
+            var avatar = new Border
+            {
+                Width = 40,
+                Height = 40,
+                CornerRadius = new CornerRadius(20),
+                Background = ParseBrush(contact.AvatarColor),
+                VerticalAlignment = VerticalAlignment.Center
+            };
+
+            avatar.Child = new TextBlock
+            {
+                Text = string.IsNullOrWhiteSpace(contact.AvatarIcon)
+                    ? contact.Initial
+                    : contact.AvatarIcon,
+                FontSize = 15,
+                FontWeight = FontWeights.SemiBold,
+                Foreground = string.IsNullOrWhiteSpace(contact.AvatarIcon)
+                    ? Brushes.White
+                    : ThemeBrush("Accent"),
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center
+            };
+
+            var name = new TextBlock
+            {
+                Text = contact.Name,
+                FontSize = 13,
+                FontWeight = FontWeights.SemiBold,
+                Foreground = ThemeBrush("TextPrimary"),
+                TextTrimming = TextTrimming.CharacterEllipsis
+            };
+
+            var subtitle = new TextBlock
+            {
+                Text = contact.IsAi
+                    ? $"{contact.Role} • AI"
+                    : contact.Role,
+                FontSize = 10.5,
+                Foreground = ThemeBrush("TextSecondary"),
+                Margin = new Thickness(0, 3, 0, 0),
+                TextTrimming = TextTrimming.CharacterEllipsis
+            };
+
+            var text = new StackPanel
+            {
+                Margin = new Thickness(11, 0, 0, 0),
+                VerticalAlignment = VerticalAlignment.Center
+            };
+            text.Children.Add(name);
+            text.Children.Add(subtitle);
+
+            var row = new Grid();
+            row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(40) });
+            row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            Grid.SetColumn(avatar, 0);
+            Grid.SetColumn(text, 1);
+            row.Children.Add(avatar);
+            row.Children.Add(text);
+
+            ContactsList.Items.Add(new ListBoxItem
+            {
+                Content = new Border
+                {
+                    Background = Brushes.Transparent,
+                    CornerRadius = new CornerRadius(12),
+                    Padding = new Thickness(10),
+                    Child = row
+                },
+                Tag = contact.Id,
+                HorizontalContentAlignment = HorizontalAlignment.Stretch
+            });
+        }
     }
 
     private void ChatMode_Click(object sender, RoutedEventArgs e) => SetMode(false);
@@ -46,18 +125,14 @@ public partial class CreateConversationWindow : Window
 
         if (!groupMode && ContactsList.SelectedItems.Count > 1)
         {
-            var first = ContactsList.SelectedItems[0] as ChatCharacter;
+            var selectedId = (ContactsList.SelectedItems[0] as ListBoxItem)?.Tag?.ToString();
             ContactsList.SelectedItems.Clear();
 
-            if (first is not null)
+            if (!string.IsNullOrWhiteSpace(selectedId))
             {
-                first = _contacts.FirstOrDefault(c => c.Id == first.Id);
-                if (first is not null)
-                {
-                    var index = _contacts.ToList().FindIndex(c => c.Id == first.Id);
-                    if (index >= 0)
-                        ContactsList.SelectedIndex = index;
-                }
+                var index = _contacts.ToList().FindIndex(c => c.Id == selectedId);
+                if (index >= 0)
+                    ContactsList.SelectedIndex = index;
             }
         }
 
@@ -88,9 +163,7 @@ public partial class CreateConversationWindow : Window
 
     private void UpdateSelectionSummary()
     {
-        var selected = ContactsList.SelectedItems
-            .Cast<ChatCharacter>()
-            .ToList();
+        var selected = GetSelectedContacts();
 
         SelectionSummaryText.Text = selected.Count == 0
             ? (_isGroupMode ? "No group members selected" : "No contact selected")
@@ -99,11 +172,19 @@ public partial class CreateConversationWindow : Window
                 : selected[0].Name;
     }
 
-    private void Create_Click(object sender, RoutedEventArgs e)
-    {
-        var selected = ContactsList.SelectedItems
+    private List<ChatCharacter> GetSelectedContacts() =>
+        ContactsList.SelectedItems
+            .OfType<ListBoxItem>()
+            .Select(item => item.Tag?.ToString())
+            .Where(id => !string.IsNullOrWhiteSpace(id))
+            .Select(id => _contacts.FirstOrDefault(c => c.Id == id))
+            .Where(c => c is not null)
             .Cast<ChatCharacter>()
             .ToList();
+
+    private void Create_Click(object sender, RoutedEventArgs e)
+    {
+        var selected = GetSelectedContacts();
 
         var valid = _isGroupMode
             ? selected.Count >= 2
@@ -140,4 +221,17 @@ public partial class CreateConversationWindow : Window
     private static SolidColorBrush ThemeBrush(string key) =>
         Application.Current.Resources[key] as SolidColorBrush
         ?? new SolidColorBrush(Colors.Transparent);
+
+    private static SolidColorBrush ParseBrush(string color)
+    {
+        try
+        {
+            var parsed = (Color)ColorConverter.ConvertFromString(color);
+            return new SolidColorBrush(parsed);
+        }
+        catch
+        {
+            return ThemeBrush("Accent");
+        }
+    }
 }
