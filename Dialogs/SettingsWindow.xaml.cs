@@ -141,15 +141,13 @@ public partial class SettingsWindow : Window
             if (theme is null)
                 continue;
 
-            // Selected cards use a dark accent surface and white title text,
-            // so every theme keeps readable contrast regardless of its palette.
-            button.Background = selected
-                ? ThemeBrush("AccentDark")
-                : new SolidColorBrush(ParseColor(theme.PreviewBackground));
+            // Keep every theme card on the same surface.
+            // Selection is shown only by the border, so the gallery stays visually uniform.
+            button.Background = ThemeBrush("PanelBackground");
 
             button.BorderBrush = selected
                 ? ThemeBrush("Accent")
-                : new SolidColorBrush(ParseColor(theme.PreviewBorder));
+                : ThemeBrush("Divider");
 
             button.BorderThickness = selected
                 ? new Thickness(2.5)
