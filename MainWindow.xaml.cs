@@ -345,6 +345,27 @@ public partial class MainWindow : Window
 
         AiButton.Visibility = Visibility.Visible;
         AiButton.Content = _selectedConversation.IsAiEnabled ? "AI On" : "AI";
+        AiButton.Background = _selectedConversation.IsAiEnabled
+            ? GetThemeBrush("AccentSoft")
+            : GetThemeBrush("SoftPanel");
+        AiButton.BorderBrush = _selectedConversation.IsAiEnabled
+            ? GetThemeBrush("Accent")
+            : GetThemeBrush("Divider");
+        AiButton.Foreground = _selectedConversation.IsAiEnabled
+            ? GetThemeBrush("Accent")
+            : GetThemeBrush("TextPrimary");
+        AiButton.ToolTip = _selectedConversation.IsAiEnabled
+            ? "AI conversation mode is on"
+            : "Turn on AI conversation mode";
+
+        if (_selectedConversation.IsAiEnabled)
+        {
+            var aiParticipant = participants.FirstOrDefault(c => c.IsAi);
+            ConversationSubtitleText.Text = aiParticipant is null
+                ? "AI mode enabled"
+                : $"AI • {aiParticipant.Role}";
+        }
+
         CallButton.IsEnabled = first is not null && !_selectedConversation.IsGroup;
         MoreButton.IsEnabled = true;
 
@@ -538,6 +559,7 @@ public partial class MainWindow : Window
 
         var isOutgoing = message.SenderId == "self";
         var isSticker = message.Kind == ChatMessageKind.Sticker;
+        var bubbleColor = GetMessageBubbleColor(message.SenderId);
 
         var wrapper = new StackPanel
         {
@@ -563,7 +585,7 @@ public partial class MainWindow : Window
 
         var bubble = new Border
         {
-            Background = ParseBrush(GetMessageBubbleColor(message.SenderId)),
+            Background = ParseBrush(bubbleColor),
             CornerRadius = isOutgoing
                 ? new CornerRadius(17, 17, 5, 17)
                 : new CornerRadius(17, 17, 17, 5),
@@ -584,12 +606,79 @@ public partial class MainWindow : Window
             Text = message.Text,
             FontSize = isSticker ? 40 : 14,
             TextWrapping = TextWrapping.Wrap,
-            Foreground = IsLightColor(GetMessageBubbleColor(message.SenderId))
+            Foreground = IsLightColor(bubbleColor)
                 ? new SolidColorBrush(Color.FromRgb(17, 24, 39))
                 : Brushes.White
         };
 
-        wrapper.Children.Add(bubble);
+        var messageRow = new StackPanel
+        {
+            Orientation = Orientation.Horizontal,
+            HorizontalAlignment = isOutgoing
+                ? HorizontalAlignment.Right
+                : HorizontalAlignment.Left
+        };
+
+        var reactionButton = new Button
+        {
+            Content = new TextBlock
+            {
+                Text = "☺",
+                FontSize = 16,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center
+            },
+            Width = 30,
+            Height = 30,
+            Padding = new Thickness(0),
+            Margin = isOutgoing
+                ? new Thickness(7, 0, 0, 0)
+                : new Thickness(0, 0, 7, 0),
+            Style = (Style)FindResource("IconButton"),
+            ToolTip = "Add reaction"
+        };
+
+        reactionButton.ContextMenu = CreateReactionMenu(message, reactionButton);
+
+        if (isOutgoing)
+        {
+            messageRow.Children.Add(bubble);
+            messageRow.Children.Add(reactionButton);
+        }
+        else
+        {
+            messageRow.Children.Add(reactionButton);
+            messageRow.Children.Add(bubble);
+        }
+
+        wrapper.Children.Add(messageRow);
+
+        if (!string.IsNullOrWhiteSpace(message.Reaction))
+        {
+            var reactionPill = new Border
+            {
+                Background = GetThemeBrush("AccentSoft"),
+                BorderBrush = GetThemeBrush("Divider"),
+                BorderThickness = new Thickness(1),
+                CornerRadius = new CornerRadius(9),
+                Padding = new Thickness(7, 3, 7, 3),
+                HorizontalAlignment = isOutgoing
+                    ? HorizontalAlignment.Right
+                    : HorizontalAlignment.Left,
+                Margin = isOutgoing
+                    ? new Thickness(0, 4, 38, 0)
+                    : new Thickness(38, 4, 0, 0),
+                ToolTip = "Click the reaction button to change it"
+            };
+
+            reactionPill.Child = new TextBlock
+            {
+                Text = message.Reaction,
+                FontSize = 13
+            };
+
+            wrapper.Children.Add(reactionPill);
+        }
 
         var meta = new List<string>();
 
@@ -598,9 +687,6 @@ public partial class MainWindow : Window
 
         if (_selectedConversation.ShowReadReceipts && isOutgoing && message.IsRead)
             meta.Add("Read");
-
-        if (message.Reaction is not null)
-            meta.Add(message.Reaction);
 
         if (meta.Count > 0)
         {
@@ -619,38 +705,109 @@ public partial class MainWindow : Window
         }
 
         var menu = new ContextMenu();
-
-        var reactMenu = new MenuItem { Header = "React" };
-        foreach (var emoji in new[] { "❤️", "👍", "😂", "😮", "🔥" })
+        menu.Items.Add(CreateStyledMenuItem("Copy", "Copy message", (_, _) =>
         {
-            var reactionItem = new MenuItem { Header = emoji };
-            reactionItem.Click += (_, _) =>
-            {
-                message.Reaction = emoji;
-                RenderMessages();
-                MarkDirty();
-            };
-            reactMenu.Items.Add(reactionItem);
-        }
-
-        menu.Items.Add(reactMenu);
-
-        var copy = new MenuItem { Header = "Copy" };
-        copy.Click += (_, _) => Clipboard.SetText(message.Text);
-        menu.Items.Add(copy);
-
-        var delete = new MenuItem { Header = "Delete" };
-        delete.Click += (_, _) =>
+            Clipboard.SetText(message.Text);
+        }));
+        menu.Items.Add(CreateStyledMenuItem(
+            message.Reaction is null ? "React" : "Change reaction",
+            "Choose a reaction",
+            (_, _) => reactionButton.ContextMenu!.IsOpen = true));
+        menu.Items.Add(new Separator());
+        menu.Items.Add(CreateStyledMenuItem("Delete", "Delete message", (_, _) =>
         {
             _selectedConversation.Messages.Remove(message);
             RenderCurrentConversation();
+            RefreshConversationListPreservingSelection();
             MarkDirty();
-        };
-        menu.Items.Add(delete);
+        }, destructive: true));
 
         wrapper.ContextMenu = menu;
 
         return wrapper;
+    }
+
+    private ContextMenu CreateReactionMenu(ChatMessage message, UIElement placementTarget)
+    {
+        var menu = new ContextMenu
+        {
+            PlacementTarget = placementTarget,
+            StaysOpen = false
+        };
+
+        var header = new MenuItem
+        {
+            Header = "Quick reactions",
+            IsEnabled = false
+        };
+        menu.Items.Add(header);
+
+        var reactions = new[] { "❤️", "👍", "😂", "😮", "😢", "🔥" };
+
+        foreach (var emoji in reactions)
+        {
+            var item = CreateStyledMenuItem(emoji, "React with " + emoji, (_, _) =>
+            {
+                message.Reaction = emoji;
+                RenderMessages();
+                MarkDirty();
+            });
+
+            menu.Items.Add(item);
+        }
+
+        menu.Items.Add(new Separator());
+        menu.Items.Add(CreateStyledMenuItem("×", "Remove reaction", (_, _) =>
+        {
+            message.Reaction = null;
+            RenderMessages();
+            MarkDirty();
+        }, destructive: true));
+
+        return menu;
+    }
+
+    private MenuItem CreateStyledMenuItem(
+        string glyph,
+        string text,
+        RoutedEventHandler click,
+        bool destructive = false)
+    {
+        var header = new StackPanel
+        {
+            Orientation = Orientation.Horizontal
+        };
+
+        header.Children.Add(new TextBlock
+        {
+            Text = glyph,
+            Width = 28,
+            FontSize = 14,
+            VerticalAlignment = VerticalAlignment.Center,
+            Foreground = destructive
+                ? GetThemeBrush("Danger")
+                : GetThemeBrush("Accent")
+        });
+
+        header.Children.Add(new TextBlock
+        {
+            Text = text,
+            VerticalAlignment = VerticalAlignment.Center,
+            Foreground = destructive
+                ? GetThemeBrush("Danger")
+                : GetThemeBrush("TextPrimary")
+        });
+
+        var item = new MenuItem
+        {
+            Header = header,
+            Foreground = destructive
+                ? GetThemeBrush("Danger")
+                : GetThemeBrush("TextPrimary")
+        };
+
+        item.Click += click;
+        return item;
     }
 
     private string GetMessageBubbleColor(string senderId)
@@ -836,7 +993,11 @@ public partial class MainWindow : Window
         _selectedConversation.Messages.Add(new ChatMessage
         {
             SenderId = aiContact.Id,
-            Text = AiResponseService.Generate(aiContact, message),
+            Text = AiResponseService.Generate(
+                aiContact,
+                message,
+                _selectedConversation.Scenario,
+                _selectedConversation.Messages),
             Timestamp = DateTime.Now,
             IsRead = true
         });
@@ -1021,23 +1182,38 @@ public partial class MainWindow : Window
             StaysOpen = false
         };
 
-        var customize = new MenuItem { Header = "Customize chat" };
-        customize.Click += Settings_Click;
-        menu.Items.Add(customize);
-
-        var export = new MenuItem { Header = "Export as PNG" };
-        export.Click += Export_Click;
-        menu.Items.Add(export);
-
+        var title = new MenuItem
+        {
+            Header = $"Chat • {_selectedConversation.Title}",
+            IsEnabled = false
+        };
+        menu.Items.Add(title);
         menu.Items.Add(new Separator());
 
-        var delete = new MenuItem
+        menu.Items.Add(CreateStyledMenuItem(
+            "✦",
+            "Customize chat",
+            Settings_Click));
+
+        menu.Items.Add(CreateStyledMenuItem(
+            "↗",
+            "Export as PNG",
+            Export_Click));
+
+        if (_selectedConversation.IsAiEnabled)
         {
-            Header = "Delete conversation",
-            Foreground = Brushes.IndianRed
-        };
-        delete.Click += DeleteConversation_Click;
-        menu.Items.Add(delete);
+            menu.Items.Add(CreateStyledMenuItem(
+                "AI",
+                "AI conversation is on",
+                (_, _) => { }));
+        }
+
+        menu.Items.Add(new Separator());
+        menu.Items.Add(CreateStyledMenuItem(
+            "×",
+            "Delete conversation",
+            DeleteConversation_Click,
+            destructive: true));
 
         menu.IsOpen = true;
     }
