@@ -95,6 +95,7 @@ public partial class SettingsWindow : Window
         var label = new TextBlock
         {
             Text = theme.Name,
+            Tag = "theme-name",
             VerticalAlignment = VerticalAlignment.Center,
             FontWeight = FontWeights.SemiBold,
             Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(theme.PreviewText))
@@ -125,6 +126,8 @@ public partial class SettingsWindow : Window
 
     private void RefreshThemeSelection()
     {
+        var options = ThemeService.GetThemeOptions();
+
         foreach (var button in ThemeButtonsPanel.Children.OfType<Button>())
         {
             var selected = string.Equals(
@@ -132,18 +135,47 @@ public partial class SettingsWindow : Window
                 SelectedThemeId,
                 StringComparison.OrdinalIgnoreCase);
 
+            var theme = options.FirstOrDefault(t =>
+                string.Equals(t.Id, button.Tag?.ToString(), StringComparison.OrdinalIgnoreCase));
+
+            if (theme is null)
+                continue;
+
+            // Selected cards use a dark accent surface and white title text,
+            // so every theme keeps readable contrast regardless of its palette.
+            button.Background = selected
+                ? ThemeBrush("AccentDark")
+                : new SolidColorBrush(ParseColor(theme.PreviewBackground));
+
             button.BorderBrush = selected
                 ? ThemeBrush("Accent")
-                : ThemeBrush("Divider");
+                : new SolidColorBrush(ParseColor(theme.PreviewBorder));
 
             button.BorderThickness = selected
                 ? new Thickness(2.5)
                 : new Thickness(1);
-            button.Background = selected
-                ? ThemeBrush("AccentSoft")
-                : ThemeBrush("PanelBackground");
+
+            if (button.Content is Grid preview)
+            {
+                var label = preview.Children
+                    .OfType<TextBlock>()
+                    .FirstOrDefault(t => string.Equals(
+                        t.Tag?.ToString(),
+                        "theme-name",
+                        StringComparison.Ordinal));
+
+                if (label is not null)
+                {
+                    label.Foreground = selected
+                        ? Brushes.White
+                        : new SolidColorBrush(ParseColor(theme.PreviewText));
+                }
+            }
         }
     }
+
+    private static Color ParseColor(string value) =>
+        (Color)ColorConverter.ConvertFromString(value);
 
     private void UseThemeColorsCheckBox_Click(object sender, RoutedEventArgs e)
     {
