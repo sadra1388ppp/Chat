@@ -11,5 +11,4 @@ public sealed class ChatCharacter
     public string AvatarIcon { get; set; } = "";
     public string AvatarColor { get; set; } = "#DDF5E8";
     public string BubbleColor { get; set; } = "#E9EDF2";
-    public bool IsAi { get; set; }
 }
