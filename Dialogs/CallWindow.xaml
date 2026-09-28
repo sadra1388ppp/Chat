@@ -42,12 +42,16 @@
             <TextBlock Text="Practice Call"
                        FontSize="12"
                        Foreground="{DynamicResource CallSecondary}"/>
-            <Button Content="✕"
-                    Click="Close_Click"
+            <Button Click="Close_Click"
                     Style="{StaticResource IconButton}"
                     Width="34"
                     Height="34"
-                    HorizontalAlignment="Right"/>
+                    HorizontalAlignment="Right"
+                    ToolTip="Close">
+                <TextBlock Text="&#xE8BB;"
+                           FontFamily="Segoe MDL2 Assets"
+                           FontSize="14"/>
+            </Button>
         </Grid>
 
         <StackPanel Grid.Row="1"
@@ -148,18 +152,15 @@
             <StackPanel Orientation="Horizontal"
                         HorizontalAlignment="Center">
                 <Button x:Name="MuteButton"
-                        Content="♩"
                         Click="Mute_Click"
                         Style="{StaticResource CallActionButton}"
                         ToolTip="Toggle mute"/>
                 <Button x:Name="SpeakerButton"
-                        Content="◉"
                         Click="Speaker_Click"
                         Style="{StaticResource CallActionButton}"
                         Margin="12,0"
                         ToolTip="Toggle speaker"/>
                 <Button x:Name="StartButton"
-                        Content="☎"
                         Click="Start_Click"
                         Style="{StaticResource PrimaryButton}"
                         Width="62"
@@ -167,7 +168,6 @@
                         FontSize="23"
                         ToolTip="Start practice call"/>
                 <Button x:Name="EndButton"
-                        Content="■"
                         Click="End_Click"
                         Width="62"
                         Height="62"
@@ -179,6 +179,14 @@
                         Visibility="Collapsed"
                         Margin="12,0"
                         ToolTip="End call"/>
+            <StackPanel Orientation="Horizontal"
+                            HorizontalAlignment="Center">
+                <TextBlock x:Name="MuteIcon"
+                           Text="&#xE720;"
+                           FontFamily="Segoe MDL2 Assets"
+                           FontSize="17"
+                           Foreground="{DynamicResource TextPrimary}"
+                           Visibility="Collapsed"/>
             </StackPanel>
         </StackPanel>
     </Grid>
