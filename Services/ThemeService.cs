@@ -16,6 +16,14 @@ public static class ThemeService
     public const string Graphite = "graphite";
     public const string Arctic = "arctic";
     public const string Plum = "plum";
+    public const string Telegram = "telegram";
+    public const string Instagram = "instagram";
+    public const string Forest = "forest";
+    public const string Coffee = "coffee";
+    public const string Neon = "neon";
+    public const string Sakura = "sakura";
+    public const string Solar = "solar";
+    public const string Slate = "slate";
 
     private sealed record ThemePalette(
         string WindowBackground,
@@ -92,10 +100,81 @@ public static class ThemeService
             [Plum] = new(
                 "#F8F2F9", "#FFFFFF", "#F0E5F2", "#E3D5E7", "#332037", "#7B697E",
                 "#A05AE8", "#7E3DC2", "#F0E4FF", "#F0E5F2", "#F2E8FF",
-                "#A05AE8", "#EDE5F0", "#D54E75", "#28192D", "#36203C", "#AE9DB4")
+                "#A05AE8", "#EDE5F0", "#D54E75", "#28192D", "#36203C", "#AE9DB4"),
+
+            [Telegram] = new(
+                "#F2F7FA", "#FFFFFF", "#E6F0F5", "#D5E2E8", "#17232D", "#687A86",
+                "#229ED9", "#1684B8", "#DDF3FF", "#EAF3F7", "#E0F3FF",
+                "#229ED9", "#E8F1F5", "#D6455D", "#10202A", "#172C38", "#A7BBC5"),
+
+            [Instagram] = new(
+                "#FFF4F9", "#FFFFFF", "#FBE4EF", "#EED4E0", "#341B2A", "#7D6873",
+                "#E1306C", "#C2185B", "#FFE0EC", "#F9E9F1", "#FFE7F0",
+                "#E1306C", "#F3E5EC", "#C93655", "#2B1722", "#3A1E2D", "#BEA4B0"),
+
+            [Forest] = new(
+                "#F1F7F3", "#FFFFFF", "#E3EFE7", "#D2E3D8", "#193025", "#63766C",
+                "#2F8A5B", "#246B46", "#DDF3E6", "#E8F2EB", "#DFF4E7",
+                "#2F8A5B", "#E2EEE7", "#C94356", "#12261B", "#193429", "#A7BEB0"),
+
+            [Coffee] = new(
+                "#F8F3EE", "#FFFFFF", "#EFE6DD", "#E2D6C9", "#34271F", "#7B6D63",
+                "#A96D3D", "#85532D", "#F7E5D2", "#F1E9E1", "#F4E2D2",
+                "#A96D3D", "#EEE4DB", "#C84C4C", "#261A14", "#352319", "#B9A79A"),
+
+            [Neon] = new(
+                "#0B0F14", "#111820", "#19232D", "#27333E", "#F4F8FC", "#9FAFBE",
+                "#00E5FF", "#00B8CC", "#103942", "#18232D", "#12323B",
+                "#00D6F0", "#26333D", "#FF5876", "#071016", "#101820", "#A9BBC7"),
+
+            [Sakura] = new(
+                "#FFF5F7", "#FFFFFF", "#FCE7EC", "#F0D4DA", "#351D25", "#806C73",
+                "#F06F91", "#D9577A", "#FFE4EB", "#FAEAF0", "#FFE7EE",
+                "#F06F91", "#F4E5E9", "#C83B54", "#2E1820", "#3B202A", "#BFA6AE"),
+
+            [Solar] = new(
+                "#FFF8EA", "#FFFFFF", "#F9EDD2", "#EEDDB4", "#382814", "#806E50",
+                "#E6A400", "#B77D00", "#FFF0C7", "#F8EFD9", "#FFF1C9",
+                "#E6A400", "#F1E7CF", "#C94745", "#2A1E0F", "#382914", "#C1AF86"),
+
+            [Slate] = new(
+                "#F2F5F8", "#FFFFFF", "#E4EAF0", "#D2DBE4", "#1C2732", "#6C7B88",
+                "#5B6F82", "#46596A", "#E6EDF4", "#EAF0F5", "#E8EFF5",
+                "#5B6F82", "#E5EBF0", "#D14B5D", "#162029", "#202B34", "#A7B4BF")
         };
 
     public static string CurrentThemeId { get; private set; } = Light;
+
+    public sealed record ThemeOption(
+        string Id,
+        string Name,
+        string PreviewBackground,
+        string PreviewAccent,
+        string PreviewBorder,
+        string PreviewText);
+
+    public static IReadOnlyList<ThemeOption> GetThemeOptions() =>
+    [
+        new(Light, "Light", "#F4F6F8", "#0A84FF", "#DDE3EA", "#111827"),
+        new(Dark, "Dark", "#0F1115", "#4DA3FF", "#2A303A", "#F5F7FA"),
+        new(Midnight, "Midnight", "#0B1020", "#7C9CFF", "#28324D", "#F3F6FF"),
+        new(Ocean, "Ocean", "#EEF7FA", "#00A6C7", "#B8E4EA", "#102A33"),
+        new(Lavender, "Lavender", "#F7F4FB", "#7C5CFC", "#DCD0F5", "#2A2234"),
+        new(Mint, "Mint", "#F1F8F4", "#2BAA78", "#BFE5D1", "#163026"),
+        new(Rose, "Rose", "#FCF4F7", "#E45D83", "#F0C7D5", "#341E26"),
+        new(Sunset, "Sunset", "#FFF6F0", "#F26A3D", "#F0D6C7", "#342117"),
+        new(Graphite, "Graphite", "#15171A", "#8C9AA8", "#343A41", "#F1F3F5"),
+        new(Arctic, "Arctic", "#F1F7FC", "#2D8FD5", "#D2E1EE", "#172B3A"),
+        new(Plum, "Plum", "#F8F2F9", "#A05AE8", "#E3D5E7", "#332037"),
+        new(Telegram, "Telegram", "#F2F7FA", "#229ED9", "#D5E2E8", "#17232D"),
+        new(Instagram, "Instagram", "#FFF4F9", "#E1306C", "#EED4E0", "#341B2A"),
+        new(Forest, "Forest", "#F1F7F3", "#2F8A5B", "#D2E3D8", "#193025"),
+        new(Coffee, "Coffee", "#F8F3EE", "#A96D3D", "#E2D6C9", "#34271F"),
+        new(Neon, "Neon", "#0B0F14", "#00E5FF", "#27333E", "#F4F8FC"),
+        new(Sakura, "Sakura", "#FFF5F7", "#F06F91", "#F0D4DA", "#351D25"),
+        new(Solar, "Solar", "#FFF8EA", "#E6A400", "#EEDDB4", "#382814"),
+        new(Slate, "Slate", "#F2F5F8", "#5B6F82", "#D2DBE4", "#1C2732")
+    ];
 
     public static string Normalize(string? themeId) =>
         !string.IsNullOrWhiteSpace(themeId) && Palettes.ContainsKey(themeId)
@@ -128,36 +207,10 @@ public static class ThemeService
     }
 
     public static string GetOutgoingBubbleColor(string? themeId) =>
-        Normalize(themeId) switch
-        {
-            Dark => Palettes[Dark].MessageOutgoing,
-            Midnight => Palettes[Midnight].MessageOutgoing,
-            Ocean => Palettes[Ocean].MessageOutgoing,
-            Lavender => Palettes[Lavender].MessageOutgoing,
-            Mint => Palettes[Mint].MessageOutgoing,
-            Rose => Palettes[Rose].MessageOutgoing,
-            Sunset => Palettes[Sunset].MessageOutgoing,
-            Graphite => Palettes[Graphite].MessageOutgoing,
-            Arctic => Palettes[Arctic].MessageOutgoing,
-            Plum => Palettes[Plum].MessageOutgoing,
-            _ => Palettes[Light].MessageOutgoing
-        };
+        Palettes[Normalize(themeId)].MessageOutgoing;
 
     public static string GetIncomingBubbleColor(string? themeId) =>
-        Normalize(themeId) switch
-        {
-            Dark => Palettes[Dark].MessageIncoming,
-            Midnight => Palettes[Midnight].MessageIncoming,
-            Ocean => Palettes[Ocean].MessageIncoming,
-            Lavender => Palettes[Lavender].MessageIncoming,
-            Mint => Palettes[Mint].MessageIncoming,
-            Rose => Palettes[Rose].MessageIncoming,
-            Sunset => Palettes[Sunset].MessageIncoming,
-            Graphite => Palettes[Graphite].MessageIncoming,
-            Arctic => Palettes[Arctic].MessageIncoming,
-            Plum => Palettes[Plum].MessageIncoming,
-            _ => Palettes[Light].MessageIncoming
-        };
+        Palettes[Normalize(themeId)].MessageIncoming;
 
     public static string GetParticipantBubbleColor(string? themeId, int index)
     {
