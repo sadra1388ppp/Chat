@@ -15,6 +15,7 @@ public partial class MainWindow : Window
     private readonly ProjectStorageService _storage = new();
     private ChatProject _project;
     private ChatConversation? _selectedConversation;
+    private bool _refreshingConversationList;
 
     public MainWindow()
     {
@@ -727,6 +728,9 @@ public partial class MainWindow : Window
 
     private void ConversationList_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
+        if (_refreshingConversationList)
+            return;
+
         if (ConversationList.SelectedItem is not ListBoxItem item)
             return;
 
@@ -735,8 +739,34 @@ public partial class MainWindow : Window
         _project.ActiveConversationId = _selectedConversation?.Id;
 
         RenderCurrentConversation();
-        RenderConversationList();
         MarkDirty();
+    }
+
+    private void RefreshConversationListPreservingSelection()
+    {
+        var activeId = _selectedConversation?.Id;
+        _refreshingConversationList = true;
+
+        try
+        {
+            RenderConversationList();
+
+            if (string.IsNullOrWhiteSpace(activeId))
+                return;
+
+            foreach (var item in ConversationList.Items.OfType<ListBoxItem>())
+            {
+                if (string.Equals(item.Tag?.ToString(), activeId, StringComparison.Ordinal))
+                {
+                    ConversationList.SelectedItem = item;
+                    break;
+                }
+            }
+        }
+        finally
+        {
+            _refreshingConversationList = false;
+        }
     }
 
     private void SearchBox_TextChanged(object sender, TextChangedEventArgs e)
@@ -783,7 +813,9 @@ public partial class MainWindow : Window
         _selectedConversation.Messages.Add(message);
         MessageInput.Clear();
 
+        // Update both the open chat and its sidebar preview immediately.
         RenderCurrentConversation();
+        RefreshConversationListPreservingSelection();
         MarkDirty();
 
         if (!_selectedConversation.IsAiEnabled)
@@ -809,7 +841,9 @@ public partial class MainWindow : Window
             IsRead = true
         });
 
+        // Refresh the conversation card as soon as the AI reply arrives.
         RenderCurrentConversation();
+        RefreshConversationListPreservingSelection();
         MarkDirty();
     }
 
