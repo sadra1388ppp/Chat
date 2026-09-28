@@ -21,6 +21,11 @@
         <SolidColorBrush x:Key="CallPanel" Color="#171C22"/>
         <SolidColorBrush x:Key="CallSecondary" Color="#A9B3BF"/>
 
+        <DropShadowEffect x:Key="ControlHoverShadow"
+                          BlurRadius="15"
+                          ShadowDepth="2"
+                          Opacity="0.16"/>
+
         <Style TargetType="TextBox">
             <Setter Property="Background" Value="{DynamicResource InputBackground}"/>
             <Setter Property="Foreground" Value="{DynamicResource TextPrimary}"/>
@@ -29,6 +34,19 @@
             <Setter Property="Padding" Value="12,9"/>
             <Setter Property="FontFamily" Value="Segoe UI"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="BorderBrush" Value="{DynamicResource Accent}"/>
+                </Trigger>
+                <Trigger Property="IsKeyboardFocused" Value="True">
+                    <Setter Property="BorderBrush" Value="{DynamicResource Accent}"/>
+                    <Setter Property="Effect" Value="{StaticResource ControlHoverShadow}"/>
+                </Trigger>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter Property="Opacity" Value="0.52"/>
+                </Trigger>
+            </Style.Triggers>
         </Style>
 
         <Style TargetType="ComboBox">
@@ -38,6 +56,19 @@
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="Padding" Value="10,7"/>
             <Setter Property="FontFamily" Value="Segoe UI"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="BorderBrush" Value="{DynamicResource Accent}"/>
+                </Trigger>
+                <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                    <Setter Property="BorderBrush" Value="{DynamicResource Accent}"/>
+                    <Setter Property="Effect" Value="{StaticResource ControlHoverShadow}"/>
+                </Trigger>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter Property="Opacity" Value="0.5"/>
+                </Trigger>
+            </Style.Triggers>
         </Style>
 
         <Style TargetType="ListBox">
@@ -45,6 +76,7 @@
             <Setter Property="Foreground" Value="{DynamicResource TextPrimary}"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="FontFamily" Value="Segoe UI"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
         </Style>
 
         <Style TargetType="ListBoxItem">
@@ -53,12 +85,27 @@
             <Setter Property="Padding" Value="0"/>
             <Setter Property="Margin" Value="2,2"/>
             <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="RenderTransformOrigin" Value="0.5,0.5"/>
+            <Setter Property="RenderTransform">
+                <Setter.Value>
+                    <ScaleTransform ScaleX="1" ScaleY="1"/>
+                </Setter.Value>
+            </Setter>
             <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="RenderTransform">
+                        <Setter.Value>
+                            <ScaleTransform ScaleX="1.008" ScaleY="1.008"/>
+                        </Setter.Value>
+                    </Setter>
+                    <Setter Property="Effect" Value="{StaticResource ControlHoverShadow}"/>
+                </Trigger>
                 <Trigger Property="IsSelected" Value="True">
                     <Setter Property="Background" Value="{DynamicResource SelectedBackground}"/>
                 </Trigger>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="{DynamicResource AccentSoft}"/>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter Property="Opacity" Value="0.55"/>
                 </Trigger>
             </Style.Triggers>
         </Style>
@@ -66,6 +113,44 @@
         <Style TargetType="Button">
             <Setter Property="FontFamily" Value="Segoe UI"/>
             <Setter Property="Foreground" Value="{DynamicResource TextPrimary}"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="RenderTransformOrigin" Value="0.5,0.5"/>
+            <Setter Property="RenderTransform">
+                <Setter.Value>
+                    <ScaleTransform ScaleX="1" ScaleY="1"/>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="ButtonChrome"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="12"
+                                SnapsToDevicePixels="True">
+                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                              Content="{TemplateBinding Content}"
+                                              ContentTemplate="{TemplateBinding ContentTemplate}"
+                                              ContentStringFormat="{TemplateBinding ContentStringFormat}"
+                                              Margin="{TemplateBinding Padding}"
+                                              RecognizesAccessKey="True"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="ButtonChrome" Property="Effect" Value="{StaticResource ControlHoverShadow}"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="ButtonChrome" Property="Opacity" Value="0.88"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="ButtonChrome" Property="Opacity" Value="0.45"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
 
         <Style x:Key="PrimaryButton" TargetType="Button">
@@ -80,9 +165,18 @@
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
                     <Setter Property="Background" Value="{DynamicResource AccentDark}"/>
+                    <Setter Property="RenderTransform">
+                        <Setter.Value>
+                            <ScaleTransform ScaleX="1.018" ScaleY="1.018"/>
+                        </Setter.Value>
+                    </Setter>
                 </Trigger>
                 <Trigger Property="IsPressed" Value="True">
-                    <Setter Property="Opacity" Value="0.9"/>
+                    <Setter Property="RenderTransform">
+                        <Setter.Value>
+                            <ScaleTransform ScaleX="0.985" ScaleY="0.985"/>
+                        </Setter.Value>
+                    </Setter>
                 </Trigger>
             </Style.Triggers>
         </Style>
@@ -98,9 +192,19 @@
                 <Trigger Property="IsMouseOver" Value="True">
                     <Setter Property="Background" Value="{DynamicResource AccentSoft}"/>
                     <Setter Property="BorderBrush" Value="{DynamicResource Accent}"/>
+                    <Setter Property="Foreground" Value="{DynamicResource Accent}"/>
+                    <Setter Property="RenderTransform">
+                        <Setter.Value>
+                            <ScaleTransform ScaleX="1.018" ScaleY="1.018"/>
+                        </Setter.Value>
+                    </Setter>
                 </Trigger>
                 <Trigger Property="IsPressed" Value="True">
-                    <Setter Property="Opacity" Value="0.88"/>
+                    <Setter Property="RenderTransform">
+                        <Setter.Value>
+                            <ScaleTransform ScaleX="0.985" ScaleY="0.985"/>
+                        </Setter.Value>
+                    </Setter>
                 </Trigger>
             </Style.Triggers>
         </Style>
@@ -115,6 +219,18 @@
                 <Trigger Property="IsMouseOver" Value="True">
                     <Setter Property="Background" Value="{DynamicResource AccentSoft}"/>
                     <Setter Property="Foreground" Value="{DynamicResource Accent}"/>
+                    <Setter Property="RenderTransform">
+                        <Setter.Value>
+                            <ScaleTransform ScaleX="1.03" ScaleY="1.03"/>
+                        </Setter.Value>
+                    </Setter>
+                </Trigger>
+                <Trigger Property="IsPressed" Value="True">
+                    <Setter Property="RenderTransform">
+                        <Setter.Value>
+                            <ScaleTransform ScaleX="0.975" ScaleY="0.975"/>
+                        </Setter.Value>
+                    </Setter>
                 </Trigger>
             </Style.Triggers>
         </Style>
@@ -133,9 +249,18 @@
                 <Trigger Property="IsMouseOver" Value="True">
                     <Setter Property="Background" Value="{DynamicResource AccentSoft}"/>
                     <Setter Property="Foreground" Value="{DynamicResource Accent}"/>
+                    <Setter Property="RenderTransform">
+                        <Setter.Value>
+                            <ScaleTransform ScaleX="1.075" ScaleY="1.075"/>
+                        </Setter.Value>
+                    </Setter>
                 </Trigger>
                 <Trigger Property="IsPressed" Value="True">
-                    <Setter Property="Opacity" Value="0.82"/>
+                    <Setter Property="RenderTransform">
+                        <Setter.Value>
+                            <ScaleTransform ScaleX="0.94" ScaleY="0.94"/>
+                        </Setter.Value>
+                    </Setter>
                 </Trigger>
             </Style.Triggers>
         </Style>
