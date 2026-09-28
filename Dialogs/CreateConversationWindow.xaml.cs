@@ -13,7 +13,6 @@ public partial class CreateConversationWindow : Window
 
     public string ConversationTitle { get; private set; } = "";
     public string Scenario { get; private set; } = "";
-    public bool AiEnabled { get; private set; }
     public List<string> ParticipantIds { get; private set; } = [];
 
     public CreateConversationWindow(IReadOnlyList<ChatCharacter> contacts)
@@ -72,9 +71,7 @@ public partial class CreateConversationWindow : Window
 
             var subtitle = new TextBlock
             {
-                Text = contact.IsAi
-                    ? $"{contact.Role} • AI"
-                    : contact.Role,
+                Text = contact.Role,
                 FontSize = 10.5,
                 Foreground = ThemeBrush("TextSecondary"),
                 Margin = new Thickness(0, 3, 0, 0),
@@ -210,7 +207,6 @@ public partial class CreateConversationWindow : Window
         }
 
         Scenario = ScenarioBox.Text.Trim();
-        AiEnabled = AiCheckBox.IsChecked == true || selected.Any(c => c.IsAi);
 
         DialogResult = true;
         Close();
