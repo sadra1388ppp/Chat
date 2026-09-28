@@ -372,10 +372,10 @@
                             Height="40"
                             Padding="0"
                             Margin="0,0,8,0"
-                            FontFamily="Segoe UI Emoji"
-                            FontSize="21"
-                            Content="😊"
-                            ToolTip="Emoji"/>
+                            ToolTip="Emoji">
+                        <emoji:TextBlock Text="😊"
+                                         FontSize="21"/>
+                    </Button>
 
                     <Border Grid.Column="2"
                             Background="{DynamicResource InputBackground}"
@@ -739,8 +739,7 @@
                                     CornerRadius="8"
                                     Background="{DynamicResource AccentSoft}"
                                     VerticalAlignment="Center">
-                                <TextBlock Text="🙂"
-                                           FontFamily="Segoe UI Emoji"
+                                <emoji:TextBlock Text="🙂"
                                            FontSize="15"
                                            HorizontalAlignment="Center"
                                            VerticalAlignment="Center"/>
@@ -832,12 +831,12 @@
 
                     <StackPanel Orientation="Horizontal"
                                 HorizontalAlignment="Center">
-                        <Button Tag="❤️" Click="ReactionChoice_Click" Style="{StaticResource PopupReactionButton}" Content="❤️"/>
-                        <Button Tag="👍" Click="ReactionChoice_Click" Style="{StaticResource PopupReactionButton}" Content="👍"/>
-                        <Button Tag="😂" Click="ReactionChoice_Click" Style="{StaticResource PopupReactionButton}" Content="😂"/>
-                        <Button Tag="😮" Click="ReactionChoice_Click" Style="{StaticResource PopupReactionButton}" Content="😮"/>
-                        <Button Tag="😢" Click="ReactionChoice_Click" Style="{StaticResource PopupReactionButton}" Content="😢"/>
-                        <Button Tag="🔥" Click="ReactionChoice_Click" Style="{StaticResource PopupReactionButton}" Content="🔥"/>
+                        <Button Tag="❤️" Click="ReactionChoice_Click" Style="{StaticResource PopupReactionButton}"><emoji:TextBlock Text="❤️" FontSize="22"/></Button>
+                        <Button Tag="👍" Click="ReactionChoice_Click" Style="{StaticResource PopupReactionButton}"><emoji:TextBlock Text="👍" FontSize="22"/></Button>
+                        <Button Tag="😂" Click="ReactionChoice_Click" Style="{StaticResource PopupReactionButton}"><emoji:TextBlock Text="😂" FontSize="22"/></Button>
+                        <Button Tag="😮" Click="ReactionChoice_Click" Style="{StaticResource PopupReactionButton}"><emoji:TextBlock Text="😮" FontSize="22"/></Button>
+                        <Button Tag="😢" Click="ReactionChoice_Click" Style="{StaticResource PopupReactionButton}"><emoji:TextBlock Text="😢" FontSize="22"/></Button>
+                        <Button Tag="🔥" Click="ReactionChoice_Click" Style="{StaticResource PopupReactionButton}"><emoji:TextBlock Text="🔥" FontSize="22"/></Button>
                     </StackPanel>
 
                     <TextBlock x:Name="ReactionCurrentText"
