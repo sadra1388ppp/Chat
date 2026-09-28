@@ -52,7 +52,11 @@ public partial class CreateConversationWindow : Window
             {
                 first = _contacts.FirstOrDefault(c => c.Id == first.Id);
                 if (first is not null)
-                    ContactsList.SelectedValue = first.Id;
+                {
+                    var index = _contacts.ToList().FindIndex(c => c.Id == first.Id);
+                    if (index >= 0)
+                        ContactsList.SelectedIndex = index;
+                }
             }
         }
 
