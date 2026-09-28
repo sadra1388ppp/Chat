@@ -4,6 +4,8 @@
         Title="New Conversation"
         Width="620"
         Height="720"
+        MinWidth="620"
+        MinHeight="720"
         ResizeMode="NoResize"
         WindowStartupLocation="CenterOwner"
         Background="{DynamicResource WindowBackground}"
@@ -29,7 +31,7 @@
                        Margin="0,6,0,0"/>
         </StackPanel>
 
-        <Grid Grid.Row="1" Margin="0,22,0,22">
+        <Grid Grid.Row="1" Margin="0,22,0,20">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="12"/>
@@ -74,7 +76,9 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
@@ -83,75 +87,83 @@
                        FontSize="10"
                        FontWeight="SemiBold"
                        Foreground="{DynamicResource TextSecondary}"/>
+
             <TextBox x:Name="TitleBox"
                      Grid.Row="1"
                      Height="42"
-                     Margin="0,7,0,16"
+                     Margin="0,7,0,14"
                      FontSize="14"/>
 
             <Grid Grid.Row="2">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="*"/>
-                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
 
-                <Grid>
-                    <TextBlock x:Name="ParticipantHeaderText"
-                               Text="CONTACT"
-                               FontSize="10"
-                               FontWeight="SemiBold"
-                               Foreground="{DynamicResource TextSecondary}"
-                               VerticalAlignment="Center"/>
-                    <TextBlock x:Name="ParticipantModeHint"
-                               Text="Select one"
-                               FontSize="10"
-                               Foreground="{DynamicResource TextSecondary}"
-                               HorizontalAlignment="Right"
-                               VerticalAlignment="Center"/>
-                </Grid>
+                <TextBlock x:Name="ParticipantHeaderText"
+                           Text="CONTACT"
+                           FontSize="10"
+                           FontWeight="SemiBold"
+                           Foreground="{DynamicResource TextSecondary}"
+                           VerticalAlignment="Center"/>
 
-                <ListBox x:Name="ContactsList"
-                         Grid.Row="2"
-                         Margin="0,8,0,14"
-                         Height="215"
-                         SelectionMode="Multiple"
-                         FontSize="13"/>
-
-                <Border Grid.Row="2"
-                        VerticalAlignment="Bottom"
-                        Background="{DynamicResource AccentSoft}"
-                        BorderBrush="{DynamicResource Divider}"
-                        BorderThickness="1"
-                        CornerRadius="11"
-                        Padding="10"
-                        Margin="0,0,0,14"
-                        IsHitTestVisible="False">
-                    <TextBlock x:Name="SelectionSummaryText"
-                               Text="Select a contact"
-                               FontSize="10"
-                               Foreground="{DynamicResource TextSecondary}"/>
-                </Border>
+                <TextBlock x:Name="ParticipantModeHint"
+                           Grid.Column="1"
+                           Text="Select one"
+                           FontSize="10"
+                           Foreground="{DynamicResource TextSecondary}"
+                           HorizontalAlignment="Right"
+                           VerticalAlignment="Center"/>
             </Grid>
 
+            <ListBox x:Name="ContactsList"
+                     Grid.Row="3"
+                     Margin="0,8,0,10"
+                     MinHeight="180"
+                     ScrollViewer.VerticalScrollBarVisibility="Auto"
+                     ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                     SelectionMode="Multiple"
+                     FontSize="13"/>
+
+            <Border Grid.Row="4"
+                    Background="{DynamicResource AccentSoft}"
+                    BorderBrush="{DynamicResource Divider}"
+                    BorderThickness="1"
+                    CornerRadius="11"
+                    Padding="10"
+                    Margin="0,0,0,12">
+                <TextBlock x:Name="SelectionSummaryText"
+                           Text="Select a contact"
+                           FontSize="10"
+                           Foreground="{DynamicResource TextSecondary}"
+                           TextTrimming="CharacterEllipsis"/>
+            </Border>
+
             <CheckBox x:Name="AiCheckBox"
-                      Grid.Row="3"
+                      Grid.Row="5"
                       Content="Enable AI conversation mode"
                       FontSize="13"
-                      Margin="0,0,0,14"/>
+                      Margin="0,0,0,12"/>
 
-            <StackPanel Grid.Row="4">
+            <Grid Grid.Row="6">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="72"/>
+                </Grid.RowDefinitions>
+
                 <TextBlock Text="SCENARIO"
                            FontSize="10"
                            FontWeight="SemiBold"
                            Foreground="{DynamicResource TextSecondary}"/>
+
                 <TextBox x:Name="ScenarioBox"
-                         Height="72"
+                         Grid.Row="1"
                          Margin="0,7,0,0"
                          Padding="11"
                          TextWrapping="Wrap"
-                         AcceptsReturn="True"/>
-            </StackPanel>
+                         AcceptsReturn="True"
+                         VerticalContentAlignment="Top"/>
+            </Grid>
         </Grid>
 
         <TextBlock Grid.Row="3"
@@ -159,7 +171,7 @@
                    Text="Select a contact to continue."
                    FontSize="10"
                    Foreground="{DynamicResource TextSecondary}"
-                   Margin="0,13,0,14"/>
+                   Margin="0,10,0,12"/>
 
         <Grid Grid.Row="4">
             <Grid.ColumnDefinitions>
