@@ -50,8 +50,9 @@
         <Style TargetType="ListBoxItem">
             <Setter Property="Foreground" Value="{DynamicResource TextPrimary}"/>
             <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Padding" Value="6"/>
-            <Setter Property="Margin" Value="0,1"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="Margin" Value="2,2"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
             <Style.Triggers>
                 <Trigger Property="IsSelected" Value="True">
                     <Setter Property="Background" Value="{DynamicResource SelectedBackground}"/>
