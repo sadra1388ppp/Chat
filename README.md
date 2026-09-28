@@ -5,12 +5,11 @@ A Windows desktop conversation-practice studio inspired by modern chat rehearsal
 ## What this build includes
 
 - Starts completely empty: no demo chats or pre-created contacts.
-- Create reusable contacts/personas with optional AI mode.
+- Create reusable contacts and personas.
 - Create one-to-one or group conversations.
 - Write both sides by switching the Send as participant.
 - Bubble colors, timestamps, typing indicators and read receipts.
 - Message reactions, emoji insertion and sticker-style messages.
-- Local AI practice responses without requiring an external API key.
 - Practice call simulator with timer and recap.
 - PNG conversation export.
 - Offline-first JSON persistence under %LOCALAPPDATA%\Chat.
