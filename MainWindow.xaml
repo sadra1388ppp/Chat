@@ -298,8 +298,14 @@
                     <StackPanel Orientation="Horizontal"
                                 HorizontalAlignment="Right"
                                 VerticalAlignment="Center">
-Button>
-                        <Button x:Name="MoreButton"
+                        <Button x:Name="CallButton"
+                                Content="&#xE717;"
+                                Click="Call_Click"
+                                Style="{StaticResource IconButton}"
+                                FontFamily="Segoe MDL2 Assets"
+                                FontSize="17"
+                                ToolTip="Call"/>
+                                                <Button x:Name="MoreButton"
                                 Content="⋯"
                                 Click="More_Click"
                                 Style="{StaticResource IconButton}"
