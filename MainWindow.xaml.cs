@@ -261,7 +261,7 @@ public partial class MainWindow : Window
 
             text.Children.Add(new TextBlock
             {
-                Text = contact.IsAi ? $"{contact.Role} • AI" : contact.Role,
+                Text = contact.Role,
                 FontSize = 11,
                 Foreground = GetThemeBrush("TextSecondary"),
                 Margin = new Thickness(0, 3, 0, 0)
@@ -307,7 +307,6 @@ public partial class MainWindow : Window
             CurrentAvatar.Background = GetThemeBrush("AccentSoft");
             CurrentAvatarText.Foreground = GetThemeBrush("Accent");
 
-            AiButton.Visibility = Visibility.Collapsed;
             CallButton.IsEnabled = false;
             MoreButton.IsEnabled = false;
 
@@ -343,21 +342,6 @@ public partial class MainWindow : Window
             !string.IsNullOrWhiteSpace(first.AvatarIcon)
                 ? GetThemeBrush("Accent")
                 : Brushes.White;
-
-        AiButton.Visibility = Visibility.Visible;
-        AiButton.Content = _selectedConversation.IsAiEnabled ? "AI On" : "AI";
-        AiButton.Background = _selectedConversation.IsAiEnabled
-            ? GetThemeBrush("AccentSoft")
-            : GetThemeBrush("SoftPanel");
-        AiButton.BorderBrush = _selectedConversation.IsAiEnabled
-            ? GetThemeBrush("Accent")
-            : GetThemeBrush("Divider");
-        AiButton.Foreground = _selectedConversation.IsAiEnabled
-            ? GetThemeBrush("Accent")
-            : GetThemeBrush("TextPrimary");
-        AiButton.ToolTip = _selectedConversation.IsAiEnabled
-            ? "AI conversation mode is on"
-            : "Turn on AI conversation mode";
 
         CallButton.IsEnabled = first is not null && !_selectedConversation.IsGroup;
         MoreButton.IsEnabled = true;
@@ -960,19 +944,19 @@ public partial class MainWindow : Window
         RenderContactsList();
     }
 
-    private async void SendMessage_Click(object sender, RoutedEventArgs e) =>
-        await SendCurrentMessageAsync();
+    private void SendMessage_Click(object sender, RoutedEventArgs e) =>
+        SendCurrentMessageAsync();
 
-    private async void MessageInput_PreviewKeyDown(object sender, KeyEventArgs e)
+    private void MessageInput_PreviewKeyDown(object sender, KeyEventArgs e)
     {
         if (e.Key == Key.Enter && Keyboard.Modifiers == ModifierKeys.None)
         {
             e.Handled = true;
-            await SendCurrentMessageAsync();
+            SendCurrentMessageAsync();
         }
     }
 
-    private async Task SendCurrentMessageAsync()
+    private void SendCurrentMessageAsync()
     {
         if (_selectedConversation is null)
             return;
@@ -1003,42 +987,6 @@ public partial class MainWindow : Window
         RefreshConversationListPreservingSelection();
         MarkDirty();
 
-        if (!_selectedConversation.IsAiEnabled)
-            return;
-
-        var participants = GetParticipants(_selectedConversation);
-
-        // Prefer an explicitly configured AI persona; otherwise let the first
-        // other participant act as the AI persona for this conversation.
-        var aiContact = participants
-            .FirstOrDefault(c => c.IsAi && c.Id != senderId)
-            ?? participants.FirstOrDefault(c => c.Id != senderId);
-
-        if (aiContact is null)
-            return;
-
-        if (_selectedConversation.ShowTypingIndicators)
-        {
-            ConversationSubtitleText.Text = $"{aiContact.Name} is typing…";
-            await Task.Delay(850);
-        }
-
-        _selectedConversation.Messages.Add(new ChatMessage
-        {
-            SenderId = aiContact.Id,
-            Text = AiResponseService.Generate(
-                aiContact,
-                message,
-                _selectedConversation.Scenario,
-                _selectedConversation.Messages),
-            Timestamp = DateTime.Now,
-            IsRead = true
-        });
-
-        // Refresh the conversation card as soon as the AI reply arrives.
-        RenderCurrentConversation();
-        RefreshConversationListPreservingSelection();
-        MarkDirty();
     }
 
     private void NewConversation_Click(object sender, RoutedEventArgs e)
@@ -1072,7 +1020,6 @@ public partial class MainWindow : Window
             Title = dialog.ConversationTitle,
             Scenario = dialog.Scenario,
             ParticipantIds = dialog.ParticipantIds,
-            IsAiEnabled = dialog.AiEnabled,
             PerspectiveId = "self",
             OutgoingBubbleColor = ThemeService.GetOutgoingBubbleColor(_project.ThemeId),
             IncomingBubbleColor = ThemeService.GetIncomingBubbleColor(_project.ThemeId),
@@ -1143,40 +1090,205 @@ public partial class MainWindow : Window
 
     private void SidebarSettings_Click(object sender, RoutedEventArgs e)
     {
-        Settings_Click(sender, e);
+        ToggleSettingsView();
     }
 
-    private void AiPractice_Click(object sender, RoutedEventArgs e)
+    private string _settingsSelectedThemeId = ThemeService.Light;
+
+    private void ToggleSettingsView()
     {
-        if (_selectedConversation is null)
+        if (SettingsView.Visibility == Visibility.Visible)
+        {
+            CloseSettingsView();
+            return;
+        }
+
+        CloseAllFlyouts();
+        _settingsSelectedThemeId = ThemeService.Normalize(_project.ThemeId);
+        SettingsReadReceiptsCheckBox.IsChecked = _selectedConversation?.ShowReadReceipts ?? true;
+        SettingsTimestampCheckBox.IsChecked = _selectedConversation?.ShowTimestamps ?? true;
+        SettingsTypingCheckBox.IsChecked = _selectedConversation?.ShowTypingIndicators ?? true;
+        SettingsUseThemeColorsCheckBox.IsChecked = _selectedConversation?.UseThemeBubbleColors ?? true;
+        SettingsOutgoingColorBox.Text = _selectedConversation?.OutgoingBubbleColor
+            ?? ThemeService.GetOutgoingBubbleColor(_settingsSelectedThemeId);
+        SettingsIncomingColorBox.Text = _selectedConversation?.IncomingBubbleColor
+            ?? ThemeService.GetIncomingBubbleColor(_settingsSelectedThemeId);
+
+        SettingsThemeButtonsPanel.Children.Clear();
+        foreach (var theme in ThemeService.GetThemeOptions())
+        {
+            var button = new Button
+            {
+                Tag = theme.Id,
+                Width = 164,
+                Height = 76,
+                Margin = new Thickness(0, 0, 10, 10),
+                Background = ThemeBrush("PanelBackground"),
+                BorderBrush = ThemeBrush("Divider"),
+                BorderThickness = new Thickness(1),
+                Content = CreateSettingsThemePreview(theme)
+            };
+
+            button.Click += SettingsThemeButton_Click;
+            SettingsThemeButtonsPanel.Children.Add(button);
+        }
+
+        RefreshSettingsThemeSelection();
+        SettingsView.Visibility = Visibility.Visible;
+    }
+
+    private void CloseSettingsView()
+    {
+        SettingsView.Visibility = Visibility.Collapsed;
+        ThemeService.ApplyTheme(_project.ThemeId);
+        RenderAll();
+        UpdateComposerState();
+    }
+
+    private void CloseSettings_Click(object sender, RoutedEventArgs e) =>
+        CloseSettingsView();
+
+    private static Grid CreateSettingsThemePreview(ThemeService.ThemeOption theme)
+    {
+        var grid = new Grid();
+        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(44) });
+        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+
+        var swatches = new StackPanel
+        {
+            Orientation = Orientation.Horizontal,
+            VerticalAlignment = VerticalAlignment.Center
+        };
+
+        swatches.Children.Add(new Border
+        {
+            Width = 18,
+            Height = 40,
+            Background = ParseBrush(theme.PreviewBackground),
+            BorderBrush = ParseBrush(theme.PreviewBorder),
+            BorderThickness = new Thickness(1),
+            CornerRadius = new CornerRadius(6)
+        });
+
+        swatches.Children.Add(new Border
+        {
+            Width = 18,
+            Height = 40,
+            Background = ParseBrush(theme.PreviewAccent),
+            CornerRadius = new CornerRadius(6),
+            Margin = new Thickness(-2, 0, 0, 0)
+        });
+
+        grid.Children.Add(swatches);
+
+        var label = new TextBlock
+        {
+            Text = theme.Name,
+            Tag = "theme-name",
+            Foreground = ThemeBrush("TextPrimary"),
+            FontWeight = FontWeights.SemiBold,
+            VerticalAlignment = VerticalAlignment.Center
+        };
+
+        Grid.SetColumn(label, 1);
+        grid.Children.Add(label);
+        return grid;
+    }
+
+    private void SettingsThemeButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is not Button button)
             return;
 
-        var participants = GetParticipants(_selectedConversation);
+        _settingsSelectedThemeId = ThemeService.Normalize(button.Tag?.ToString());
+        _project.ThemeId = _settingsSelectedThemeId;
+        ThemeService.ApplyTheme(_settingsSelectedThemeId);
 
-        if (participants.Count == 0)
+        if (SettingsUseThemeColorsCheckBox.IsChecked == true || _selectedConversation is null)
+        {
+            SettingsOutgoingColorBox.Text = ThemeService.GetOutgoingBubbleColor(_settingsSelectedThemeId);
+            SettingsIncomingColorBox.Text = ThemeService.GetIncomingBubbleColor(_settingsSelectedThemeId);
+        }
+
+        RefreshSettingsThemeSelection();
+        RenderAll();
+    }
+
+    private void RefreshSettingsThemeSelection()
+    {
+        foreach (var button in SettingsThemeButtonsPanel.Children.OfType<Button>())
+        {
+            var selected = string.Equals(button.Tag?.ToString(), _settingsSelectedThemeId, StringComparison.OrdinalIgnoreCase);
+            button.Background = ThemeBrush("PanelBackground");
+            button.BorderBrush = selected ? ThemeBrush("Accent") : ThemeBrush("Divider");
+            button.BorderThickness = selected ? new Thickness(2.5) : new Thickness(1);
+
+            if (button.Content is Grid preview)
+            {
+                var label = preview.Children.OfType<TextBlock>()
+                    .FirstOrDefault(t => string.Equals(t.Tag?.ToString(), "theme-name", StringComparison.Ordinal));
+                if (label is not null)
+                    label.Foreground = ThemeBrush("TextPrimary");
+            }
+        }
+    }
+
+    private void SettingsUseThemeColorsCheckBox_Click(object sender, RoutedEventArgs e)
+    {
+        if (SettingsUseThemeColorsCheckBox.IsChecked != true)
             return;
 
-        _selectedConversation.IsAiEnabled = !_selectedConversation.IsAiEnabled;
+        SettingsOutgoingColorBox.Text = ThemeService.GetOutgoingBubbleColor(_settingsSelectedThemeId);
+        SettingsIncomingColorBox.Text = ThemeService.GetIncomingBubbleColor(_settingsSelectedThemeId);
+    }
 
-        RenderCurrentConversation();
+    private void DoneSettings_Click(object sender, RoutedEventArgs e)
+    {
+        var outgoing = SettingsOutgoingColorBox.Text.Trim();
+        var incoming = SettingsIncomingColorBox.Text.Trim();
+
+        if (!IsValidSettingsColor(outgoing) || !IsValidSettingsColor(incoming))
+        {
+            MessageBox.Show(this, "Enter valid hex colors such as #0A84FF.", "Settings",
+                MessageBoxButton.OK, MessageBoxImage.Information);
+            return;
+        }
+
+        _project.ThemeId = ThemeService.Normalize(_settingsSelectedThemeId);
+        ThemeService.ApplyTheme(_project.ThemeId);
+
+        if (_selectedConversation is not null)
+        {
+            var useThemeColors = SettingsUseThemeColorsCheckBox.IsChecked == true;
+            _selectedConversation.ShowReadReceipts = SettingsReadReceiptsCheckBox.IsChecked == true;
+            _selectedConversation.ShowTimestamps = SettingsTimestampCheckBox.IsChecked == true;
+            _selectedConversation.ShowTypingIndicators = SettingsTypingCheckBox.IsChecked == true;
+            _selectedConversation.UseThemeBubbleColors = useThemeColors;
+            _selectedConversation.OutgoingBubbleColor = useThemeColors
+                ? ThemeService.GetOutgoingBubbleColor(_project.ThemeId)
+                : outgoing;
+            _selectedConversation.IncomingBubbleColor = useThemeColors
+                ? ThemeService.GetIncomingBubbleColor(_project.ThemeId)
+                : incoming;
+        }
+
+        ApplyThemeToConversations();
+        SettingsView.Visibility = Visibility.Collapsed;
+        RenderAll();
+        UpdateComposerState();
         MarkDirty();
     }
 
-    private void Settings_Click(object sender, RoutedEventArgs e)
+    private static bool IsValidSettingsColor(string value)
     {
-        var dialog = new SettingsWindow(_selectedConversation)
+        try
         {
-            Owner = this
-        };
-
-        if (dialog.ShowDialog() == true)
+            _ = (Color)ColorConverter.ConvertFromString(value);
+            return true;
+        }
+        catch
         {
-            _project.ThemeId = dialog.SelectedThemeId;
-            ThemeService.ApplyTheme(_project.ThemeId);
-            ApplyThemeToConversations();
-
-            RenderAll();
-            MarkDirty();
+            return false;
         }
     }
 
@@ -1224,10 +1336,6 @@ public partial class MainWindow : Window
             ? "No messages yet"
             : $"{_selectedConversation.Messages.Count} message{(_selectedConversation.Messages.Count == 1 ? "" : "s")}";
 
-        AiChatFlyoutLabel.Text = _selectedConversation.IsAiEnabled
-            ? "AI conversation on"
-            : "Turn on AI conversation";
-
         ShowOverlayFlyout(
             ConversationActionsFlyout,
             new Point(OverlayCanvas.ActualWidth, 0),
@@ -1238,19 +1346,13 @@ public partial class MainWindow : Window
     private void CustomizeChatFlyout_Click(object sender, RoutedEventArgs e)
     {
         CloseConversationActionsFlyout();
-        Settings_Click(this, new RoutedEventArgs());
+        ToggleSettingsView();
     }
 
     private void ExportChatFlyout_Click(object sender, RoutedEventArgs e)
     {
         CloseConversationActionsFlyout();
         Export_Click(this, new RoutedEventArgs());
-    }
-
-    private void AiChatFlyout_Click(object sender, RoutedEventArgs e)
-    {
-        CloseConversationActionsFlyout();
-        AiPractice_Click(this, new RoutedEventArgs());
     }
 
     private void DeleteChatFlyout_Click(object sender, RoutedEventArgs e)
@@ -1279,11 +1381,18 @@ public partial class MainWindow : Window
 
     private void MainWindow_PreviewKeyDown(object sender, KeyEventArgs e)
     {
-        if (e.Key == Key.Escape)
+        if (e.Key != Key.Escape)
+            return;
+
+        if (SettingsView.Visibility == Visibility.Visible)
         {
-            CloseAllFlyouts();
+            CloseSettingsView();
             e.Handled = true;
+            return;
         }
+
+        CloseAllFlyouts();
+        e.Handled = true;
     }
 
     private static bool IsInsideElement(DependencyObject? source, DependencyObject target)
