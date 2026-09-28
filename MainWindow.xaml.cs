@@ -1243,12 +1243,6 @@ public partial class MainWindow : Window
             245);
     }
 
-    private void CloseConversationActionsFlyout()
-    {
-        ConversationActionsFlyout.IsHitTestVisible = false;
-        ConversationActionsFlyout.Visibility = Visibility.Collapsed;
-    }
-
     private void CustomizeChatFlyout_Click(object sender, RoutedEventArgs e)
     {
         CloseConversationActionsFlyout();
