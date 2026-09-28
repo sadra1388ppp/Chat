@@ -342,9 +342,7 @@ public partial class MainWindow : Window
                 ? "Create a contact, then your first conversation."
                 : "Select a conversation from the left.";
 
-            CurrentAvatarText.Text = "?";
-            CurrentAvatar.Background = GetThemeBrush("AccentSoft");
-            CurrentAvatarText.Foreground = GetThemeBrush("Accent");
+            UpdateHeaderAvatar(null, false);
 
             CallButton.IsEnabled = false;
             MoreButton.IsEnabled = false;
@@ -367,7 +365,7 @@ public partial class MainWindow : Window
             ? $"{participants.Count} participants"
             : first?.Name ?? "Practice conversation";
 
-        ApplyAvatar(CurrentAvatar, first, _selectedConversation.IsGroup, 48);
+        UpdateHeaderAvatar(first, _selectedConversation.IsGroup);
 
         CallButton.IsEnabled = first is not null && !_selectedConversation.IsGroup;
         MoreButton.IsEnabled = true;
@@ -956,23 +954,33 @@ public partial class MainWindow : Window
         return border;
     }
 
-    private static void ApplyAvatar(Border target, ChatCharacter? contact, bool isGroup, double size)
+    private static Brush CreateAvatarBrush(Color baseColor)
+    private void UpdateHeaderAvatar(ChatCharacter? contact, bool isGroup)
     {
-        var avatar = CreateAvatar(contact, size, isGroup);
-        target.Background = avatar.Background;
-        target.BorderBrush = avatar.BorderBrush;
-        target.BorderThickness = avatar.BorderThickness;
-        target.Effect = avatar.Effect;
-        target.CornerRadius = new CornerRadius(size / 2);
+        var color = contact is null
+            ? Color.FromRgb(88, 166, 255)
+            : ParseColor(contact.AvatarColor);
 
-        // Detach the generated child before assigning it to the existing named Border.
-        // WPF logical/visual children cannot have two parents.
-        var child = avatar.Child;
-        avatar.Child = null;
-        target.Child = child;
+        CurrentAvatar.Background = CreateAvatarBrush(color);
+        CurrentAvatar.BorderBrush = new SolidColorBrush(Color.FromArgb(56, 255, 255, 255));
+
+        CurrentAvatarText.Text = isGroup
+            ? "＋"
+            : string.IsNullOrWhiteSpace(contact?.AvatarIcon)
+                ? contact?.Initial ?? "?"
+                : contact.AvatarIcon;
+
+        CurrentAvatarText.Foreground = Brushes.White;
+        CurrentAvatarText.FontSize = isGroup
+            ? 15
+            : !string.IsNullOrWhiteSpace(contact?.AvatarIcon)
+                ? 14
+                : 15;
+
+        CurrentAvatarHighlight.Fill = new SolidColorBrush(
+            Color.FromArgb(34, 255, 255, 255));
     }
 
-    private static Brush CreateAvatarBrush(Color baseColor)
     {
         var lighter = MixColor(baseColor, Colors.White, 0.22);
         var darker = MixColor(baseColor, Colors.Black, 0.18);
