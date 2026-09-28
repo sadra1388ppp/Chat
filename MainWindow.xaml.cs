@@ -225,26 +225,7 @@ public partial class MainWindow : Window
 
         foreach (var contact in contacts)
         {
-            var avatar = new Border
-            {
-                Width = 42,
-                Height = 42,
-                CornerRadius = new CornerRadius(21),
-                Background = ParseBrush(contact.AvatarColor)
-            };
-
-            avatar.Child = new TextBlock
-            {
-                Text = string.IsNullOrWhiteSpace(contact.AvatarIcon)
-                    ? contact.Initial
-                    : contact.AvatarIcon,
-                Foreground = string.IsNullOrWhiteSpace(contact.AvatarIcon)
-                    ? Brushes.White
-                    : GetThemeBrush("Accent"),
-                FontWeight = FontWeights.SemiBold,
-                HorizontalAlignment = HorizontalAlignment.Center,
-                VerticalAlignment = VerticalAlignment.Center
-            };
+            var avatar = CreateAvatar(contact, 46);
 
             var text = new StackPanel
             {
@@ -328,20 +309,7 @@ public partial class MainWindow : Window
             ? $"{participants.Count} participants"
             : first?.Name ?? "Practice conversation";
 
-        CurrentAvatarText.Text = _selectedConversation.IsGroup
-            ? "＋"
-            : string.IsNullOrWhiteSpace(first?.AvatarIcon)
-                ? first?.Initial ?? "?"
-                : first.AvatarIcon;
-
-        CurrentAvatar.Background = first is null
-            ? GetThemeBrush("AccentSoft")
-            : ParseBrush(first.AvatarColor);
-
-        CurrentAvatarText.Foreground = first is not null &&
-            !string.IsNullOrWhiteSpace(first.AvatarIcon)
-                ? GetThemeBrush("Accent")
-                : Brushes.White;
+        ApplyAvatar(CurrentAvatar, first, _selectedConversation.IsGroup, 48);
 
         CallButton.IsEnabled = first is not null && !_selectedConversation.IsGroup;
         MoreButton.IsEnabled = true;
@@ -866,33 +834,114 @@ public partial class MainWindow : Window
     private Border CreateConversationAvatar(ChatConversation conversation)
     {
         var first = GetParticipants(conversation).FirstOrDefault();
+        return CreateAvatar(first, 50, conversation.IsGroup);
+    }
+
+    private static Border CreateAvatar(ChatCharacter? contact, double size, bool isGroup = false)
+    {
+        var color = contact is null
+            ? Color.FromRgb(88, 166, 255)
+            : ParseColor(contact.AvatarColor);
 
         var border = new Border
         {
-            Width = 42,
-            Height = 42,
-            CornerRadius = new CornerRadius(21),
-            Background = first is null
-                ? new SolidColorBrush(Color.FromRgb(221, 245, 232))
-                : ParseBrush(first.AvatarColor)
+            Width = size,
+            Height = size,
+            CornerRadius = new CornerRadius(size / 2),
+            Background = CreateAvatarBrush(color),
+            BorderBrush = new SolidColorBrush(Color.FromArgb(48, 255, 255, 255)),
+            BorderThickness = new Thickness(1),
+            Effect = new System.Windows.Media.Effects.DropShadowEffect
+            {
+                BlurRadius = 12,
+                ShadowDepth = 2,
+                Opacity = 0.16
+            }
         };
 
-        border.Child = new TextBlock
+        var grid = new Grid();
+
+        grid.Children.Add(new Ellipse
         {
-            Text = conversation.IsGroup
+            Fill = new SolidColorBrush(Color.FromArgb(30, 255, 255, 255)),
+            HorizontalAlignment = HorizontalAlignment.Left,
+            VerticalAlignment = VerticalAlignment.Top,
+            Width = size * 0.58,
+            Height = size * 0.58,
+            Margin = new Thickness(size * 0.13, size * 0.10, 0, 0)
+        });
+
+        var label = new TextBlock
+        {
+            Text = isGroup
                 ? "＋"
-                : string.IsNullOrWhiteSpace(first?.AvatarIcon)
-                    ? first?.Initial ?? "?"
-                    : first.AvatarIcon,
-            Foreground = first is null || !string.IsNullOrWhiteSpace(first?.AvatarIcon)
-                ? GetThemeBrush("Accent")
-                : Brushes.White,
-            FontWeight = FontWeights.SemiBold,
+                : string.IsNullOrWhiteSpace(contact?.AvatarIcon)
+                    ? contact?.Initial ?? "?"
+                    : contact.AvatarIcon,
+            Foreground = Brushes.White,
+            FontWeight = FontWeights.Bold,
+            FontSize = isGroup
+                ? size * 0.34
+                : !string.IsNullOrWhiteSpace(contact?.AvatarIcon)
+                    ? size * 0.30
+                    : size * 0.29,
             HorizontalAlignment = HorizontalAlignment.Center,
-            VerticalAlignment = VerticalAlignment.Center
+            VerticalAlignment = VerticalAlignment.Center,
+            TextAlignment = TextAlignment.Center
         };
 
+        grid.Children.Add(label);
+        border.Child = grid;
         return border;
+    }
+
+    private static void ApplyAvatar(Border target, ChatCharacter? contact, bool isGroup, double size)
+    {
+        var avatar = CreateAvatar(contact, size, isGroup);
+        target.Background = avatar.Background;
+        target.BorderBrush = avatar.BorderBrush;
+        target.BorderThickness = avatar.BorderThickness;
+        target.Effect = avatar.Effect;
+        target.CornerRadius = new CornerRadius(size / 2);
+        target.Child = avatar.Child;
+    }
+
+    private static SolidColorBrush CreateAvatarBrush(Color baseColor)
+    {
+        var lighter = MixColor(baseColor, Colors.White, 0.22);
+        var darker = MixColor(baseColor, Colors.Black, 0.18);
+
+        return new SolidColorBrush(new LinearGradientBrush(
+            new[]
+            {
+                new GradientStop(lighter, 0.0),
+                new GradientStop(baseColor, 0.48),
+                new GradientStop(darker, 1.0)
+            },
+            new Point(0, 0),
+            new Point(1, 1)));
+    }
+
+    private static Color ParseColor(string color)
+    {
+        try
+        {
+            return (Color)ColorConverter.ConvertFromString(color);
+        }
+        catch
+        {
+            return Color.FromRgb(88, 166, 255);
+        }
+    }
+
+    private static Color MixColor(Color source, Color target, double amount)
+    {
+        amount = Math.Clamp(amount, 0, 1);
+
+        return Color.FromRgb(
+            (byte)(source.R + ((target.R - source.R) * amount)),
+            (byte)(source.G + ((target.G - source.G) * amount)),
+            (byte)(source.B + ((target.B - source.B) * amount)));
     }
 
     private void ConversationList_SelectionChanged(object sender, SelectionChangedEventArgs e)
