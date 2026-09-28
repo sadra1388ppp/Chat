@@ -62,6 +62,12 @@ public partial class CallWindow : Window
 
         _callActive = true;
         _callConnected = false;
+        _isMuted = false;
+        _speakerOn = true;
+        MuteButton.Opacity = 1;
+        SpeakerButton.Opacity = 1;
+        MuteButton.ToolTip = "Mute microphone";
+        SpeakerButton.ToolTip = "Turn speaker off";
 
         CallModeText.Text = "Outgoing call";
         StatusText.Text = "Calling…";
