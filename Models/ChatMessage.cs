@@ -15,5 +15,4 @@ public sealed class ChatMessage
     public DateTime Timestamp { get; set; } = DateTime.Now;
     public bool IsRead { get; set; } = true;
     public string? Reaction { get; set; }
-    public ChatMessageKind Kind { get; set; } = ChatMessageKind.Text;
 }
