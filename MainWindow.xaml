@@ -70,66 +70,54 @@
             <Setter Property="Foreground" Value="{DynamicResource Danger}"/>
         </Style>
 
-
-
-        <Style x:Key="ConversationContextMenuStyle" TargetType="ContextMenu">
-            <Setter Property="Background" Value="{DynamicResource PanelBackground}"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource Divider}"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Padding" Value="6"/>
-            <Setter Property="HasDropShadow" Value="True"/>
-            <Setter Property="SnapsToDevicePixels" Value="True"/>
+        <Style x:Key="DeleteDialogCancelButton" TargetType="Button" BasedOn="{StaticResource PopupActionButton}">
+            <Setter Property="Height" Value="44"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="Background" Value="{DynamicResource InputBackground}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimary}"/>
+            <Setter Property="Padding" Value="18,0"/>
         </Style>
 
-        <Style x:Key="ConversationContextMenuItemStyle" TargetType="MenuItem">
-            <Setter Property="Foreground" Value="{DynamicResource Danger}"/>
-            <Setter Property="Background" Value="Transparent"/>
+        <Style x:Key="DeleteDialogDangerButton" TargetType="Button">
+            <Setter Property="Height" Value="44"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="Background" Value="{DynamicResource Danger}"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="18,0"/>
             <Setter Property="FontFamily" Value="Segoe UI"/>
             <Setter Property="FontSize" Value="12.5"/>
-            <Setter Property="Padding" Value="10,8"/>
-            <Setter Property="Margin" Value="0"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
             <Setter Property="Template">
                 <Setter.Value>
-                    <ControlTemplate TargetType="MenuItem">
+                    <ControlTemplate TargetType="Button">
                         <Border x:Name="Chrome"
                                 Background="{TemplateBinding Background}"
-                                CornerRadius="9"
-                                Padding="{TemplateBinding Padding}">
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="28"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                <TextBlock Text="&#xE74D;"
-                                           FontFamily="Segoe MDL2 Assets"
-                                           FontSize="14"
-                                           VerticalAlignment="Center"
-                                           Foreground="{TemplateBinding Foreground}"/>
-                                <ContentPresenter Grid.Column="1"
-                                                  Content="{TemplateBinding Header}"
-                                                  VerticalAlignment="Center"
-                                                  HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
-                                                  RecognizesAccessKey="True"/>
-                            </Grid>
+                                CornerRadius="12">
+                            <ContentPresenter Content="{TemplateBinding Content}"
+                                              HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                              VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
-                            <Trigger Property="IsHighlighted" Value="True">
-                                <Setter TargetName="Chrome"
-                                        Property="Background"
-                                        Value="#18D92D20"/>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Chrome" Property="Opacity" Value="0.9"/>
                             </Trigger>
-                            <Trigger Property="IsEnabled" Value="False">
-                                <Setter TargetName="Chrome"
-                                        Property="Opacity"
-                                        Value="0.45"/>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Chrome" Property="Opacity" Value="0.72"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
         </Style>
+
+
+
+
+
+
 
     </Window.Resources>
     <Grid x:Name="RootLayout">
