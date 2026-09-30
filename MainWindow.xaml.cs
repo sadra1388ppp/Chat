@@ -242,23 +242,6 @@ public partial class MainWindow : Window
         e.Handled = true;
     }
 
-    private void ConversationContextDelete_Click(object sender, RoutedEventArgs e)
-    {
-        if (sender is not MenuItem menuItem ||
-            menuItem.Parent is not ContextMenu contextMenu ||
-            contextMenu.PlacementTarget is not ListBoxItem item ||
-            item.Tag is not string conversationId)
-            return;
-
-        var conversation = _project.Conversations
-            .FirstOrDefault(c => c.Id == conversationId);
-
-        if (conversation is null)
-            return;
-
-        OpenDeleteConversationConfirmation(conversation);
-    }
-
     private string? _pendingDeleteConversationId;
 
     private void OpenDeleteConversationConfirmation(ChatConversation conversation)
