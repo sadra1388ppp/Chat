@@ -601,7 +601,7 @@ public partial class MainWindow : Window
             }
         };
 
-        bubble.Child = new Emoji.Wpf.TextBlock
+        bubble.Child = new TextBlock
         {
             Text = message.Text,
             FontSize = isSticker ? 40 : 14,
@@ -651,7 +651,7 @@ public partial class MainWindow : Window
                 Orientation = Orientation.Horizontal
             };
 
-            reactionRow.Children.Add(new Emoji.Wpf.TextBlock
+            reactionRow.Children.Add(new TextBlock
             {
                 Text = message.Reaction,
                 FontSize = 12.5,
@@ -1554,7 +1554,7 @@ public partial class MainWindow : Window
                 BorderThickness = new Thickness(0),
                 Cursor = Cursors.Hand,
                 FocusVisualStyle = null,
-                Content = new Emoji.Wpf.TextBlock
+                Content = new TextBlock
                 {
                     Text = entry.Emoji,
                     FontSize = 23,
