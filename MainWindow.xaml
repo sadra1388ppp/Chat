@@ -411,34 +411,7 @@
                                Foreground="{DynamicResource TextSecondary}"
                                Margin="10,5,10,8"/>
 
-                    <Button Click="MessageReactFlyout_Click"
-                            Style="{StaticResource PopupActionButton}">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="34"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <Border Width="28"
-                                    Height="28"
-                                    CornerRadius="8"
-                                    Background="{DynamicResource AccentSoft}"
-                                    VerticalAlignment="Center">
-                                <TextBlock Text="✦"
-                                           FontSize="13"
-                                           HorizontalAlignment="Center"
-                                           VerticalAlignment="Center"/>
-                            </Border>
-                            <TextBlock x:Name="MessageReactFlyoutLabel"
-                                       Grid.Column="1"
-                                       Text="React to message"
-                                       FontSize="12"
-                                       FontWeight="Medium"
-                                       Foreground="{DynamicResource TextPrimary}"
-                                       VerticalAlignment="Center"/>
-                        </Grid>
-                    </Button>
-
-                    <Button Click="CopyMessageFlyout_Click"
+                    <Button Click="CopyMessageFlyout_Click"/>
                             Style="{StaticResource PopupActionButton}">
                         <Grid>
                             <Grid.ColumnDefinitions>
@@ -495,51 +468,6 @@
                 </StackPanel>
             </Border>
 
-            <!-- Reaction chooser opened only from the right-click menu -->
-            <Border x:Name="ReactionActionsFlyout"
-                    Width="330"
-                    Background="{DynamicResource PanelBackground}"
-                    BorderBrush="{DynamicResource Divider}"
-                    BorderThickness="1"
-                    CornerRadius="16"
-                    Padding="8"
-                    Effect="{StaticResource PopupShadow}"
-                    Visibility="Collapsed"
-                    IsHitTestVisible="True">
-                <StackPanel>
-                    <TextBlock Text="REACTION"
-                               FontSize="9"
-                               FontWeight="SemiBold"
-                               Foreground="{DynamicResource TextSecondary}"
-                               Margin="10,4,10,7"/>
-
-                    <StackPanel Orientation="Horizontal"
-                                HorizontalAlignment="Center">
-                        <Button Tag="❤️" Click="ReactionChoice_Click" Style="{StaticResource PopupReactionButton}"><TextBlock Text="❤️" FontSize="22"/></Button>
-                        <Button Tag="👍" Click="ReactionChoice_Click" Style="{StaticResource PopupReactionButton}"><TextBlock Text="👍" FontSize="22"/></Button>
-                        <Button Tag="😂" Click="ReactionChoice_Click" Style="{StaticResource PopupReactionButton}"><TextBlock Text="😂" FontSize="22"/></Button>
-                        <Button Tag="😮" Click="ReactionChoice_Click" Style="{StaticResource PopupReactionButton}"><TextBlock Text="😮" FontSize="22"/></Button>
-                        <Button Tag="😢" Click="ReactionChoice_Click" Style="{StaticResource PopupReactionButton}"><TextBlock Text="😢" FontSize="22"/></Button>
-                        <Button Tag="🔥" Click="ReactionChoice_Click" Style="{StaticResource PopupReactionButton}"><TextBlock Text="🔥" FontSize="22"/></Button>
-                    </StackPanel>
-
-                    <TextBlock x:Name="ReactionCurrentText"
-                               Text="Choose a reaction"
-                               FontSize="9.5"
-                               Foreground="{DynamicResource TextSecondary}"
-                               HorizontalAlignment="Center"
-                               Margin="0,5,0,3"/>
-
-                    <Button x:Name="RemoveReactionFlyoutButton"
-                            Click="RemoveReactionFlyout_Click"
-                            Style="{StaticResource PopupDangerButton}"
-                            Visibility="Collapsed">
-                        <TextBlock Text="Remove reaction"
-                                   HorizontalAlignment="Center"
-                                   FontSize="11.5"/>
-                    </Button>
-                </StackPanel>
-            </Border>
         </Canvas>
     </Grid>
 </Window>
