@@ -72,6 +72,49 @@
 
 
 
+        <Style x:Key="DeleteDialogCancelButton" TargetType="Button" BasedOn="{StaticResource PopupActionButton}">
+            <Setter Property="Height" Value="44"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="Background" Value="{DynamicResource InputBackground}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimary}"/>
+            <Setter Property="Padding" Value="18,0"/>
+        </Style>
+
+        <Style x:Key="DeleteDialogDangerButton" TargetType="Button">
+            <Setter Property="Height" Value="44"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="Background" Value="{DynamicResource Danger}"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="18,0"/>
+            <Setter Property="FontFamily" Value="Segoe UI"/>
+            <Setter Property="FontSize" Value="12.5"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Chrome"
+                                Background="{TemplateBinding Background}"
+                                CornerRadius="12">
+                            <ContentPresenter Content="{TemplateBinding Content}"
+                                              HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Chrome" Property="Opacity" Value="0.9"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Chrome" Property="Opacity" Value="0.72"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
         <Style x:Key="ConversationContextMenuStyle" TargetType="ContextMenu">
             <Setter Property="Background" Value="{DynamicResource PanelBackground}"/>
             <Setter Property="BorderBrush" Value="{DynamicResource Divider}"/>
@@ -577,6 +620,126 @@
                 Panel.ZIndex="1000"
                 IsHitTestVisible="False"
                 ClipToBounds="False">
+
+            <!-- Delete confirmation dialog -->
+            <Border x:Name="DeleteConfirmationOverlay"
+                    HorizontalAlignment="Stretch"
+                    VerticalAlignment="Stretch"
+                    Background="Transparent"
+                    Visibility="Collapsed"
+                    IsHitTestVisible="True">
+                <Grid>
+                    <Border Background="#66000000"
+                            MouseDown="DeleteConfirmationBackdrop_MouseDown"/>
+
+                    <Border Width="440"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            Background="{DynamicResource PanelBackground}"
+                            BorderBrush="{DynamicResource Divider}"
+                            BorderThickness="1"
+                            CornerRadius="22"
+                            Padding="24"
+                            Effect="{StaticResource PopupShadow}">
+                        <StackPanel>
+                            <Grid Margin="0,0,0,18">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="54"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <Border Width="50"
+                                        Height="50"
+                                        CornerRadius="16"
+                                        Background="#18D92D20"
+                                        VerticalAlignment="Top">
+                                    <TextBlock Text="&#xE74D;"
+                                               FontFamily="Segoe MDL2 Assets"
+                                               FontSize="19"
+                                               Foreground="{DynamicResource Danger}"
+                                               HorizontalAlignment="Center"
+                                               VerticalAlignment="Center"/>
+                                </Border>
+
+                                <StackPanel Grid.Column="1"
+                                            Margin="14,0,0,0">
+                                    <TextBlock Text="Delete conversation?"
+                                               FontSize="19"
+                                               FontWeight="SemiBold"
+                                               Foreground="{DynamicResource TextPrimary}"/>
+                                    <TextBlock Text="This will permanently remove the conversation from Vibely on this device."
+                                               FontSize="11.5"
+                                               Foreground="{DynamicResource TextSecondary}"
+                                               TextWrapping="Wrap"
+                                               Margin="0,5,0,0"/>
+                                </StackPanel>
+                            </Grid>
+
+                            <Border Background="{DynamicResource InputBackground}"
+                                    BorderBrush="{DynamicResource Divider}"
+                                    BorderThickness="1"
+                                    CornerRadius="14"
+                                    Padding="14"
+                                    Margin="0,0,0,22">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="44"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <Border Width="38"
+                                            Height="38"
+                                            CornerRadius="12"
+                                            Background="{DynamicResource AccentSoft}"
+                                            VerticalAlignment="Top">
+                                        <TextBlock x:Name="DeleteConfirmationAvatarText"
+                                                   Text="?"
+                                                   Foreground="{DynamicResource Accent}"
+                                                   FontSize="14"
+                                                   FontWeight="Bold"
+                                                   HorizontalAlignment="Center"
+                                                   VerticalAlignment="Center"/>
+                                    </Border>
+
+                                    <StackPanel Grid.Column="1"
+                                                Margin="12,0,0,0"
+                                                VerticalAlignment="Center">
+                                        <TextBlock x:Name="DeleteConfirmationConversationText"
+                                                   Text="Conversation"
+                                                   FontSize="13"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="{DynamicResource TextPrimary}"
+                                                   TextTrimming="CharacterEllipsis"/>
+                                        <TextBlock x:Name="DeleteConfirmationMessageCountText"
+                                                   Text="No messages"
+                                                   FontSize="10.5"
+                                                   Foreground="{DynamicResource TextSecondary}"
+                                                   Margin="0,3,0,0"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="12"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <Button Grid.Column="0"
+                                        Content="Cancel"
+                                        Click="CancelDeleteConversation_Click"
+                                        Style="{StaticResource DeleteDialogCancelButton}"/>
+
+                                <Button Grid.Column="2"
+                                        Content="Delete conversation"
+                                        Click="ConfirmDeleteConversation_Click"
+                                        Style="{StaticResource DeleteDialogDangerButton}"/>
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+            </Border>
 
             <!-- Conversation menu -->
             <Border x:Name="ConversationActionsFlyout"
