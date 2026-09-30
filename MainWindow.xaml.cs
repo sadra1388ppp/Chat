@@ -629,47 +629,6 @@ public partial class MainWindow : Window
 
         wrapper.Children.Add(messageRow);
 
-        if (!string.IsNullOrWhiteSpace(message.Reaction))
-        {
-            var reactionPill = new Border
-            {
-                Background = GetThemeBrush("AccentSoft"),
-                BorderBrush = GetThemeBrush("Divider"),
-                BorderThickness = new Thickness(1),
-                CornerRadius = new CornerRadius(10),
-                Padding = new Thickness(7, 3, 8, 3),
-                HorizontalAlignment = isOutgoing
-                    ? HorizontalAlignment.Right
-                    : HorizontalAlignment.Left,
-                Margin = isOutgoing
-                    ? new Thickness(0, 5, 40, 0)
-                    : new Thickness(40, 5, 0, 0)
-            };
-
-            var reactionRow = new StackPanel
-            {
-                Orientation = Orientation.Horizontal
-            };
-
-            reactionRow.Children.Add(new TextBlock
-            {
-                Text = message.Reaction,
-                FontSize = 12.5,
-                VerticalAlignment = VerticalAlignment.Center
-            });
-
-            reactionRow.Children.Add(new TextBlock
-            {
-                Text = " 1",
-                FontSize = 9,
-                Foreground = GetThemeBrush("TextSecondary"),
-                VerticalAlignment = VerticalAlignment.Center
-            });
-
-            reactionPill.Child = reactionRow;
-            wrapper.Children.Add(reactionPill);
-        }
-
         var meta = new List<string>();
 
         if (_selectedConversation.ShowTimestamps)
@@ -1435,7 +1394,6 @@ public partial class MainWindow : Window
         }
 
         MessageActionsFlyout.Visibility = Visibility.Collapsed;
-        ReactionActionsFlyout.Visibility = Visibility.Collapsed;
         _activeMessageAction = null;
 
         ConversationActionsCountText.Text = _selectedConversation.Messages.Count == 0
@@ -1478,7 +1436,6 @@ public partial class MainWindow : Window
 
         if (IsInsideElement(source, ConversationActionsFlyout) ||
             IsInsideElement(source, MessageActionsFlyout) ||
-            IsInsideElement(source, ReactionActionsFlyout) ||
             IsInsideElement(source, MoreButton))
             return;
 
