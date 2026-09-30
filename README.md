@@ -9,7 +9,7 @@ A Windows desktop conversation-practice studio inspired by modern chat rehearsal
 - Create one-to-one or group conversations.
 - Write both sides by switching the Send as participant.
 - Bubble colors, timestamps, typing indicators and read receipts.
-- Message reactions, emoji insertion and sticker-style messages.
+- Message reactions.
 - Practice call simulator with timer and recap.
 - PNG conversation export.
 - Offline-first JSON persistence under %LOCALAPPDATA%\Vibely.
