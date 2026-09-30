@@ -19,6 +19,7 @@ public partial class MainWindow : Window
     private ChatMessage? _activeMessageAction;
 
 
+
     public MainWindow()
     {
         InitializeComponent();
@@ -662,7 +663,6 @@ public partial class MainWindow : Window
         CloseConversationActionsFlyout();
 
         MessageActionsHeader.Text = "MESSAGE";
-
         ShowOverlayFlyout(
             MessageActionsFlyout,
             position,
@@ -733,8 +733,6 @@ public partial class MainWindow : Window
 
         MessageActionsFlyout.IsHitTestVisible = false;
         MessageActionsFlyout.Visibility = Visibility.Collapsed;
-
-
 
         OverlayCanvas.IsHitTestVisible = false;
         _activeMessageAction = null;
