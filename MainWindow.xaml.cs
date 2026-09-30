@@ -477,10 +477,15 @@ public partial class MainWindow : Window
                 : "#0A84FF");
 
         SendAsIndicator.Fill = ParseBrush(indicatorColor);
-        SendAsButton.ToolTip = $"Send as {options[currentIndex].Name}";
+        SendAsButton.ToolTip = $"Send as {options[currentIndex].Name}  •  Press Shift to switch";
     }
 
     private void SendAsButton_Click(object sender, RoutedEventArgs e)
+    {
+        CycleSendAsParticipant();
+    }
+
+    private void CycleSendAsParticipant()
     {
         if (_selectedConversation is null)
             return;
@@ -1442,6 +1447,13 @@ public partial class MainWindow : Window
 
     private void MainWindow_PreviewKeyDown(object sender, KeyEventArgs e)
     {
+        if (e.Key == Key.LeftShift || e.Key == Key.RightShift)
+        {
+            CycleSendAsParticipant();
+            e.Handled = true;
+            return;
+        }
+
         if (e.Key != Key.Escape)
             return;
 
