@@ -623,8 +623,10 @@
 
             <!-- Delete confirmation dialog -->
             <Border x:Name="DeleteConfirmationOverlay"
-                    HorizontalAlignment="Stretch"
-                    VerticalAlignment="Stretch"
+                    Width="{Binding ActualWidth, ElementName=OverlayCanvas}"
+                    Height="{Binding ActualHeight, ElementName=OverlayCanvas}"
+                    Canvas.Left="0"
+                    Canvas.Top="0"
                     Background="Transparent"
                     Visibility="Collapsed"
                     IsHitTestVisible="True">
