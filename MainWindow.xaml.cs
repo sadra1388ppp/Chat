@@ -287,7 +287,6 @@ public partial class MainWindow : Window
             return;
 
         ConversationList.SelectedItem = item;
-        e.Handled = true;
     }
 
     private void ConversationContextDelete_Click(object sender, RoutedEventArgs e)
