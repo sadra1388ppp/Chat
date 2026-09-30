@@ -260,10 +260,70 @@ public partial class MainWindow : Window
             wrapper.Child = grid;
             item.Content = wrapper;
 
+            var deleteMenuItem = new MenuItem
+            {
+                Header = "Delete conversation",
+                Style = (Style)FindResource("ConversationContextMenuItemStyle")
+            };
+            deleteMenuItem.Click += ConversationContextDelete_Click;
+
+            item.ContextMenu = new ContextMenu
+            {
+                Style = (Style)FindResource("ConversationContextMenuStyle"),
+                Items = { deleteMenuItem }
+            };
+
+            item.PreviewMouseRightButtonDown += ConversationListItem_RightClick;
+
             ConversationList.Items.Add(item);
         }
 
         SidebarStatusText.Text = $"{_project.Conversations.Count} conversation{(_project.Conversations.Count == 1 ? "" : "s")}";
+    }
+
+    private void ConversationListItem_RightClick(object sender, MouseButtonEventArgs e)
+    {
+        if (sender is not ListBoxItem item)
+            return;
+
+        ConversationList.SelectedItem = item;
+        e.Handled = true;
+    }
+
+    private void ConversationContextDelete_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is not MenuItem menuItem ||
+            menuItem.Parent is not ContextMenu contextMenu ||
+            contextMenu.PlacementTarget is not ListBoxItem item ||
+            item.Tag is not string conversationId)
+            return;
+
+        var conversation = _project.Conversations
+            .FirstOrDefault(c => c.Id == conversationId);
+
+        if (conversation is null)
+            return;
+
+        var result = MessageBox.Show(
+            this,
+            $"Delete “{conversation.Title}”?\n\nThis conversation and all of its messages will be removed from this device.",
+            "Delete Conversation",
+            MessageBoxButton.YesNo,
+            MessageBoxImage.Warning);
+
+        if (result != MessageBoxResult.Yes)
+            return;
+
+        _project.Conversations.Remove(conversation);
+
+        if (_selectedConversation?.Id == conversationId)
+        {
+            _selectedConversation = null;
+            _project.ActiveConversationId = null;
+        }
+
+        RenderAll();
+        MarkDirty();
     }
 
     private void RenderContactsList()
