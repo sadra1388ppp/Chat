@@ -205,19 +205,6 @@ public partial class MainWindow : Window
             wrapper.Child = grid;
             item.Content = wrapper;
 
-            var deleteMenuItem = new MenuItem
-            {
-                Header = "Delete conversation",
-                Style = (Style)FindResource("ConversationContextMenuItemStyle")
-            };
-            deleteMenuItem.Click += ConversationContextDelete_Click;
-
-            item.ContextMenu = new ContextMenu
-            {
-                Style = (Style)FindResource("ConversationContextMenuStyle"),
-                Items = { deleteMenuItem }
-            };
-
             item.PreviewMouseRightButtonDown += ConversationListItem_RightClick;
 
             ConversationList.Items.Add(item);
@@ -232,6 +219,27 @@ public partial class MainWindow : Window
             return;
 
         ConversationList.SelectedItem = item;
+
+        var conversation = _project.Conversations
+            .FirstOrDefault(c => c.Id == item.Tag?.ToString());
+
+        if (conversation is null)
+            return;
+
+        MessageActionsFlyout.Visibility = Visibility.Collapsed;
+        _activeMessageAction = null;
+
+        ConversationActionsCountText.Text = conversation.Messages.Count == 0
+            ? "No messages yet"
+            : $"{conversation.Messages.Count} message{(conversation.Messages.Count == 1 ? "" : "s")}";
+
+        ShowOverlayFlyout(
+            ConversationActionsFlyout,
+            e.GetPosition(OverlayCanvas),
+            280,
+            245);
+
+        e.Handled = true;
     }
 
     private void ConversationContextDelete_Click(object sender, RoutedEventArgs e)
