@@ -118,7 +118,7 @@
                             <Trigger Property="IsHighlighted" Value="True">
                                 <Setter TargetName="Chrome"
                                         Property="Background"
-                                        Value="{DynamicResource DangerSoft}"/>
+                                        Value="#18D92D20"/>
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
                                 <Setter TargetName="Chrome"
