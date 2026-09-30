@@ -9,8 +9,4 @@
     <RootNamespace>Chat</RootNamespace>
     <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Emoji.Wpf" Version="0.3.4" />
-  </ItemGroup>
 </Project>
