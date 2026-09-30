@@ -1,7 +1,6 @@
 <Window x:Class="Chat.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:emoji="clr-namespace:Emoji.Wpf;assembly=Emoji.Wpf"
         PreviewMouseDown="MainWindow_PreviewMouseDown"
         Deactivated="MainWindow_Deactivated"
         PreviewKeyDown="MainWindow_PreviewKeyDown"
@@ -374,7 +373,7 @@
                             Padding="0"
                             Margin="0,0,8,0"
                             ToolTip="Emoji">
-                        <emoji:TextBlock Text="😊"
+                        <TextBlock Text="😊"
                                          FontSize="21"/>
                     </Button>
 
@@ -740,7 +739,7 @@
                                     CornerRadius="8"
                                     Background="{DynamicResource AccentSoft}"
                                     VerticalAlignment="Center">
-                                <emoji:TextBlock Text="🙂"
+                                <TextBlock Text="🙂"
                                            FontSize="15"
                                            HorizontalAlignment="Center"
                                            VerticalAlignment="Center"/>
@@ -832,12 +831,12 @@
 
                     <StackPanel Orientation="Horizontal"
                                 HorizontalAlignment="Center">
-                        <Button Tag="❤️" Click="ReactionChoice_Click" Style="{StaticResource PopupReactionButton}"><emoji:TextBlock Text="❤️" FontSize="22"/></Button>
-                        <Button Tag="👍" Click="ReactionChoice_Click" Style="{StaticResource PopupReactionButton}"><emoji:TextBlock Text="👍" FontSize="22"/></Button>
-                        <Button Tag="😂" Click="ReactionChoice_Click" Style="{StaticResource PopupReactionButton}"><emoji:TextBlock Text="😂" FontSize="22"/></Button>
-                        <Button Tag="😮" Click="ReactionChoice_Click" Style="{StaticResource PopupReactionButton}"><emoji:TextBlock Text="😮" FontSize="22"/></Button>
-                        <Button Tag="😢" Click="ReactionChoice_Click" Style="{StaticResource PopupReactionButton}"><emoji:TextBlock Text="😢" FontSize="22"/></Button>
-                        <Button Tag="🔥" Click="ReactionChoice_Click" Style="{StaticResource PopupReactionButton}"><emoji:TextBlock Text="🔥" FontSize="22"/></Button>
+                        <Button Tag="❤️" Click="ReactionChoice_Click" Style="{StaticResource PopupReactionButton}"><TextBlock Text="❤️" FontSize="22"/></Button>
+                        <Button Tag="👍" Click="ReactionChoice_Click" Style="{StaticResource PopupReactionButton}"><TextBlock Text="👍" FontSize="22"/></Button>
+                        <Button Tag="😂" Click="ReactionChoice_Click" Style="{StaticResource PopupReactionButton}"><TextBlock Text="😂" FontSize="22"/></Button>
+                        <Button Tag="😮" Click="ReactionChoice_Click" Style="{StaticResource PopupReactionButton}"><TextBlock Text="😮" FontSize="22"/></Button>
+                        <Button Tag="😢" Click="ReactionChoice_Click" Style="{StaticResource PopupReactionButton}"><TextBlock Text="😢" FontSize="22"/></Button>
+                        <Button Tag="🔥" Click="ReactionChoice_Click" Style="{StaticResource PopupReactionButton}"><TextBlock Text="🔥" FontSize="22"/></Button>
                     </StackPanel>
 
                     <TextBlock x:Name="ReactionCurrentText"
