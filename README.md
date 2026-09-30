@@ -1,4 +1,4 @@
-# Chat
+# Vibely
 
 A Windows desktop conversation-practice studio inspired by modern chat rehearsal apps.
 
@@ -12,14 +12,14 @@ A Windows desktop conversation-practice studio inspired by modern chat rehearsal
 - Message reactions, emoji insertion and sticker-style messages.
 - Practice call simulator with timer and recap.
 - PNG conversation export.
-- Offline-first JSON persistence under %LOCALAPPDATA%\Chat.
+- Offline-first JSON persistence under %LOCALAPPDATA%\Vibely.
 
 ## Stack
 
 - C#
 - WPF
 - .NET 10
-- No third-party packages required.
+- No third-party runtime packages required; the app uses only the .NET/WPF platform.
 
 ## Run
 
