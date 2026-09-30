@@ -701,65 +701,14 @@ public partial class MainWindow : Window
     {
         _activeMessageAction = message;
         CloseConversationActionsFlyout();
-        ReactionActionsFlyout.Visibility = Visibility.Collapsed;
 
         MessageActionsHeader.Text = "MESSAGE";
-        MessageReactFlyoutLabel.Text = string.IsNullOrWhiteSpace(message.Reaction)
-            ? "React to message"
-            : "Change reaction";
 
         ShowOverlayFlyout(
             MessageActionsFlyout,
             position,
             245,
             185);
-    }
-
-    private void MessageReactFlyout_Click(object sender, RoutedEventArgs e)
-    {
-        if (_activeMessageAction is null)
-            return;
-
-        MessageActionsFlyout.Visibility = Visibility.Collapsed;
-
-        var position = GetFlyoutPosition(MessageActionsFlyout);
-        ReactionCurrentText.Text = string.IsNullOrWhiteSpace(_activeMessageAction.Reaction)
-            ? "Choose a reaction"
-            : $"Current: {_activeMessageAction.Reaction}";
-        RemoveReactionFlyoutButton.Visibility =
-            string.IsNullOrWhiteSpace(_activeMessageAction.Reaction)
-                ? Visibility.Collapsed
-                : Visibility.Visible;
-
-        ShowOverlayFlyout(
-            ReactionActionsFlyout,
-            new Point(position.X, position.Y),
-            330,
-            135);
-    }
-
-    private void ReactionChoice_Click(object sender, RoutedEventArgs e)
-    {
-        if (_activeMessageAction is null ||
-            sender is not Button button ||
-            button.Tag is not string reaction)
-            return;
-
-        _activeMessageAction.Reaction = reaction;
-        CloseAllFlyouts();
-        RenderCurrentConversation();
-        MarkDirty();
-    }
-
-    private void RemoveReactionFlyout_Click(object sender, RoutedEventArgs e)
-    {
-        if (_activeMessageAction is null)
-            return;
-
-        _activeMessageAction.Reaction = null;
-        CloseAllFlyouts();
-        RenderCurrentConversation();
-        MarkDirty();
     }
 
     private void CopyMessageFlyout_Click(object sender, RoutedEventArgs e)
@@ -826,8 +775,6 @@ public partial class MainWindow : Window
         MessageActionsFlyout.IsHitTestVisible = false;
         MessageActionsFlyout.Visibility = Visibility.Collapsed;
 
-        ReactionActionsFlyout.IsHitTestVisible = false;
-        ReactionActionsFlyout.Visibility = Visibility.Collapsed;
 
 
         OverlayCanvas.IsHitTestVisible = false;
@@ -839,8 +786,7 @@ public partial class MainWindow : Window
         ConversationActionsFlyout.IsHitTestVisible = false;
         ConversationActionsFlyout.Visibility = Visibility.Collapsed;
 
-        if (MessageActionsFlyout.Visibility != Visibility.Visible &&
-            ReactionActionsFlyout.Visibility != Visibility.Visible)
+        if (MessageActionsFlyout.Visibility != Visibility.Visible)
         {
             OverlayCanvas.IsHitTestVisible = false;
         }
