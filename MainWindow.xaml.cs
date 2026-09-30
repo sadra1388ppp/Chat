@@ -248,15 +248,73 @@ public partial class MainWindow : Window
         if (conversation is null)
             return;
 
-        var result = MessageBox.Show(
-            this,
-            $"Delete “{conversation.Title}”?\n\nThis conversation and all of its messages will be removed from this device.",
-            "Delete Conversation",
-            MessageBoxButton.YesNo,
-            MessageBoxImage.Warning);
+        OpenDeleteConversationConfirmation(conversation);
+    }
 
-        if (result != MessageBoxResult.Yes)
+    private string? _pendingDeleteConversationId;
+
+    private void OpenDeleteConversationConfirmation(ChatConversation conversation)
+    {
+        CloseConversationActionsFlyout();
+
+        _pendingDeleteConversationId = conversation.Id;
+        DeleteConfirmationConversationText.Text = conversation.Title;
+        DeleteConfirmationMessageCountText.Text =
+            conversation.Messages.Count == 0
+                ? "No messages yet"
+                : $"{conversation.Messages.Count} message{(conversation.Messages.Count == 1 ? "" : "s")}";
+
+        var participant = GetParticipants(conversation).FirstOrDefault();
+        DeleteConfirmationAvatarText.Text =
+            conversation.IsGroup
+                ? "＋"
+                : string.IsNullOrWhiteSpace(participant?.AvatarIcon)
+                    ? participant?.Initial ?? "?"
+                    : participant.AvatarIcon;
+
+        DeleteConfirmationOverlay.Visibility = Visibility.Visible;
+        DeleteConfirmationOverlay.IsHitTestVisible = true;
+        OverlayCanvas.IsHitTestVisible = true;
+    }
+
+    private void CloseDeleteConversationConfirmation()
+    {
+        _pendingDeleteConversationId = null;
+        DeleteConfirmationOverlay.IsHitTestVisible = false;
+        DeleteConfirmationOverlay.Visibility = Visibility.Collapsed;
+
+        if (ConversationActionsFlyout.Visibility != Visibility.Visible &&
+            MessageActionsFlyout.Visibility != Visibility.Visible)
+        {
+            OverlayCanvas.IsHitTestVisible = false;
+        }
+    }
+
+    private void CancelDeleteConversation_Click(object sender, RoutedEventArgs e)
+    {
+        CloseDeleteConversationConfirmation();
+    }
+
+    private void DeleteConfirmationBackdrop_MouseDown(object sender, MouseButtonEventArgs e)
+    {
+        CloseDeleteConversationConfirmation();
+        e.Handled = true;
+    }
+
+    private void ConfirmDeleteConversation_Click(object sender, RoutedEventArgs e)
+    {
+        if (string.IsNullOrWhiteSpace(_pendingDeleteConversationId))
             return;
+
+        var conversationId = _pendingDeleteConversationId;
+        var conversation = _project.Conversations
+            .FirstOrDefault(c => c.Id == conversationId);
+
+        if (conversation is null)
+        {
+            CloseDeleteConversationConfirmation();
+            return;
+        }
 
         _project.Conversations.Remove(conversation);
 
@@ -266,6 +324,7 @@ public partial class MainWindow : Window
             _project.ActiveConversationId = null;
         }
 
+        CloseDeleteConversationConfirmation();
         RenderAll();
         MarkDirty();
     }
@@ -738,6 +797,10 @@ public partial class MainWindow : Window
 
         MessageActionsFlyout.IsHitTestVisible = false;
         MessageActionsFlyout.Visibility = Visibility.Collapsed;
+
+        DeleteConfirmationOverlay.IsHitTestVisible = false;
+        DeleteConfirmationOverlay.Visibility = Visibility.Collapsed;
+        _pendingDeleteConversationId = null;
 
         OverlayCanvas.IsHitTestVisible = false;
         _activeMessageAction = null;
@@ -1457,6 +1520,13 @@ public partial class MainWindow : Window
         if (e.Key != Key.Escape)
             return;
 
+        if (DeleteConfirmationOverlay.Visibility == Visibility.Visible)
+        {
+            CloseDeleteConversationConfirmation();
+            e.Handled = true;
+            return;
+        }
+
         if (SettingsView.Visibility == Visibility.Visible)
         {
             CloseSettingsView();
@@ -1493,22 +1563,7 @@ public partial class MainWindow : Window
         if (_selectedConversation is null)
             return;
 
-        var result = MessageBox.Show(
-            this,
-            $"Delete “{_selectedConversation.Title}”?",
-            "Delete Conversation",
-            MessageBoxButton.YesNo,
-            MessageBoxImage.Warning);
-
-        if (result != MessageBoxResult.Yes)
-            return;
-
-        _project.Conversations.Remove(_selectedConversation);
-        _selectedConversation = null;
-        _project.ActiveConversationId = null;
-
-        RenderAll();
-        MarkDirty();
+        OpenDeleteConversationConfirmation(_selectedConversation);
     }
 
     private void Export_Click(object sender, RoutedEventArgs e)
