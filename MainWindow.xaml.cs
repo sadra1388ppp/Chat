@@ -18,68 +18,12 @@ public partial class MainWindow : Window
     private bool _refreshingConversationList;
     private ChatMessage? _activeMessageAction;
 
-    private static readonly (string Emoji, string Name)[] EmojiCatalog =
-    [
-        ("😀", "grinning face"), ("😃", "grinning face with big eyes"), ("😄", "grinning face with smiling eyes"),
-        ("😁", "beaming face"), ("😆", "grinning squinting face"), ("😅", "grinning face with sweat"),
-        ("🤣", "rolling on the floor laughing"), ("😂", "face with tears of joy"), ("🙂", "slightly smiling face"),
-        ("🙃", "upside-down face"), ("🫠", "melting face"), ("\U0001FAEB", "cracking face"), ("😉", "winking face"),
-        ("😊", "smiling face with smiling eyes"), ("😇", "smiling face with halo"), ("🥰", "smiling face with hearts"),
-        ("😍", "smiling face with heart-eyes"), ("🤩", "star-struck"), ("😘", "face blowing a kiss"),
-        ("😎", "smiling face with sunglasses"), ("🤓", "nerd face"), ("🧐", "face with monocle"),
-        ("🤔", "thinking face"), ("🫡", "saluting face"), ("🤐", "zipper-mouth face"), ("🤨", "raised eyebrow"),
-        ("😐", "neutral face"), ("😑", "expressionless face"), ("🫥", "dotted line face"),
-        ("😏", "smirking face"), ("😒", "unamused face"), ("🙄", "rolling eyes"), ("😬", "grimacing face"),
-        ("😮‍💨", "face exhaling"), ("🤥", "lying face"), ("🫨", "shaking face"), ("🙂‍↔️", "head shaking horizontally"),
-        ("🙂‍↕️", "head shaking vertically"), ("😌", "relieved face"), ("😔", "pensive face"),
-        ("🥱", "yawning face"), ("🫩", "face with bags under eyes"), ("🤢", "nauseated face"),
-        ("🤮", "face vomiting"), ("🥵", "hot face"), ("🥶", "cold face"), ("🥴", "woozy face"),
-        ("🤯", "exploding head"), ("🥳", "partying face"), ("🥸", "disguised face"), ("🥹", "face holding back tears"),
-        ("\U0001FAEA", "distorted face"), ("🥺", "pleading face"), ("😭", "loudly crying face"), ("😱", "screaming in fear"),
-        ("😡", "enraged face"), ("😠", "angry face"), ("🤬", "symbols on mouth"), ("😈", "smiling face with horns"),
-        ("💀", "skull"), ("🤡", "clown face"), ("👻", "ghost"), ("👽", "alien"), ("🤖", "robot"),
-        ("❤️", "red heart"), ("🩷", "pink heart"), ("🧡", "orange heart"), ("💛", "yellow heart"),
-        ("💚", "green heart"), ("💙", "blue heart"), ("🩵", "light blue heart"), ("💜", "purple heart"),
-        ("🩶", "grey heart"), ("🖤", "black heart"), ("🤍", "white heart"), ("💔", "broken heart"),
-        ("❤️‍🔥", "heart on fire"), ("❤️‍🩹", "mending heart"), ("💖", "sparkling heart"), ("💕", "two hearts"),
-        ("💯", "hundred points"), ("💥", "collision"), ("💫", "dizzy"), ("✨", "sparkles"),
-        ("🔥", "fire"), ("🎉", "party popper"), ("🎊", "confetti ball"), ("💬", "speech balloon"),
-        ("👍", "thumbs up"), ("👎", "thumbs down"), ("👏", "clapping hands"), ("🙌", "raising hands"),
-        ("👐", "open hands"), ("🤝", "handshake"), ("🙏", "folded hands"), ("✌️", "victory hand"),
-        ("🤞", "crossed fingers"), ("🤟", "love-you gesture"), ("🤘", "sign of the horns"),
-        ("👌", "OK hand"), ("🤏", "pinching hand"), ("👈", "backhand index pointing left"),
-        ("👉", "backhand index pointing right"), ("☝️", "index pointing up"), ("👆", "backhand index pointing up"),
-        ("👇", "backhand index pointing down"), ("\U0001FAF9", "leftwards thumb sign"), ("\U0001FAFA", "rightwards thumb sign"),
-        ("👋", "waving hand"), ("💪", "flexed biceps"), ("🫶", "heart hands"), ("🫰", "hand with index finger and thumb crossed"),
-        ("🫵", "index pointing at the viewer"), ("🐶", "dog face"), ("🐱", "cat face"), ("🐭", "mouse face"),
-        ("🐹", "hamster"), ("🐰", "rabbit face"), ("🦊", "fox"), ("🐻", "bear"), ("🐼", "panda"),
-        ("🐨", "koala"), ("🐯", "tiger"), ("🦁", "lion"), ("🐮", "cow face"), ("🐷", "pig face"),
-        ("🐸", "frog"), ("🐵", "monkey face"), ("🙈", "see-no-evil monkey"), ("🦄", "unicorn"),
-        ("🐝", "honeybee"), ("\U0001FACC", "monarch butterfly"), ("🦖", "T-Rex"), ("🐙", "octopus"), ("🪼", "jellyfish"),
-        ("🐠", "tropical fish"), ("🐬", "dolphin"), ("🦈", "shark"), ("🐳", "spouting whale"), ("🦄", "unicorn"),
-        ("🍎", "red apple"), ("🍐", "pear"), ("🍊", "tangerine"), ("🍋", "lemon"), ("🍉", "watermelon"),
-        ("🍇", "grapes"), ("🍓", "strawberry"), ("🍒", "cherries"), ("🍑", "peach"), ("🥭", "mango"),
-        ("🍍", "pineapple"), ("🥝", "kiwi fruit"), ("🍕", "pizza"), ("🍔", "hamburger"), ("🍟", "french fries"),
-        ("🌭", "hot dog"), ("🌮", "taco"), ("🍿", "popcorn"), ("🍩", "doughnut"), ("🍪", "cookie"),
-        ("🍰", "shortcake"), ("🍫", "chocolate bar"), ("☕", "hot beverage"), ("🥤", "cup with straw"), ("\U0001FA8B", "meteor"), ("\U0001FA8C", "eraser"), ("\U0001FA8D", "net with handle"),
-        ("🥒", "cucumber"), ("\U0001FADD", "pickle"), ("🧊", "ice"), ("🏆", "trophy"), ("⚽", "soccer ball"),
-        ("🏀", "basketball"), ("🏈", "american football"), ("🎾", "tennis"), ("🎮", "video game"),
-        ("🎸", "guitar"), ("🎹", "musical keyboard"), ("🥁", "drum"), ("🎵", "musical note"),
-        ("🚗", "automobile"), ("🚕", "taxi"), ("🚌", "bus"), ("✈️", "airplane"), ("🚀", "rocket"),
-        ("🚢", "ship"), ("🏠", "house"), ("🌍", "globe showing Europe-Africa"), ("🌙", "crescent moon"),
-        ("☀️", "sun"), ("⭐", "star"), ("🌈", "rainbow"), ("❄️", "snowflake"), ("🌸", "cherry blossom"),
-        ("💡", "light bulb"), ("📱", "mobile phone"), ("💻", "laptop"), ("⌚", "watch"), ("📷", "camera"),
-        ("🎁", "wrapped gift"), ("🎈", "balloon"), ("🔔", "bell"), ("✅", "check mark button"),
-        ("❌", "cross mark"), ("❗", "exclamation mark"), ("❓", "question mark"), ("⚡", "high voltage"),
-        ("🔒", "locked"), ("🔑", "key"), ("🕹️", "joystick"), ("\U0001F6D9", "lighthouse")
-    ];
 
     public MainWindow()
     {
         InitializeComponent();
         _project = _storage.Load();
         ThemeService.ApplyTheme(_project.ThemeId);
-        BuildEmojiPicker();
         RenderAll();
         SelectInitialConversation();
         UpdateComposerState();
@@ -617,7 +561,6 @@ public partial class MainWindow : Window
             : GetContact(message.SenderId);
 
         var isOutgoing = message.SenderId == "self";
-        var isSticker = message.Kind == ChatMessageKind.Sticker;
         var bubbleColor = GetMessageBubbleColor(message.SenderId);
 
         var wrapper = new StackPanel
@@ -648,9 +591,7 @@ public partial class MainWindow : Window
             CornerRadius = isOutgoing
                 ? new CornerRadius(17, 17, 5, 17)
                 : new CornerRadius(17, 17, 17, 5),
-            Padding = isSticker
-                ? new Thickness(7)
-                : new Thickness(14, 10, 14, 10),
+            Padding = new Thickness(14, 10, 14, 10),
             MaxWidth = 620,
             Effect = new System.Windows.Media.Effects.DropShadowEffect
             {
@@ -663,7 +604,7 @@ public partial class MainWindow : Window
         bubble.Child = new TextBlock
         {
             Text = message.Text,
-            FontSize = isSticker ? 40 : 14,
+            FontSize = 14,
             TextWrapping = TextWrapping.Wrap,
             Foreground = IsLightColor(bubbleColor)
                 ? new SolidColorBrush(Color.FromRgb(17, 24, 39))
@@ -888,8 +829,6 @@ public partial class MainWindow : Window
         ReactionActionsFlyout.IsHitTestVisible = false;
         ReactionActionsFlyout.Visibility = Visibility.Collapsed;
 
-        EmojiPickerFlyout.IsHitTestVisible = false;
-        EmojiPickerFlyout.Visibility = Visibility.Collapsed;
 
         OverlayCanvas.IsHitTestVisible = false;
         _activeMessageAction = null;
@@ -1587,92 +1526,6 @@ public partial class MainWindow : Window
         CloseAllFlyouts();
     }
 
-    private void BuildEmojiPicker(string? query = null)
-    {
-        if (EmojiButtonsPanel is null)
-            return;
-
-        var normalizedQuery = query?.Trim() ?? "";
-        EmojiButtonsPanel.Children.Clear();
-
-        foreach (var entry in EmojiCatalog)
-        {
-            if (normalizedQuery.Length > 0 &&
-                !entry.Name.Contains(normalizedQuery, StringComparison.OrdinalIgnoreCase))
-                continue;
-
-            var button = new Button
-            {
-                Tag = entry.Emoji,
-                ToolTip = entry.Name,
-                Width = 42,
-                Height = 42,
-                Margin = new Thickness(2),
-                Padding = new Thickness(0),
-                Background = Brushes.Transparent,
-                BorderThickness = new Thickness(0),
-                Cursor = Cursors.Hand,
-                FocusVisualStyle = null,
-                Content = new TextBlock
-                {
-                    Text = entry.Emoji,
-                    FontSize = 23,
-                    HorizontalAlignment = HorizontalAlignment.Center,
-                    VerticalAlignment = VerticalAlignment.Center
-                }
-            };
-
-            button.Click += EmojiChoice_Click;
-            EmojiButtonsPanel.Children.Add(button);
-        }
-    }
-
-    private void ToggleEmojiPicker_Click(object sender, RoutedEventArgs e)
-    {
-        if (_selectedConversation is null)
-            return;
-
-        if (EmojiPickerFlyout.Visibility == Visibility.Visible)
-        {
-            CloseAllFlyouts();
-            MessageInput.Focus();
-            return;
-        }
-
-        CloseAllFlyouts();
-        EmojiSearchBox.Clear();
-        BuildEmojiPicker();
-
-        EmojiPickerFlyout.Visibility = Visibility.Visible;
-        EmojiPickerFlyout.IsHitTestVisible = true;
-        OverlayCanvas.IsHitTestVisible = true;
-
-        var point = EmojiButton.TranslatePoint(new Point(0, 0), OverlayCanvas);
-        var pickerHeight = 430.0;
-        var left = Math.Clamp(point.X - 8, 12, Math.Max(12, OverlayCanvas.ActualWidth - 402));
-        var top = Math.Clamp(point.Y - pickerHeight - 10, 86, Math.Max(86, OverlayCanvas.ActualHeight - pickerHeight - 12));
-
-        Canvas.SetLeft(EmojiPickerFlyout, left);
-        Canvas.SetTop(EmojiPickerFlyout, top);
-    }
-
-    private void EmojiSearchBox_TextChanged(object sender, TextChangedEventArgs e)
-    {
-        BuildEmojiPicker(EmojiSearchBox.Text);
-    }
-
-    private void EmojiChoice_Click(object sender, RoutedEventArgs e)
-    {
-        if (sender is not Button button ||
-            button.Tag is not string emoji)
-            return;
-
-        var caret = Math.Clamp(MessageInput.CaretIndex, 0, MessageInput.Text.Length);
-        MessageInput.Text = MessageInput.Text.Insert(caret, emoji);
-        MessageInput.CaretIndex = caret + emoji.Length;
-        MessageInput.Focus();
-    }
-
     private void MainWindow_PreviewMouseDown(object sender, MouseButtonEventArgs e)
     {
         var source = e.OriginalSource as DependencyObject;
@@ -1680,8 +1533,6 @@ public partial class MainWindow : Window
         if (IsInsideElement(source, ConversationActionsFlyout) ||
             IsInsideElement(source, MessageActionsFlyout) ||
             IsInsideElement(source, ReactionActionsFlyout) ||
-            IsInsideElement(source, EmojiPickerFlyout) ||
-            IsInsideElement(source, EmojiButton) ||
             IsInsideElement(source, MoreButton))
             return;
 
@@ -1816,7 +1667,6 @@ public partial class MainWindow : Window
         MessageInput.IsEnabled = enabled;
         SendButton.IsEnabled = enabled;
         SendAsButton.IsEnabled = enabled;
-        EmojiButton.IsEnabled = enabled;
         SendAsIndicator.Opacity = enabled ? 1 : 0.45;
     }
 
