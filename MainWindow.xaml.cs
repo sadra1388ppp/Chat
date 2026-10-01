@@ -368,7 +368,7 @@ public partial class MainWindow : Window
             row.Children.Add(avatar);
             row.Children.Add(text);
 
-            ContactsList.Items.Add(new ListBoxItem
+            var item = new ListBoxItem
             {
                 Content = new Border
                 {
@@ -380,8 +380,49 @@ public partial class MainWindow : Window
                 Tag = contact.Id,
                 Padding = new Thickness(4),
                 Margin = new Thickness(0, 0, 0, 3)
-            });
+            };
+
+            var contactMenu = new ContextMenu
+            {
+                Background = GetThemeBrush("PanelBackground"),
+                BorderBrush = GetThemeBrush("Divider"),
+                BorderThickness = new Thickness(1),
+                Padding = new Thickness(5)
+            };
+
+            var deleteContactItem = new MenuItem
+            {
+                Header = "Delete Contact",
+                Foreground = GetThemeBrush("Danger"),
+                FontSize = 12.5,
+                Padding = new Thickness(10, 7, 18, 7)
+            };
+
+            deleteContactItem.Click += (_, _) => DeleteContact_Click(contact);
+            contactMenu.Items.Add(deleteContactItem);
+            item.ContextMenu = contactMenu;
+
+            ContactsList.Items.Add(item);
         }
+    }
+
+    private void DeleteContact_Click(ChatCharacter contact)
+    {
+        var result = MessageBox.Show(
+            this,
+            $"Delete \"{contact.Name}\" from your contacts?\n\nThe contact will be removed, but existing conversations will stay.",
+            "Delete Contact",
+            MessageBoxButton.YesNo,
+            MessageBoxImage.Warning);
+
+        if (result != MessageBoxResult.Yes)
+            return;
+
+        _project.Contacts.Remove(contact);
+
+        CloseAllFlyouts();
+        RenderAll();
+        MarkDirty();
     }
 
     private void RenderCurrentConversation()
