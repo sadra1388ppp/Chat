@@ -1,0 +1,8 @@
+.vs/
+bin/
+obj/
+publish/
+artifacts/
+Installer/*.exe
+*.user
+*.suo
