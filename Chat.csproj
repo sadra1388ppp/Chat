@@ -5,8 +5,9 @@
     <UseWPF>true</UseWPF>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <AssemblyName>Chat</AssemblyName>
+    <AssemblyName>Vibely</AssemblyName>
     <RootNamespace>Chat</RootNamespace>
+    <ApplicationIcon>Assets\Vibely.ico</ApplicationIcon>
     <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
 </Project>
