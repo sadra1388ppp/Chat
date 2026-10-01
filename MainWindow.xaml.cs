@@ -213,6 +213,35 @@ public partial class MainWindow : Window
         SidebarStatusText.Text = $"{_project.Conversations.Count} conversation{(_project.Conversations.Count == 1 ? "" : "s")}";
     }
 
+    private void ConversationListItem_RightClick(object sender, MouseButtonEventArgs e)
+    {
+        if (sender is not ListBoxItem item)
+            return;
+
+        ConversationList.SelectedItem = item;
+
+        var conversation = _project.Conversations
+            .FirstOrDefault(c => c.Id == item.Tag?.ToString());
+
+        if (conversation is null)
+            return;
+
+        MessageActionsFlyout.Visibility = Visibility.Collapsed;
+        _activeMessageAction = null;
+
+        ConversationActionsCountText.Text = conversation.Messages.Count == 0
+            ? "No messages yet"
+            : $"{conversation.Messages.Count} message{(conversation.Messages.Count == 1 ? "" : "s")}";
+
+        ShowOverlayFlyout(
+            ConversationActionsFlyout,
+            e.GetPosition(OverlayCanvas),
+            280,
+            245);
+
+        e.Handled = true;
+    }
+
     private string? _pendingDeleteConversationId;
 
     private void OpenDeleteConversationConfirmation(ChatConversation conversation)
@@ -424,6 +453,25 @@ public partial class MainWindow : Window
 
             ContactsList.Items.Add(item);
         }
+    }
+
+    private void DeleteContact_Click(ChatCharacter contact)
+    {
+        var result = MessageBox.Show(
+            this,
+            $"Delete \"{contact.Name}\" from your contacts?\n\nThe contact will be removed, but existing conversations will stay.",
+            "Delete Contact",
+            MessageBoxButton.YesNo,
+            MessageBoxImage.Warning);
+
+        if (result != MessageBoxResult.Yes)
+            return;
+
+        _project.Contacts.Remove(contact);
+
+        CloseAllFlyouts();
+        RenderAll();
+        MarkDirty();
     }
 
     private void RenderCurrentConversation()
