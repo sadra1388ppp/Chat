@@ -205,7 +205,7 @@ public partial class MainWindow : Window
             wrapper.Child = grid;
             item.Content = wrapper;
 
-            item.PreviewMouseRightButtonDown += ConversationListItem_RightClick;
+            item.ContextMenu = CreateConversationContextMenu(conversation);
 
             ConversationList.Items.Add(item);
         }
@@ -213,33 +213,138 @@ public partial class MainWindow : Window
         SidebarStatusText.Text = $"{_project.Conversations.Count} conversation{(_project.Conversations.Count == 1 ? "" : "s")}";
     }
 
-    private void ConversationListItem_RightClick(object sender, MouseButtonEventArgs e)
+    private ContextMenu CreateConversationContextMenu(ChatConversation conversation)
     {
-        if (sender is not ListBoxItem item)
-            return;
+        var menu = new ContextMenu
+        {
+            Style = (Style)FindResource("ProfessionalContextMenu"),
+            DataContext = conversation
+        };
 
-        ConversationList.SelectedItem = item;
+        var participants = GetParticipants(conversation);
+        var participantText = conversation.IsGroup
+            ? $"{participants.Count} participants"
+            : participants.FirstOrDefault()?.Name ?? "Conversation";
 
-        var conversation = _project.Conversations
-            .FirstOrDefault(c => c.Id == item.Tag?.ToString());
+        menu.Items.Add(new MenuItem
+        {
+            Header = $"{conversation.Title}  •  {participantText}",
+            Style = (Style)FindResource("ProfessionalContextMenuHeader"),
+            Icon = CreateContextMenuIcon(conversation.IsGroup ? "＋" : "●", false)
+        });
 
-        if (conversation is null)
-            return;
+        menu.Items.Add(new Separator
+        {
+            Style = (Style)FindResource("ProfessionalContextMenuSeparator")
+        });
 
-        MessageActionsFlyout.Visibility = Visibility.Collapsed;
-        _activeMessageAction = null;
+        menu.Items.Add(CreateContextMenuItem(
+            "✦",
+            "Customize chat",
+            false,
+            () => ToggleSettingsForConversation(conversation)));
 
-        ConversationActionsCountText.Text = conversation.Messages.Count == 0
-            ? "No messages yet"
-            : $"{conversation.Messages.Count} message{(conversation.Messages.Count == 1 ? "" : "s")}";
+        menu.Items.Add(CreateContextMenuItem(
+            "↗",
+            "Export as PNG",
+            false,
+            () =>
+            {
+                _selectedConversation = conversation;
+                Export_Click(this, new RoutedEventArgs());
+            }));
 
-        ShowOverlayFlyout(
-            ConversationActionsFlyout,
-            e.GetPosition(OverlayCanvas),
-            280,
-            245);
+        menu.Items.Add(new Separator
+        {
+            Style = (Style)FindResource("ProfessionalContextMenuSeparator")
+        });
 
-        e.Handled = true;
+        menu.Items.Add(CreateContextMenuItem(
+            "⌫",
+            "Delete conversation",
+            true,
+            () =>
+            {
+                _selectedConversation = conversation;
+                OpenDeleteConversationConfirmation(conversation);
+            }));
+
+        return menu;
+    }
+
+    private ContextMenu CreateContactContextMenu(ChatCharacter contact)
+    {
+        var menu = new ContextMenu
+        {
+            Style = (Style)FindResource("ProfessionalContextMenu"),
+            DataContext = contact
+        };
+
+        menu.Items.Add(new MenuItem
+        {
+            Header = $"{contact.Name}  •  {contact.Role}",
+            Style = (Style)FindResource("ProfessionalContextMenuHeader"),
+            Icon = CreateContextMenuIcon(
+                string.IsNullOrWhiteSpace(contact.AvatarIcon) ? contact.Initial : contact.AvatarIcon,
+                false)
+        });
+
+        menu.Items.Add(new Separator
+        {
+            Style = (Style)FindResource("ProfessionalContextMenuSeparator")
+        });
+
+        menu.Items.Add(CreateContextMenuItem(
+            "⌫",
+            "Delete contact",
+            true,
+            () => DeleteContact_Click(contact)));
+
+        return menu;
+    }
+
+    private MenuItem CreateContextMenuItem(
+        string icon,
+        string header,
+        bool danger,
+        Action action)
+    {
+        var item = new MenuItem
+        {
+            Header = header,
+            Style = (Style)FindResource("ProfessionalContextMenuItem"),
+            Foreground = danger
+                ? GetThemeBrush("Danger")
+                : GetThemeBrush("TextPrimary"),
+            Icon = CreateContextMenuIcon(icon, danger)
+        };
+
+        item.Click += (_, _) => action();
+        return item;
+    }
+
+    private static TextBlock CreateContextMenuIcon(string icon, bool danger)
+    {
+        return new TextBlock
+        {
+            Text = icon,
+            FontSize = danger ? 14 : 13,
+            FontWeight = FontWeights.SemiBold,
+            Foreground = danger
+                ? Application.Current.Resources["Danger"] as Brush
+                : Application.Current.Resources["Accent"] as Brush,
+            HorizontalAlignment = HorizontalAlignment.Center,
+            VerticalAlignment = VerticalAlignment.Center
+        };
+    }
+
+    private void ToggleSettingsForConversation(ChatConversation conversation)
+    {
+        _selectedConversation = conversation;
+        _project.ActiveConversationId = conversation.Id;
+        ConversationList.SelectedValue = conversation.Id;
+        RenderCurrentConversation();
+        ToggleSettingsView();
     }
 
     private string? _pendingDeleteConversationId;
@@ -382,25 +487,7 @@ public partial class MainWindow : Window
                 Margin = new Thickness(0, 0, 0, 3)
             };
 
-            var contactMenu = new ContextMenu
-            {
-                Background = GetThemeBrush("PanelBackground"),
-                BorderBrush = GetThemeBrush("Divider"),
-                BorderThickness = new Thickness(1),
-                Padding = new Thickness(5)
-            };
-
-            var deleteContactItem = new MenuItem
-            {
-                Header = "Delete Contact",
-                Foreground = GetThemeBrush("Danger"),
-                FontSize = 12.5,
-                Padding = new Thickness(10, 7, 18, 7)
-            };
-
-            deleteContactItem.Click += (_, _) => DeleteContact_Click(contact);
-            contactMenu.Items.Add(deleteContactItem);
-            item.ContextMenu = contactMenu;
+            item.ContextMenu = CreateContactContextMenu(contact);
 
             ContactsList.Items.Add(item);
         }
