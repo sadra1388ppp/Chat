@@ -1621,6 +1621,7 @@ public partial class MainWindow : Window
 
         if (IsInsideElement(source, ConversationActionsFlyout) ||
             IsInsideElement(source, MessageActionsFlyout) ||
+            IsInsideElement(source, DeleteConfirmationOverlay) ||
             IsInsideElement(source, MoreButton))
             return;
 
