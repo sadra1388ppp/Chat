@@ -1592,8 +1592,7 @@ public partial class MainWindow : Window
 
     private void MainWindow_PreviewKeyDown(object sender, KeyEventArgs e)
     {
-        if (e.Key == Key.D1 &&
-            (Keyboard.Modifiers & ModifierKeys.Shift) == ModifierKeys.Shift)
+        if (e.Key == Key.LeftCtrl || e.Key == Key.RightCtrl)
         {
             CycleSendAsParticipant();
             e.Handled = true;
