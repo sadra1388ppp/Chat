@@ -205,146 +205,12 @@ public partial class MainWindow : Window
             wrapper.Child = grid;
             item.Content = wrapper;
 
-            item.ContextMenu = CreateConversationContextMenu(conversation);
+            item.PreviewMouseRightButtonDown += ConversationListItem_RightClick;
 
             ConversationList.Items.Add(item);
         }
 
         SidebarStatusText.Text = $"{_project.Conversations.Count} conversation{(_project.Conversations.Count == 1 ? "" : "s")}";
-    }
-
-    private ContextMenu CreateConversationContextMenu(ChatConversation conversation)
-    {
-        var menu = new ContextMenu
-        {
-            Style = (Style)FindResource("ProfessionalContextMenu"),
-            DataContext = conversation
-        };
-
-        var participants = GetParticipants(conversation);
-        var participantText = conversation.IsGroup
-            ? $"{participants.Count} participants"
-            : participants.FirstOrDefault()?.Name ?? "Conversation";
-
-        menu.Items.Add(new MenuItem
-        {
-            Header = $"{conversation.Title}  •  {participantText}",
-            Style = (Style)FindResource("ProfessionalContextMenuHeader"),
-            Icon = CreateContextMenuIcon(conversation.IsGroup ? "＋" : "●", false)
-        });
-
-        menu.Items.Add(new Separator
-        {
-            Style = (Style)FindResource("ProfessionalContextMenuSeparator")
-        });
-
-        menu.Items.Add(CreateContextMenuItem(
-            "✦",
-            "Customize chat",
-            false,
-            () => ToggleSettingsForConversation(conversation)));
-
-        menu.Items.Add(CreateContextMenuItem(
-            "↗",
-            "Export as PNG",
-            false,
-            () =>
-            {
-                _selectedConversation = conversation;
-                Export_Click(this, new RoutedEventArgs());
-            }));
-
-        menu.Items.Add(new Separator
-        {
-            Style = (Style)FindResource("ProfessionalContextMenuSeparator")
-        });
-
-        menu.Items.Add(CreateContextMenuItem(
-            "⌫",
-            "Delete conversation",
-            true,
-            () =>
-            {
-                _selectedConversation = conversation;
-                OpenDeleteConversationConfirmation(conversation);
-            }));
-
-        return menu;
-    }
-
-    private ContextMenu CreateContactContextMenu(ChatCharacter contact)
-    {
-        var menu = new ContextMenu
-        {
-            Style = (Style)FindResource("ProfessionalContextMenu"),
-            DataContext = contact
-        };
-
-        menu.Items.Add(new MenuItem
-        {
-            Header = $"{contact.Name}  •  {contact.Role}",
-            Style = (Style)FindResource("ProfessionalContextMenuHeader"),
-            Icon = CreateContextMenuIcon(
-                string.IsNullOrWhiteSpace(contact.AvatarIcon) ? contact.Initial : contact.AvatarIcon,
-                false)
-        });
-
-        menu.Items.Add(new Separator
-        {
-            Style = (Style)FindResource("ProfessionalContextMenuSeparator")
-        });
-
-        menu.Items.Add(CreateContextMenuItem(
-            "⌫",
-            "Delete contact",
-            true,
-            () => DeleteContact_Click(contact)));
-
-        return menu;
-    }
-
-    private MenuItem CreateContextMenuItem(
-        string icon,
-        string header,
-        bool danger,
-        Action action)
-    {
-        var item = new MenuItem
-        {
-            Header = header,
-            Style = (Style)FindResource("ProfessionalContextMenuItem"),
-            Foreground = danger
-                ? GetThemeBrush("Danger")
-                : GetThemeBrush("TextPrimary"),
-            Icon = CreateContextMenuIcon(icon, danger)
-        };
-
-        item.Click += (_, _) => action();
-        return item;
-    }
-
-    private static TextBlock CreateContextMenuIcon(string icon, bool danger)
-    {
-        return new TextBlock
-        {
-            Text = icon,
-            FontSize = danger ? 14 : 13,
-            FontWeight = FontWeights.SemiBold,
-            Foreground = danger
-                ? Application.Current.Resources["Danger"] as Brush
-                : Application.Current.Resources["Accent"] as Brush,
-            HorizontalAlignment = HorizontalAlignment.Center,
-            VerticalAlignment = VerticalAlignment.Center
-        };
-    }
-
-    private void ToggleSettingsForConversation(ChatConversation conversation)
-    {
-        _selectedConversation = conversation;
-        _project.ActiveConversationId = conversation.Id;
-        ConversationList.SelectedValue = conversation.Id;
-        RenderCurrentConversation();
-        ToggleSettingsView();
     }
 
     private string? _pendingDeleteConversationId;
@@ -443,35 +309,81 @@ public partial class MainWindow : Window
         {
             var avatar = CreateContactAvatar(contact, 46);
 
-            var text = new StackPanel
+            var details = new StackPanel
             {
-                Margin = new Thickness(11, 0, 0, 0),
+                Margin = new Thickness(11, 0, 4, 0),
                 VerticalAlignment = VerticalAlignment.Center
             };
 
-            text.Children.Add(new TextBlock
+            details.Children.Add(new TextBlock
             {
                 Text = contact.Name,
                 FontSize = 13,
-                FontWeight = FontWeights.SemiBold
+                FontWeight = FontWeights.SemiBold,
+                Foreground = GetThemeBrush("TextPrimary"),
+                TextTrimming = TextTrimming.CharacterEllipsis
             });
 
-            text.Children.Add(new TextBlock
+            if (!string.IsNullOrWhiteSpace(contact.Role))
             {
-                Text = contact.Role,
-                FontSize = 11,
-                Foreground = GetThemeBrush("TextSecondary"),
-                Margin = new Thickness(0, 3, 0, 0)
-            });
+                details.Children.Add(new TextBlock
+                {
+                    Text = contact.Role,
+                    FontSize = 11,
+                    Foreground = GetThemeBrush("TextSecondary"),
+                    Margin = new Thickness(0, 2, 0, 0),
+                    TextTrimming = TextTrimming.CharacterEllipsis
+                });
+            }
 
-            var row = new Grid();
-            row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(42) });
-            row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            if (!string.IsNullOrWhiteSpace(contact.PhoneNumber))
+            {
+                details.Children.Add(new TextBlock
+                {
+                    Text = contact.PhoneNumber,
+                    FontSize = 10.5,
+                    Foreground = GetThemeBrush("TextSecondary"),
+                    Margin = new Thickness(0, 2, 0, 0),
+                    TextTrimming = TextTrimming.CharacterEllipsis,
+                    ToolTip = contact.PhoneNumber
+                });
+            }
+
+            if (!string.IsNullOrWhiteSpace(contact.Context))
+            {
+                details.Children.Add(new TextBlock
+                {
+                    Text = contact.Context,
+                    FontSize = 10.5,
+                    Foreground = GetThemeBrush("TextSecondary"),
+                    Opacity = 0.88,
+                    Margin = new Thickness(0, 2, 0, 0),
+                    TextWrapping = TextWrapping.Wrap,
+                    TextTrimming = TextTrimming.CharacterEllipsis,
+                    MaxHeight = 30,
+                    ToolTip = contact.Context
+                });
+            }
+
+            var row = new Grid
+            {
+                HorizontalAlignment = HorizontalAlignment.Stretch,
+                MinHeight = 62
+            };
+
+            row.ColumnDefinitions.Add(new ColumnDefinition
+            {
+                Width = new GridLength(46)
+            });
+            row.ColumnDefinitions.Add(new ColumnDefinition
+            {
+                Width = new GridLength(1, GridUnitType.Star)
+            });
 
             Grid.SetColumn(avatar, 0);
-            Grid.SetColumn(text, 1);
+            Grid.SetColumn(details, 1);
             row.Children.Add(avatar);
-            row.Children.Add(text);
+            row.Children.Add(details);
 
             var item = new ListBoxItem
             {
@@ -480,36 +392,38 @@ public partial class MainWindow : Window
                     Background = Brushes.Transparent,
                     CornerRadius = new CornerRadius(12),
                     Padding = new Thickness(10),
+                    HorizontalAlignment = HorizontalAlignment.Stretch,
                     Child = row
                 },
                 Tag = contact.Id,
                 Padding = new Thickness(4),
-                Margin = new Thickness(0, 0, 0, 3)
+                Margin = new Thickness(0, 0, 0, 3),
+                HorizontalContentAlignment = HorizontalAlignment.Stretch
             };
 
-            item.ContextMenu = CreateContactContextMenu(contact);
+            var contactMenu = new ContextMenu
+            {
+                Background = GetThemeBrush("PanelBackground"),
+                BorderBrush = GetThemeBrush("Divider"),
+                BorderThickness = new Thickness(1),
+                Padding = new Thickness(5)
+            };
+
+            var deleteContactItem = new MenuItem
+            {
+                Header = "Delete Contact",
+                Foreground = GetThemeBrush("Danger"),
+                FontSize = 12.5,
+                FontWeight = FontWeights.SemiBold,
+                Padding = new Thickness(10, 7, 18, 7)
+            };
+
+            deleteContactItem.Click += (_, _) => DeleteContact_Click(contact);
+            contactMenu.Items.Add(deleteContactItem);
+            item.ContextMenu = contactMenu;
 
             ContactsList.Items.Add(item);
         }
-    }
-
-    private void DeleteContact_Click(ChatCharacter contact)
-    {
-        var result = MessageBox.Show(
-            this,
-            $"Delete \"{contact.Name}\" from your contacts?\n\nThe contact will be removed, but existing conversations will stay.",
-            "Delete Contact",
-            MessageBoxButton.YesNo,
-            MessageBoxImage.Warning);
-
-        if (result != MessageBoxResult.Yes)
-            return;
-
-        _project.Contacts.Remove(contact);
-
-        CloseAllFlyouts();
-        RenderAll();
-        MarkDirty();
     }
 
     private void RenderCurrentConversation()
